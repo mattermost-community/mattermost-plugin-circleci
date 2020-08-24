@@ -1,38 +1,33 @@
-# Plugin Starter Template [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-starter-template/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-starter-template)
+# Mattermost Plugin CircleCI [![CircleCI branch](https://img.shields.io/circleci/project/github/nathanaelhoun/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-circleci)
 
-This plugin serves as a starting point for writing a Mattermost plugin. Feel free to base your own plugin off this repository.
+A Work-In-Progress [CircleCI](https://circleci.com) plugin to interact with jobs and builds, with slash commands in Mattermost.
 
-To learn more about plugins, see [our plugin documentation](https://developers.mattermost.com/extend/plugins/).
+To learn more about plugins, see [the Mattermost plugin documentation](https://developers.mattermost.com/extend/plugins/).
 
-## Getting Started
-Use GitHub's template feature to make a copy of this repository by clicking the "Use this template" button.
+**This plugin is under development and is not ready for production**
 
-Alternatively shallow clone the repository matching your plugin name:
-```
-git clone --depth 1 https://github.com/mattermost/mattermost-plugin-starter-template com.example.my-plugin
-```
+## Features (tracking list)
 
-Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`.
+-   [ ] Get help
 
-Edit `plugin.json` with your `id`, `name`, and `description`:
-```
-{
-    "id": "com.example.my-plugin",
-    "name": "My Plugin",
-    "description": "A plugin to enhance Mattermost."
-}
-```
+-   [ ] Connect and disconnect to CircleCI
 
-Build your plugin:
-```
-make
-```
+-   [ ] Webhook notifications about successful and failed CircleCI builds
 
-This will produce a single plugin file (with support for multiple architectures) for upload to your Mattermost server:
+-   [ ] Interact with CircleCI jobs
 
-```
-dist/com.example.my-plugin.tar.gz
-```
+    -   [ ] Trigger jobs with and without parameters
+    -   [ ] Abort a job
+    -   [ ] Configure/create/delete jobs
+    -   [ ] Get logs from a job in a file attachment, not as a message (this is because the logs can be huge, so it’s easier to preview a file attachment)
+    -   [ ] Get artifacts
+    -   [ ] Get test results
+
+-   [ ] Meet [requirements](https://developers.mattermost.com/extend/plugins/community-plugin-marketplace/#requirements-for-adding-a-community-plugin-to-the-marketplace) to publish to Marketplace
+
+## Installation
+
+_Coming_
 
 ## Development
 
@@ -53,17 +48,20 @@ If your Mattermost server is running locally, you can enable [local mode](https:
 ```
 
 and then deploy your plugin:
+
 ```
 make deploy
 ```
 
 You may also customize the Unix socket path:
+
 ```
 export MM_LOCALSOCKETPATH=/var/tmp/alternate_local.socket
 make deploy
 ```
 
 If developing a plugin with a webapp, watch for changes and deploy those automatically:
+
 ```
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
@@ -73,6 +71,7 @@ make watch
 ### Deploying with credentials
 
 Alternatively, you can authenticate with the server's API with credentials:
+
 ```
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_USERNAME=admin
@@ -81,37 +80,18 @@ make deploy
 ```
 
 or with a [personal access token](https://docs.mattermost.com/developer/personal-access-tokens.html):
+
 ```
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
 make deploy
 ```
 
-## Q&A
+## License
 
-### How do I make a server-only or web app-only plugin?
+Apache License.
 
-Simply delete the `server` or `webapp` folders and remove the corresponding sections from `plugin.json`. The build scripts will skip the missing portions automatically.
+## Thanks to
 
-### How do I include assets in the plugin bundle?
-
-Place them into the `assets` directory. To use an asset at runtime, build the path to your asset and open as a regular file:
-
-```go
-bundlePath, err := p.API.GetBundlePath()
-if err != nil {
-    return errors.Wrap(err, "failed to get bundle path")
-}
-
-profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "profile_image.png"))
-if err != nil {
-    return errors.Wrap(err, "failed to read profile image")
-}
-
-if appErr := p.API.SetProfileImage(userID, profileImage); appErr != nil {
-    return errors.Wrap(err, "failed to set profile image")
-}
-```
-
-### How do I build the plugin with unminified JavaScript?
-Setting the `MM_DEBUG` environment variable will invoke the debug builds. The simplist way to do this is to simply include this variable in your calls to `make` (e.g. `make dist MM_DEBUG=1`).
+-   Another [CircleCI Plugin](https://github.com/chetanyakan/mattermost-plugin-circleci) by @chetanyakan
+-   [Mattermost](https://mattermost.com) for their product
