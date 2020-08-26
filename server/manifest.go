@@ -26,7 +26,7 @@ const manifestStr = `
     "executable": ""
   },
   "settings_schema": {
-    "header": "",
+    "header": "This plugin is under development. To contribute or submit a request, visit the [repository on Github](https://github.com/nathanaelhoun/mattermost-plugin-circleci/)",
     "footer": "",
     "settings": []
   }

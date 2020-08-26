@@ -8,11 +8,11 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 
 ## Features (tracking list)
 
--   [ ] Get help
+-   [x] Get help
 
--   [ ] Connect and disconnect to CircleCI
+-   [x] Connect to CircleCI, see your profile, disconnect
 
--   [ ] Webhook notifications about successful and failed CircleCI builds
+-   [ ] Setup webhook notifications about successful and failed CircleCI builds
 
 -   [ ] Interact with CircleCI jobs
 
