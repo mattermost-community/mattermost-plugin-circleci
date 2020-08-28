@@ -6,7 +6,20 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 
 **This plugin is under development and is not ready for production**
 
-## Features (tracking list)
+## Features
+
+#### Connect to your CircleCI account
+
+-   `/circleci account view` - Get informations about yourself
+-   `/circleci account connect [API token]` - Connect your Mattermost account to CircleCI
+-   `/circleci account disconnect` - Disconnect your Mattermost account from CircleCI
+
+#### Manage CircleCI projects
+
+-   `/circleci project list-followed` - List followed projects
+-   `/circleci project recent-build [username] [repository] [branch]` - List the 10 last builds for a project
+
+## TODO (tracking list)
 
 -   [x] Get help
 
@@ -28,6 +41,39 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 ## Installation
 
 _Coming_
+
+## Contributing
+
+### I saw a bug, I have a feature request or a suggestion
+
+Please fill a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
+
+### I want to code
+
+Pull Requests are welcome! You can contact me on the [Mattermost Community ~plugin-circleci channel](https://community.mattermost.com/core/channels/plugin-circleci) where I am `@nathanaelhoun`.
+
+#### Adding a command
+
+If you want to add a sub-command in the corresponding `server/commands_*.go` file, you can:
+
+1. Set the `commandNameTrigger`, `commandNameHint` and `commandNameHelpText` constants in the top of this file
+2. Add it to the `server/commands.go→getAutocompleteData()` method
+3. Code the `executeCommandName()` method in the corresponding file
+
+You can also add a new group of methods by typing `make new-commands-file` and it will create the skeleton of the file for you!
+
+#### Updating the README
+
+To update the `README.md` Features list, you can use the `/circleci help` output. To do this, paste this code in the `server/command.go->ExecuteCommand()` method to get the full Markdown message when typing `/circleci help`. Remember to remove this part once done! (do not commit it please)
+
+```golang
+// Development : get the plugin help text to update README.md
+_, _ = p.API.CreatePost(&model.Post{
+    ChannelId: args.ChannelId,
+    UserId:    p.botUserID,
+    Message:   help,
+})
+```
 
 ## Development
 
@@ -93,5 +139,6 @@ Apache License.
 
 ## Thanks to
 
--   Another [CircleCI Plugin](https://github.com/chetanyakan/mattermost-plugin-circleci) by @chetanyakan
--   [Mattermost](https://mattermost.com) for their product
+-   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI Go API](https://github.com/jszwedko/go-circleci)
+-   Another [CircleCI Plugin](https://github.com/chetanyakan/mattermost-plugin-circleci) by **[@chetanyakan](https://github.com/chetanyakan)**
+-   [Mattermost](https://mattermost.org) for providing a good software and having a great community

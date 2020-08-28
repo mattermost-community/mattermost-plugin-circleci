@@ -8,21 +8,53 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func (p *Plugin) executeMe(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	token, exists := p.getTokenFromKVStore(args.UserId)
-	if !exists {
-		return p.sendEphemeralResponse(args, notConnectedText), nil
+const (
+	accountTrigger            = "account"
+	accountHint               = "[subcommand]"
+	accountHelpText           = "Available subcommands: " + accountViewTrigger + ", " + accountConnectTrigger + ", " + accountDisconnectTrigger
+	accountViewTrigger        = "view"
+	AccountViewHelpText       = "Get informations about yourself"
+	accountConnectTrigger     = "connect"
+	accountConnectHint        = "[API token]"
+	accountConnectHelpText    = "Connect your Mattermost account to CircleCI"
+	accountDisconnectTrigger  = "disconnect"
+	accountDisconnectHelpText = "Disconnect your Mattermost account from CircleCI"
+)
+
+func (p *Plugin) executeAccount(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+	subcommand := "help"
+	if len(split) > 0 {
+		subcommand = split[0]
 	}
 
+	switch subcommand {
+	case accountViewTrigger:
+		return p.executeAccountView(args, circleciToken)
+
+	case accountConnectTrigger:
+		return p.executeAccountConnect(args, split[1:])
+
+	case accountDisconnectTrigger:
+		return p.executeAccountDisconnect(args)
+
+	case commandHelpTrigger:
+		return p.sendHelpResponse(accountTrigger)
+
+	default:
+		return p.sendIncorrectSubcommandResponse(accountTrigger)
+	}
+}
+
+func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*model.CommandResponse, *model.AppError) {
 	user, ok := p.getCircleCIUserInfo(token)
 	if !ok {
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
-	circleciClient := &circleci.Client{Token: token}
-	projects, _ := circleciClient.ListProjects()
+	projects, _ := p.getCircleciUserProjects(token)
 	projectsListString := ""
 	for _, project := range projects {
+		// TODO : add circleCI url
 		projectsListString += fmt.Sprintf("- [%s](%s) owned by %s\n", project.Reponame, project.VCSURL, project.Username)
 	}
 
@@ -32,8 +64,8 @@ func (p *Plugin) executeMe(args *model.CommandArgs) (*model.CommandResponse, *mo
 		[]*model.SlackAttachment{
 			{
 				ThumbURL: user.AvatarURL,
-				Fallback: "User:" + getFormattedNameAndLogin(user) + ". Email:" + *user.SelectedEmail,
-				Pretext:  "Information for CircleCI user " + getFormattedNameAndLogin(user),
+				Fallback: "User:" + circleciUserToString(user) + ". Email:" + *user.SelectedEmail,
+				Pretext:  "Information for CircleCI user " + circleciUserToString(user),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Name",
@@ -58,7 +90,7 @@ func (p *Plugin) executeMe(args *model.CommandArgs) (*model.CommandResponse, *mo
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeConnect(args *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 1 {
 		return p.sendEphemeralResponse(args, "Please tell me your token. If you don't have a CircleCI Personal API Token, you can get one from your [Account Dashboard](https://circleci.com/account/api)"), nil
 	}
@@ -69,7 +101,7 @@ func (p *Plugin) executeConnect(args *model.CommandArgs, split []string) (*model
 			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
 		}
 
-		return p.sendEphemeralResponse(args, "You are already connected as "+getFormattedNameAndLogin(user)), nil
+		return p.sendEphemeralResponse(args, "You are already connected as "+circleciUserToString(user)), nil
 	}
 
 	circleciToken := split[0]
@@ -87,14 +119,10 @@ func (p *Plugin) executeConnect(args *model.CommandArgs, split []string) (*model
 		return p.sendEphemeralResponse(args, "Internal error when storing your token"), nil
 	}
 
-	return p.sendEphemeralResponse(args, "Successfully connected to CircleCI as "+getFormattedNameAndLogin(user)), nil
+	return p.sendEphemeralResponse(args, "Successfully connected to CircleCI as "+circleciUserToString(user)), nil
 }
 
-func (p *Plugin) executeDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	if _, exists := p.getTokenFromKVStore(args.UserId); !exists {
-		return p.sendEphemeralResponse(args, notConnectedText), nil
-	}
-
+func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	if ok := p.deleteTokenFromKVStore(args.UserId); !ok {
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}

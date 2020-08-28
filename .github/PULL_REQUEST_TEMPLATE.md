@@ -2,8 +2,8 @@
 
 <!-- List all the changes made to the code. Add unticked items if some work has to be done -->
 
--   [x] Item done
--   [ ] To be done
+- [x] Item done
+- [ ] Update README.md
 
 ## Changelog
 

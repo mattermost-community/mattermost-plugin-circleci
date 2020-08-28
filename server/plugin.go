@@ -14,6 +14,12 @@ const (
 	botUserName    = "circleci"
 	botDisplayName = "CircleCI"
 	botDescription = "Created by the CircleCI Plugin"
+
+	botIconFile       = "circleci.png"
+	botIconBuildFail  = "circleci-build-fail.png"
+	botIconBuildGreen = "circleci-build-green.png"
+	badgeFailedFile   = "circleci-failed.svg"
+	badgePassedFile   = "circleci-passed.svg"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
@@ -28,9 +34,22 @@ type Plugin struct {
 	configuration *configuration
 
 	botUserID string
+
+	iconCircleciURL   string
+	iconBuildFailURL  string
+	iconBuildGreenURL string
+	badgeFailedURL    string
+	badgePassedURL    string
 }
 
 func (p *Plugin) OnActivate() error {
+	URLPluginStaticBase := "/plugins/" + manifest.Id + "/public/" // TODO add siteURL ?
+	p.iconCircleciURL = URLPluginStaticBase + botIconFile
+	p.iconBuildFailURL = URLPluginStaticBase + botIconBuildFail
+	p.iconBuildGreenURL = URLPluginStaticBase + botIconBuildGreen
+	p.badgeFailedURL = URLPluginStaticBase + badgeFailedFile
+	p.badgePassedURL = URLPluginStaticBase + badgePassedFile
+
 	// Create bot user
 	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
 		Username:    botUserName,
@@ -46,7 +65,7 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to get bundle path")
 	}
 
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "circleci.png"))
+	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "public", botIconFile))
 	if err != nil {
 		return errors.Wrap(err, "failed to read profile image")
 	}
