@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   plugin-ci: mattermost/plugin-ci@0.1.0
-  mattermost-notify: tokenlab/mattermost-notify@1.0.0
 
 workflows:
   version: 2
@@ -11,6 +10,3 @@ workflows:
       - plugin-ci/lint
       - plugin-ci/test
       - plugin-ci/build
-      - mattermost-notify/notify_on_failure
-        - branches: master
-        - webhook: https://keweenaw.eclaireurs-evangeliques.fr/hooks/dqb41qbdm3ym7nkah6z86y7ddy
