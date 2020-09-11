@@ -29,7 +29,17 @@ const manifestStr = `
   "settings_schema": {
     "header": "This plugin is under development. To contribute or submit a request, visit the [repository on Github](https://github.com/nathanaelhoun/mattermost-plugin-circleci/)",
     "footer": "",
-    "settings": []
+    "settings": [
+      {
+        "key": "WebhooksSecret",
+        "display_name": "Webhooks Secret",
+        "type": "generated",
+        "help_text": "The secret used to authenticate the webhook to Mattermost",
+        "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations",
+        "placeholder": "",
+        "default": null
+      }
+    ]
   }
 }
 `

@@ -9,7 +9,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func (p *Plugin) httpAutocompleteFollowedProject(w http.ResponseWriter, r *http.Request, circleciToken string) {
+func httpAutocompleteFollowedProject(p *Plugin, w http.ResponseWriter, r *http.Request, circleciToken string) {
 	if r.Method != http.MethodGet {
 		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be GET"))
 		return

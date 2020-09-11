@@ -9,14 +9,17 @@ import (
 )
 
 const (
-	accountTrigger            = "account"
-	accountHint               = "[subcommand]"
-	accountHelpText           = "Available subcommands: " + accountViewTrigger + ", " + accountConnectTrigger + ", " + accountDisconnectTrigger
-	accountViewTrigger        = "view"
-	AccountViewHelpText       = "Get informations about yourself"
-	accountConnectTrigger     = "connect"
-	accountConnectHint        = "[API token]"
-	accountConnectHelpText    = "Connect your Mattermost account to CircleCI"
+	accountTrigger  = "account"
+	accountHint     = "<" + accountViewTrigger + "|" + accountConnectTrigger + "|" + accountDisconnectTrigger + ">"
+	accountHelpText = "Manage the connection to your CircleCI acccount"
+
+	accountViewTrigger  = "view"
+	AccountViewHelpText = "Get informations about yourself"
+
+	accountConnectTrigger  = "connect"
+	accountConnectHint     = "<API token>"
+	accountConnectHelpText = "Connect your Mattermost account to CircleCI"
+
 	accountDisconnectTrigger  = "disconnect"
 	accountDisconnectHelpText = "Disconnect your Mattermost account from CircleCI"
 )
@@ -38,16 +41,17 @@ func (p *Plugin) executeAccount(args *model.CommandArgs, circleciToken string, s
 		return p.executeAccountDisconnect(args)
 
 	case commandHelpTrigger:
-		return p.sendHelpResponse(accountTrigger)
+		return p.sendHelpResponse(args, accountTrigger)
 
 	default:
-		return p.sendIncorrectSubcommandResponse(accountTrigger)
+		return p.sendIncorrectSubcommandResponse(args, accountTrigger)
 	}
 }
 
 func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*model.CommandResponse, *model.AppError) {
-	user, ok := p.getCircleCIUserInfo(token)
+	user, ok := p.getCircleUserInfo(token)
 	if !ok {
+		p.API.LogInfo("Unable to get CircleCI info", "MM UserID", args.UserId)
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
@@ -95,8 +99,8 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Please tell me your token. If you don't have a CircleCI Personal API Token, you can get one from your [Account Dashboard](https://circleci.com/account/api)"), nil
 	}
 
-	if token, exists := p.getTokenFromKVStore(args.UserId); exists {
-		user, ok := p.getCircleCIUserInfo(token)
+	if token, exists := p.getTokenKV(args.UserId); exists {
+		user, ok := p.getCircleUserInfo(token)
 		if !ok {
 			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
 		}
@@ -115,7 +119,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Can't connect to CircleCI. Please check that your user API token is valid"), nil
 	}
 
-	if ok := p.storeTokenInKVStore(args.UserId, circleciToken); !ok {
+	if ok := p.storeTokenKV(args.UserId, circleciToken); !ok {
 		return p.sendEphemeralResponse(args, "Internal error when storing your token"), nil
 	}
 
@@ -123,7 +127,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 }
 
 func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	if ok := p.deleteTokenFromKVStore(args.UserId); !ok {
+	if ok := p.deleteTokenKV(args.UserId); !ok {
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 

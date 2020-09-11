@@ -9,14 +9,17 @@ import (
 )
 
 const (
-	projectTrigger              = "project"
-	projectHint                 = "[subcommand]"
-	projectHelpText             = "Available commands: " + projectListTrigger + ", " + projectListTrigger
-	projectListTrigger          = "list-followed"
-	projectListHint             = ""
-	projectListHelpText         = "List followed projects"
-	projectRecentBuildsTrigger  = "recent-build"
-	projectRecentBuildsHint     = "[username] [repository] [branch]"
+	projectTrigger  = "project"
+	projectHint     = "<" + projectListTrigger + "|" + projectRecentBuildsTrigger + ">"
+	projectHelpText = "View informations about your CircleCI projects"
+
+	projectListTrigger  = "list-followed"
+	projectListHint     = ""
+	projectListHelpText = "List followed projects"
+
+	projectRecentBuildsTrigger = "recent-build"
+	// TODO rename in all files (code and UI strings) 'username' to 'owner' for repository
+	projectRecentBuildsHint     = "<username> <repository> <branch>"
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
 )
 
@@ -34,10 +37,10 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		return p.executeProjectRecentBuilds(args, circleciToken, split[1:])
 
 	case commandHelpTrigger:
-		return p.sendHelpResponse(projectTrigger)
+		return p.sendHelpResponse(args, projectTrigger)
 
 	default:
-		return p.sendIncorrectSubcommandResponse(projectTrigger)
+		return p.sendIncorrectSubcommandResponse(args, projectTrigger)
 	}
 }
 

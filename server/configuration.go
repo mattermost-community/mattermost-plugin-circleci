@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -18,6 +19,7 @@ import (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type configuration struct {
+	WebhooksSecret string `json:"WebhooksSecret"`
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -65,6 +67,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 		panic("setConfiguration called with the existing configuration")
 	}
 
+	configuration.WebhooksSecret = strings.TrimSpace(configuration.WebhooksSecret)
 	p.configuration = configuration
 }
 
@@ -75,6 +78,10 @@ func (p *Plugin) OnConfigurationChange() error {
 	// Load the public configuration fields from the Mattermost server configuration.
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
+	}
+
+	if configuration.WebhooksSecret == "" {
+		return errors.New("please provide the Webhook Secret")
 	}
 
 	p.setConfiguration(configuration)

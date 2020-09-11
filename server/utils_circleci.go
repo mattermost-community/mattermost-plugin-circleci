@@ -3,12 +3,12 @@ package main
 import "github.com/jszwedko/go-circleci"
 
 // Return false if an error has occurred
-func (p *Plugin) getCircleCIUserInfo(circleCIToken string) (*circleci.User, bool) {
-	circleciClient := &circleci.Client{
-		Token: circleCIToken,
+func (p *Plugin) getCircleUserInfo(circleToken string) (*circleci.User, bool) {
+	circleClient := &circleci.Client{
+		Token: circleToken,
 	}
 
-	user, err := circleciClient.Me()
+	user, err := circleClient.Me()
 	if err != nil {
 		p.API.LogError("Error when reaching CircleCI", "CircleCI error:", err)
 		return nil, false
@@ -45,10 +45,10 @@ func buildStatusToMarkdown(build *circleci.Build, p *Plugin) string {
 		return "Failing"
 
 	case "failed":
-		return "![Status image](" + p.badgeFailedURL + ")"
+		return "![Status image](" + badgeFailedURL + ")"
 
 	case "success":
-		return "![Status image](" + p.badgePassedURL + ")"
+		return "![Status image](" + badgePassedURL + ")"
 
 	case "on_hold":
 		return "On Hold"
