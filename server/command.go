@@ -124,7 +124,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	// if command is not "connect" or "help", check that the user is connected
 	token := ""
-	if command != accountConnectTrigger && command != "help" {
+	if command != accountTrigger && command != "help" {
 		circlecitoken, exists := p.getTokenFromKVStore(args.UserId)
 		if !exists {
 			return p.sendEphemeralResponse(args, notConnectedText), nil
