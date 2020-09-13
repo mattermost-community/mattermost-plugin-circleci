@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/jszwedko/go-circleci"
-
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
@@ -109,11 +107,8 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	}
 
 	circleciToken := split[0]
-	circleciClient := &circleci.Client{
-		Token: circleciToken,
-	}
 
-	user, err := circleciClient.Me()
+	user, err := getCurrentUser(circleciToken)
 	if err != nil {
 		p.API.LogError("Error when reaching CircleCI", "CircleCI error:", err)
 		return p.sendEphemeralResponse(args, "Can't connect to CircleCI. Please check that your user API token is valid"), nil
@@ -123,7 +118,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Internal error when storing your token"), nil
 	}
 
-	return p.sendEphemeralResponse(args, "Successfully connected to CircleCI as "+circleciUserToString(user)), nil
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully connected to CircleCI as %s (%s)", user.Name, user.Login)), nil
 }
 
 func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
