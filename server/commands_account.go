@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
 const (
@@ -108,7 +110,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 
 	circleciToken := split[0]
 
-	user, err := getCurrentUser(circleciToken)
+	user, err := circle.GetCurrentUser(circleciToken)
 	if err != nil {
 		p.API.LogError("Error when reaching CircleCI", "CircleCI error:", err)
 		return p.sendEphemeralResponse(args, "Can't connect to CircleCI. Please check that your user API token is valid"), nil

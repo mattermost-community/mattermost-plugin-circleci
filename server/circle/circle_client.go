@@ -1,4 +1,4 @@
-package main
+package circle
 
 import (
 	"context"
@@ -17,7 +17,8 @@ func getContext(apiToken string) context.Context {
 	return context.WithValue(parentContext, circleci.ContextAPIKey, *apiKey)
 }
 
-func getCurrentUser(apiToken string) (*circleci.User, error) {
+// GetCurrentUser returns the current user
+func GetCurrentUser(apiToken string) (*circleci.User, error) {
 	client := getClient()
 	user, _, err := client.UserApi.GetCurrentUser(getContext(apiToken))
 	if err != nil {
