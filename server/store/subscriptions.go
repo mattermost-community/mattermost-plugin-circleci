@@ -1,7 +1,9 @@
-package main
+package store
 
 import (
 	"sort"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
 const (
@@ -14,7 +16,7 @@ type Subscriptions struct {
 
 // Add a new subscription in the struct
 func (s *Subscriptions) AddSubscription(newSub *Subscription) {
-	key := getFullNameFromOwnerAndRepo(newSub.Owner, newSub.Repository)
+	key := circle.GetFullNameFromOwnerAndRepo(newSub.Owner, newSub.Repository)
 
 	repoSubs := s.Repositories[key]
 
@@ -40,7 +42,7 @@ func (s *Subscriptions) AddSubscription(newSub *Subscription) {
 // Remove a subscription from the struct
 // Return true if the subscription has been found and removed
 func (s *Subscriptions) RemoveSubscription(channelID, owner, repository string) bool {
-	key := getFullNameFromOwnerAndRepo(owner, repository)
+	key := circle.GetFullNameFromOwnerAndRepo(owner, repository)
 
 	repoSubs := s.Repositories[key]
 	if repoSubs == nil {
@@ -89,7 +91,7 @@ func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscript
 
 // Return a list of subscribed channel IDs
 func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository string) []string {
-	key := getFullNameFromOwnerAndRepo(owner, repository)
+	key := circle.GetFullNameFromOwnerAndRepo(owner, repository)
 
 	subs := s.Repositories[key]
 	if subs == nil {

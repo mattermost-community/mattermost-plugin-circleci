@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"bytes"
@@ -12,10 +12,10 @@ const (
 )
 
 // Return false if no token is saved for this user
-func (p *Plugin) getTokenKV(userID string) (string, bool) {
-	raw, appErr := p.API.KVGet(userID + KVStoreSuffix)
+func (s *Store) GetTokenForUser(userID string) (string, bool) {
+	raw, appErr := s.api.KVGet(userID + KVStoreSuffix)
 	if appErr != nil {
-		p.API.LogError("Unable to reach KVStore", "KVStore error", appErr)
+		s.api.LogError("Unable to reach KVStore", "KVStore error", appErr)
 		return "", false
 	}
 
@@ -28,10 +28,10 @@ func (p *Plugin) getTokenKV(userID string) (string, bool) {
 }
 
 // Return false if the token has not been saved
-func (p *Plugin) storeTokenKV(userID string, circleciToken string) bool {
-	appErr := p.API.KVSet(userID+KVStoreSuffix, []byte(circleciToken))
+func (s *Store) StoreTokenForUser(userID string, circleciToken string) bool {
+	appErr := s.api.KVSet(userID+KVStoreSuffix, []byte(circleciToken))
 	if appErr != nil {
-		p.API.LogError("Unable to write in KVStore", "KVStore error", appErr)
+		s.api.LogError("Unable to write in KVStore", "KVStore error", appErr)
 		return false
 	}
 
@@ -39,19 +39,19 @@ func (p *Plugin) storeTokenKV(userID string, circleciToken string) bool {
 }
 
 // Return false if the token has not been deleted
-func (p *Plugin) deleteTokenKV(userID string) bool {
-	if appErr := p.API.KVDelete(userID + KVStoreSuffix); appErr != nil {
-		p.API.LogError("Unable to delete from KVStore", "KVStore error", appErr)
+func (s *Store) DeleteTokenForUser(userID string) bool {
+	if appErr := s.api.KVDelete(userID + KVStoreSuffix); appErr != nil {
+		s.api.LogError("Unable to delete from KVStore", "KVStore error", appErr)
 		return false
 	}
 
 	return true
 }
 
-func (p *Plugin) getSubscriptionsKV() (*Subscriptions, error) {
+func (s *Store) GetSubscriptions() (*Subscriptions, error) {
 	var subscriptions *Subscriptions
 
-	value, appErr := p.API.KVGet(subscriptionsKVKey)
+	value, appErr := s.api.KVGet(subscriptionsKVKey)
 	if appErr != nil {
 		return nil, errors.Wrap(appErr, "could not get subscriptions from KVStore")
 	}
@@ -68,13 +68,13 @@ func (p *Plugin) getSubscriptionsKV() (*Subscriptions, error) {
 	return subscriptions, nil
 }
 
-func (p *Plugin) storeSubscriptionsKV(s *Subscriptions) error {
-	b, err := json.Marshal(s)
+func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
+	b, err := json.Marshal(subs)
 	if err != nil {
 		return errors.Wrap(err, "error while converting subscriptions map to json")
 	}
 
-	if appErr := p.API.KVSet(subscriptionsKVKey, b); appErr != nil {
+	if appErr := s.api.KVSet(subscriptionsKVKey, b); appErr != nil {
 		return errors.Wrap(appErr, "could not store subscriptions in KV store")
 	}
 

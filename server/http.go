@@ -17,7 +17,7 @@ const (
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	// Check token
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.getTokenKV(userID)
+	circleciToken, exists := p.Store.GetTokenForUser(userID)
 	if !exists {
 		http.NotFound(w, r)
 	}

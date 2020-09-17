@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
@@ -25,4 +27,10 @@ func (p *Plugin) sendEphemeralPost(args *model.CommandArgs, message string, atta
 func (p *Plugin) sendEphemeralResponse(args *model.CommandArgs, message string) *model.CommandResponse {
 	p.sendEphemeralPost(args, message, nil)
 	return &model.CommandResponse{}
+}
+
+func (p *Plugin) getWebhookURL() string {
+	siteURL := p.API.GetConfig().ServiceSettings.SiteURL
+	webhookSecret := p.getConfiguration().WebhooksSecret
+	return fmt.Sprintf("%s/plugins/%s%s/%s", *siteURL, manifest.Id, routeWebhooksPrefix, webhookSecret)
 }

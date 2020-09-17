@@ -9,6 +9,8 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -79,7 +81,7 @@ func getAutocompleteData() *model.AutocompleteData {
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
 	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
 	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
-	subscribeChannel.AddNamedTextArgument(flagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
 	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
 	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
@@ -191,7 +193,7 @@ func getTokenIfConnected(p *Plugin, split []string, userID string) (string, bool
 		return "", false
 	}
 
-	circleToken, exists := p.getTokenKV(userID)
+	circleToken, exists := p.Store.GetTokenForUser(userID)
 	if !exists {
 		return "", true
 	}

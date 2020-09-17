@@ -6,6 +6,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -24,6 +26,7 @@ var (
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
 type Plugin struct {
 	plugin.MattermostPlugin
+	Store store.Store
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -41,6 +44,12 @@ func (p *Plugin) OnActivate() error {
 	badgePassedURL = URLPluginStaticBase + "circleci-passed.svg"
 	buildFailedIconURL = URLPluginStaticBase + "circleci-build-fail.png"
 	buildGreenIconURL = URLPluginStaticBase + "circleci-build-green.png"
+
+	kvStore, err := store.NewStore(p.API)
+	if err != nil {
+		return errors.Wrap(err, "failed to create plugin store")
+	}
+	p.Store = kvStore
 
 	// Create bot user
 	botUserID, err := p.Helpers.EnsureBot(
