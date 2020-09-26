@@ -89,11 +89,15 @@ func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscript
 	return filteredSubs
 }
 
-// Return a list of subscribed channel IDs
-func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository string) []string {
+func (s *Subscriptions) GetSubscriptionsForRepository(owner, repository string) []*Subscription {
 	key := circle.GetFullNameFromOwnerAndRepo(owner, repository)
 
-	subs := s.Repositories[key]
+	return s.Repositories[key]
+}
+
+// Return a list of subscribed channel IDs
+func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository string) []string {
+	subs := s.GetSubscriptionsForRepository(owner, repository)
 	if subs == nil {
 		return nil
 	}
@@ -101,6 +105,23 @@ func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository str
 	var channelIDs []string
 	for _, sub := range subs {
 		channelIDs = append(channelIDs, sub.ChannelID)
+	}
+
+	return channelIDs
+}
+
+func (s *Subscriptions) GetFilteredChannelsForBuild(build *circle.BuildInfos) []string {
+	subs := s.GetSubscriptionsForRepository(build.Owner, build.Repository)
+	if subs == nil {
+		return nil
+	}
+
+	var channelIDs []string
+	for _, sub := range subs {
+		switch { // nolint:gocritic // It's expected that more flags get added.
+		case build.Failed || !sub.Flags.OnlyFailedBuilds:
+			channelIDs = append(channelIDs, sub.ChannelID)
+		}
 	}
 
 	return channelIDs

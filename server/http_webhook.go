@@ -28,9 +28,9 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetSubscribedChannelsForRepository(buildInfos.Owner, buildInfos.Repository)
+	channelsToPost := allSubs.GetFilteredChannelsForBuild(buildInfos)
 	if channelsToPost == nil {
-		p.API.LogWarn("Received webhooks without any subscriptions", "webhook", buildInfos)
+		p.API.LogWarn("The received webhook doesn't match any subscriptions or flags", "webhook", buildInfos)
 	}
 
 	postWithoutChannel := &model.Post{
