@@ -15,7 +15,7 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buildInfos := new(circle.BuildInfos)
+	buildInfos := new(circle.WebhookInfo)
 	if err := json.NewDecoder(r.Body).Decode(&buildInfos); err != nil {
 		p.API.LogError("Unable to decode JSON for received webkook.", "Error", err.Error())
 		return

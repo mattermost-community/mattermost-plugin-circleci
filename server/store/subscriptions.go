@@ -110,7 +110,7 @@ func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository str
 	return channelIDs
 }
 
-func (s *Subscriptions) GetFilteredChannelsForBuild(build *circle.BuildInfos) []string {
+func (s *Subscriptions) GetFilteredChannelsForBuild(build *circle.WebhookInfo) []string {
 	subs := s.GetSubscriptionsForRepository(build.Owner, build.Repository)
 	if subs == nil {
 		return nil

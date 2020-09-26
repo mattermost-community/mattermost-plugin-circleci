@@ -6,8 +6,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-// TODO : rename with a more meaningful name
-type BuildInfos struct {
+type WebhookInfo struct {
 	Owner                  string `json:"Owner"`
 	Repository             string `json:"Repository"`
 	RepositoryURL          string `json:"RepositoryURL"`
@@ -21,39 +20,39 @@ type BuildInfos struct {
 }
 
 // Convert the build info into a post attachment
-func (bi *BuildInfos) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
+func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	attachment := &model.SlackAttachment{
-		TitleLink: bi.CircleBuildURL,
+		TitleLink: wi.CircleBuildURL,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repo",
 				Short: true,
-				Value: GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
+				Value: GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
 			},
 			{
 				Title: "Job number",
 				Short: true,
-				Value: fmt.Sprintf("%d", bi.CircleBuildNum),
+				Value: fmt.Sprintf("%d", wi.CircleBuildNum),
 			},
 			{
 				Title: "Build informations",
 				Short: false,
 				Value: fmt.Sprintf(
 					"- Build triggered by: %s\n- Associated PRs: %s",
-					bi.Username,
-					bi.AssociatedPullRequests,
+					wi.Username,
+					wi.AssociatedPullRequests,
 				),
 			},
 		},
 	}
 
 	switch {
-	case bi.IsFailed:
+	case wi.IsFailed:
 		attachment.ThumbURL = buildFailedIconURL
 		attachment.Title = "CircleCI Job failed"
 		attachment.Color = "#FF1919" // red
 
-	case bi.IsWaitingApproval:
+	case wi.IsWaitingApproval:
 		attachment.Title = "CircleCI Job waiting approval"
 		attachment.Color = "#DBAB09" // yellow
 
@@ -81,7 +80,7 @@ func (bi *BuildInfos) ToPost(buildFailedIconURL, buildGreenIconURL string) *mode
 	attachment.Fallback = attachment.Title
 
 	post := model.Post{
-		Message: bi.Message,
+		Message: wi.Message,
 	}
 
 	post.AddProp("attachments", []*model.SlackAttachment{
