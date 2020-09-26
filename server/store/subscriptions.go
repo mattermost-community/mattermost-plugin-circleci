@@ -119,7 +119,7 @@ func (s *Subscriptions) GetFilteredChannelsForBuild(build *circle.BuildInfos) []
 	var channelIDs []string
 	for _, sub := range subs {
 		switch { // nolint:gocritic // It's expected that more flags get added.
-		case build.Failed || !sub.Flags.OnlyFailedBuilds:
+		case build.IsFailed || !sub.Flags.OnlyFailedBuilds:
 			channelIDs = append(channelIDs, sub.ChannelID)
 		}
 	}

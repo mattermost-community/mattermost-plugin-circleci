@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
@@ -33,10 +32,8 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions or flags", "webhook", buildInfos)
 	}
 
-	postWithoutChannel := &model.Post{
-		UserId: p.botUserID,
-	}
-	postWithoutChannel.AddProp("attachments", buildInfos.ToPostAttachments(buildFailedIconURL, buildGreenIconURL))
+	postWithoutChannel := buildInfos.ToPost(buildFailedIconURL, buildGreenIconURL)
+	postWithoutChannel.UserId = p.botUserID
 
 	for _, channel := range channelsToPost {
 		post := postWithoutChannel.Clone()
