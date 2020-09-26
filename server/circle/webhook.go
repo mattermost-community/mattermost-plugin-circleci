@@ -27,7 +27,11 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 			{
 				Title: "Repo",
 				Short: true,
-				Value: GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
+				Value: fmt.Sprintf(
+					"[%s](%s)",
+					GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
+					wi.RepositoryURL,
+				),
 			},
 			{
 				Title: "Job number",
