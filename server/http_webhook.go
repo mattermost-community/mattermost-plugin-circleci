@@ -11,7 +11,7 @@ import (
 
 func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be POST"))
+		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method "+r.Method+" is not allowed, must be POST"))
 		return
 	}
 
