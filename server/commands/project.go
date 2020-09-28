@@ -100,14 +100,14 @@ func executeProjectRecentBuilds(args *model.CommandArgs, circleciToken string, s
 	client := &circleci.Client{Token: circleciToken}
 
 	if len(split) < 3 {
-		return sendEphemeralResponse(args, "Please provide the project username, repository and branch name)"), nil
+		return "Please provide the project username, repository and branch name)"
 	}
 
 	account, repo, branch := split[0], split[1], split[2]
 	builds, err := client.ListRecentBuildsForProject(account, repo, branch, "", 10, 0)
 	if err != nil {
 		API.LogError("Unable to get recent build from CircleCI", "CircleCI error", err)
-		return sendEphemeralResponse(args, errorConnectionText), nil
+		return errorConnectionText
 	}
 
 	text := "| Workflow | Job | Build | Subject | Start time | Status | Duration | Triggered by|\n| :---- | :----- | :----- | :----- | :----- | :----- | :---- | \n"
