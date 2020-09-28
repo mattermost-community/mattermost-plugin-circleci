@@ -83,3 +83,8 @@ func (p *Plugin) OnActivate() error {
 
 	return nil
 }
+
+func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	result := commands.ExecuteCommand(args, p.Store)
+	return p.sendEphemeralResponse(args, result), nil
+}
