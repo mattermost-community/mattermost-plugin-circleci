@@ -96,7 +96,7 @@ func getAutocompleteData() *model.AutocompleteData {
 	subscribe.AddCommand(listAllSubscribedChannels)
 
 	// Config
-	configCommand := model.NewAutocompleteData(config.Command, config.Hint, config.HelpText)
+	configCommand := config.GetAutoCompeleteData()
 	// Add all subcommands
 	mainCommand.AddCommand(account)
 	mainCommand.AddCommand(project)
@@ -176,7 +176,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case subscribeTrigger:
 		return p.executeSubscribe(args, token, split[2:])
 
-	case config.Command:
+	case config.CommandTrigger:
 		result := config.Execute(args, p.Store)
 		return p.sendEphemeralResponse(args, result), nil
 

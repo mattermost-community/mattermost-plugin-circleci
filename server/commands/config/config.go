@@ -10,13 +10,16 @@ import (
 )
 
 const (
-	// Command name of the command
-	Command = "config"
-	// Hint hint of the command
-	Hint = "[org-name/project-name]"
-	// HelpText help of the command
-	HelpText = "View the config. Pass in the project (org/projectname) to set the default con"
+	// CommandTrigger trigger for the command
+	CommandTrigger = "config"
+	hint           = "[org-name/project-name]"
+	helpText       = "View the config. Pass in the project (org/projectname) to set the default con"
 )
+
+// GetAutoCompeleteData returns the auto complete info
+func GetAutoCompeleteData() *model.AutocompleteData {
+	return model.NewAutocompleteData(CommandTrigger, hint, helpText)
+}
 
 // Execute the config command
 func Execute(args *model.CommandArgs, db store.Store) string {
