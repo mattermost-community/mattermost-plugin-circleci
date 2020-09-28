@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
 
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/commands"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -66,7 +67,17 @@ func (p *Plugin) OnActivate() error {
 	p.botUserID = botUserID
 
 	// Register slash command
-	if err := p.API.RegisterCommand(p.getCommand()); err != nil {
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "Couldn't get bundle path")
+	}
+
+	command, err := commands.GetCommand(bundlePath)
+	if err != nil {
+		return errors.Wrap(err, "failed to create new command")
+	}
+
+	if err := p.API.RegisterCommand(command); err != nil {
 		return errors.Wrap(err, "failed to register new command")
 	}
 

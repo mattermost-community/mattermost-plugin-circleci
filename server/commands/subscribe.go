@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/plugin"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -35,15 +36,31 @@ const (
 	subscribeListAllChannelsHelpText = "List all channels subscribed to this repository in the current team"
 )
 
-func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
-	subcommand := commandHelpTrigger
+// TODO : this should be reworked to use the default project settings added by configure
+func getSubscribeAutocompleteData() *model.AutocompleteData {
+	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
+
+	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
+	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
+	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
+	projectRecentBuild.AddDynamicListArgument("", plugin.RouteAutocompleteFollowedProjects, true)
+	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
+
+	project.AddCommand(projectRecentBuild)
+	project.AddCommand(projectList)
+
+	return project
+}
+
+func executeSubscribe(context *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+	subcommand := helpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
 	}
 
 	switch subcommand {
-	case commandHelpTrigger:
-		return p.sendHelpResponse(context, subscribeTrigger)
+	case helpTrigger:
+		return formatHelpMessage(context, subscribeTrigger)
 
 	case subscribeListTrigger:
 		return executeSubscribeList(p, context)
@@ -58,7 +75,7 @@ func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken stri
 		return executeSubscribeListAllChannels(p, context, split[1:])
 
 	default:
-		return p.sendIncorrectSubcommandResponse(context, subscribeTrigger)
+		return formatIncorrectSubcommand(context, subscribeTrigger)
 	}
 }
 
@@ -75,7 +92,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 			context,
 			fmt.Sprintf(
 				"This channel is not subscribed to any repository. Try `/%s %s %s`",
-				commandTrigger,
+				mainTrigger,
 				subscribeTrigger,
 				subscribeChannelTrigger,
 			),
@@ -137,7 +154,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 					arg,
 					commandTrigger,
 					subscribeTrigger,
-					commandHelpTrigger,
+					helpTrigger,
 				)), nil
 			}
 		}
@@ -206,7 +223,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, spli
 			context,
 			fmt.Sprintf(
 				"No channel is subscribed to this repository. Try `/%s %s %s`",
-				commandTrigger,
+				mainTrigger,
 				subscribeTrigger,
 				subscribeChannelTrigger,
 			),

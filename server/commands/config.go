@@ -16,8 +16,8 @@ const (
 	helpText             = "View the config. Pass in the project (org/projectname) to set the default con"
 )
 
-// GetConfigAutoCompeleteData returns the auto complete info
-func GetConfigAutoCompeleteData() *model.AutocompleteData {
+// getConfigAutoCompeleteData returns the auto complete info
+func getConfigAutoCompeleteData() *model.AutocompleteData {
 	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
 	configCommand.AddTextArgument("project identifier. (org/projectname)", "[project identifier]", "")
 	return configCommand
