@@ -10,6 +10,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/commands"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -94,10 +95,13 @@ func getAutocompleteData() *model.AutocompleteData {
 	subscribe.AddCommand(unsubscribeChannel)
 	subscribe.AddCommand(listAllSubscribedChannels)
 
+	// Config
+	configCommand := commands.GetConfigAutoCompeleteData()
 	// Add all subcommands
 	mainCommand.AddCommand(account)
 	mainCommand.AddCommand(project)
 	mainCommand.AddCommand(subscribe)
+	mainCommand.AddCommand(configCommand)
 	return mainCommand
 }
 
@@ -171,6 +175,10 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	case subscribeTrigger:
 		return p.executeSubscribe(args, token, split[2:])
+
+	case commands.ConfigCommandTrigger:
+		result := commands.ExecuteConfigCommand(args, p.Store)
+		return p.sendEphemeralResponse(args, result), nil
 
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
