@@ -3,7 +3,7 @@ package circle
 import (
 	"context"
 
-	"github.com/TomTucka/go-circleci/circleci"
+	"github.com/darkLord19/circleci-v2/circleci"
 )
 
 func getClient() *circleci.APIClient {
