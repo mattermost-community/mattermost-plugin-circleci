@@ -15,11 +15,6 @@ func init() {
 	client = circleci.NewAPIClient(config)
 }
 
-func getClient() *circleci.APIClient {
-	config := circleci.NewConfiguration()
-	return circleci.NewAPIClient(config)
-}
-
 func getContext(apiToken string) context.Context {
 	apiKey := &circleci.APIKey{Key: apiToken}
 	parentContext := context.TODO()
