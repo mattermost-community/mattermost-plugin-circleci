@@ -18,7 +18,9 @@ const (
 
 // GetConfigAutoCompeleteData returns the auto complete info
 func GetConfigAutoCompeleteData() *model.AutocompleteData {
-	return model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
+	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
+	configCommand.AddTextArgument("project identifier. (org/projectname)", "[project identifier]", "")
+	return configCommand
 }
 
 // ExecuteConfigCommand executes the config command
