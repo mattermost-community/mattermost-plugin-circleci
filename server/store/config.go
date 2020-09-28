@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//Config configuration for the plugin
+// Config configuration for the plugin
 type Config struct {
 	Org     string
 	Project string
@@ -17,9 +17,8 @@ const (
 	configStoreSuffix = "_circleci_config"
 )
 
-//SaveConfig saves the passed in config
+// SaveConfig saves the passed in config
 func (s *Store) SaveConfig(userID string, config Config) error {
-
 	configBytes, err := json.Marshal(config)
 	if err != nil {
 		return errors.Wrap(err, "error while converting config to json")
@@ -28,14 +27,12 @@ func (s *Store) SaveConfig(userID string, config Config) error {
 	if err := s.api.KVSet(userID+configStoreSuffix, configBytes); err != nil {
 		s.api.LogError("Unable to save config", err)
 		return errors.Wrap(err, "Unable to save config")
-
 	}
 	return nil
 }
 
 // GetConfig retrieves the saved config for the user. Returns nil incase no config exists for the user
 func (s *Store) GetConfig(userID string) (*Config, error) {
-
 	var config *Config
 
 	savedConfig, err := s.api.KVGet(userID + configStoreSuffix)

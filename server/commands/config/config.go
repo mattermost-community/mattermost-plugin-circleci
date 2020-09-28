@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -17,7 +18,7 @@ const (
 	HelpText = "View the config. Pass in the project (org/projectname) to set the default con"
 )
 
-//Execute the config command
+// Execute the config command
 func Execute(args *model.CommandArgs, db store.Store) string {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
@@ -43,7 +44,6 @@ func Execute(args *model.CommandArgs, db store.Store) string {
 }
 
 func getConfig(userID string, db store.Store) string {
-
 	savedConfig, _ := db.GetConfig(userID)
 	if savedConfig != nil {
 		return fmt.Sprintf(":information_source: Organization: %s, Project: %s", savedConfig.Org, savedConfig.Project)
@@ -53,7 +53,7 @@ func getConfig(userID string, db store.Store) string {
 
 func setConfig(userID string, config store.Config, db store.Store) string {
 	if err := db.SaveConfig(userID, config); err != nil {
-		fmt.Println("error occured while saving")
+		fmt.Println("error occurred while saving")
 	}
 
 	return fmt.Sprintf(":white_check_mark: Successfully saved config. Org %s, Project %s as your default", config.Org, config.Project)
