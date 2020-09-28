@@ -10,21 +10,20 @@ import (
 )
 
 const (
-	// ConfigCommandTrigger trigger for the command
-	ConfigCommandTrigger = "config"
-	hint                 = "[org-name/project-name]"
-	helpText             = "View the config. Pass in the project (org/projectname) to set the default con"
+	configCommandTrigger = "config"
+	configHint           = "<org-name/project-name>"
+	configHelpText       = "View the config. Pass in the project (org-name/project-name) to set the default project"
 )
 
 // getConfigAutoCompeleteData returns the auto complete info
 func getConfigAutoCompeleteData() *model.AutocompleteData {
-	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
-	configCommand.AddTextArgument("project identifier. (org/projectname)", "[project identifier]", "")
+	configCommand := model.NewAutocompleteData(configCommandTrigger, configHint, configHelpText)
+	configCommand.AddTextArgument("The project identifier (org-name/project-name)", configHint, ".*/.*")
 	return configCommand
 }
 
-// ExecuteConfigCommand executes the config command
-func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
+// executeConfigCommand executes the config command
+func executeConfigCommand(args *model.CommandArgs, db store.Store) string {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
@@ -53,7 +52,7 @@ func getConfig(userID string, db store.Store) string {
 	if savedConfig != nil {
 		return fmt.Sprintf(":information_source: Organization: %s, Project: %s", savedConfig.Org, savedConfig.Project)
 	}
-	return ":red_circle: No config exists. use `/circleci config orgname/projectname` to set the default project"
+	return ":red_circle: No config exists. use `/circleci config <org-name/project-name>` to set the default project"
 }
 
 func setConfig(userID string, config store.Config, db store.Store) string {
