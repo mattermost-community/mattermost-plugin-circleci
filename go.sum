@@ -404,6 +404,8 @@ github.com/mschoch/smat v0.2.0/go.mod h1:kc9mz7DoBKqDyiRL7VZN8KvXQMWeTaVnttLRXOl
 github.com/muesli/smartcrop v0.2.1-0.20181030220600-548bbf0c0965/go.mod h1:i2fCI/UorTfgEpPPLWiFBv4pye+YAG78RwcQLUkocpI=
 github.com/muesli/smartcrop v0.3.0/go.mod h1:i2fCI/UorTfgEpPPLWiFBv4pye+YAG78RwcQLUkocpI=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
+github.com/nathanaelhoun/mattermost-plugin-circleci v0.0.0-20200917143132-a7f8e9e787b0 h1:C1U19NpTY10G3fszkX2o7+7137ZDy0f1rv7Lvwl91jk=
+github.com/nathanaelhoun/mattermost-plugin-circleci v0.0.0-20200917143132-a7f8e9e787b0/go.mod h1:XrwY0p87cxKEBHRvJQJxr/uY+5aMkng5oS4ggYe1TmI=
 github.com/nats-io/nats.go v1.8.1/go.mod h1:BrFz9vVn0fU3AcH9Vn4Kd7W0NpJ651tD5omQ3M8LwxM=
 github.com/nats-io/nkeys v0.0.2/go.mod h1:dab7URMsZm6Z/jp9Z5UGa87Uutgc2mVpXLC4B7TDb/4=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=

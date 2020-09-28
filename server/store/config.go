@@ -33,7 +33,7 @@ func (s *Store) SaveConfig(userID string, config Config) error {
 	return nil
 }
 
-// GetConfig retrieves the saved config for the user.
+// GetConfig retrieves the saved config for the user. Returns nil incase no config exists for the user
 func (s *Store) GetConfig(userID string) (*Config, error) {
 
 	var config *Config
@@ -45,7 +45,7 @@ func (s *Store) GetConfig(userID string) (*Config, error) {
 	}
 
 	if savedConfig == nil {
-		return &Config{}, nil
+		return nil, nil
 	}
 	appError := json.NewDecoder(bytes.NewReader(savedConfig)).Decode(&config)
 	if appError != nil {

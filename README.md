@@ -19,6 +19,9 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 -   `/circleci project list-followed` - List followed projects
 -   `/circleci project recent-build [username] [repository] [branch]` - List the 10 last builds for a project
 
+#### Config
+- `/circleci config orgname/projectname` - Allows you to set a default project to run your commands against
+
 ## TODO (tracking list)
 
 -   [x] Get help
