@@ -3,7 +3,8 @@ module github.com/nathanaelhoun/mattermost-plugin-circleci
 go 1.14
 
 require (
-	github.com/TomTucka/go-circleci v1.1.0
+	github.com/antihax/optional v1.0.0 // indirect
+	github.com/darkLord19/circleci-v2 v0.0.0-20200926115305-db49ebeecf44
 	github.com/go-ldap/ldap v3.0.3+incompatible // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/jszwedko/go-circleci v0.3.0
