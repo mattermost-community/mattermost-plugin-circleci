@@ -1,4 +1,4 @@
-package config
+package commands
 
 import (
 	"fmt"
@@ -10,19 +10,19 @@ import (
 )
 
 const (
-	// CommandTrigger trigger for the command
-	CommandTrigger = "config"
-	hint           = "[org-name/project-name]"
-	helpText       = "View the config. Pass in the project (org/projectname) to set the default con"
+	// ConfigCommandTrigger trigger for the command
+	ConfigCommandTrigger = "config"
+	hint                 = "[org-name/project-name]"
+	helpText             = "View the config. Pass in the project (org/projectname) to set the default con"
 )
 
-// GetAutoCompeleteData returns the auto complete info
-func GetAutoCompeleteData() *model.AutocompleteData {
-	return model.NewAutocompleteData(CommandTrigger, hint, helpText)
+// GetConfigAutoCompeleteData returns the auto complete info
+func GetConfigAutoCompeleteData() *model.AutocompleteData {
+	return model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
 }
 
-// Execute the config command
-func Execute(args *model.CommandArgs, db store.Store) string {
+// ExecuteConfigCommand executes the config command
+func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
