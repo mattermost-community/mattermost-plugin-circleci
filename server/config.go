@@ -17,14 +17,14 @@ const (
 )
 
 // GetConfigAutoCompeleteData returns the auto complete info
-func GetConfigAutoCompeleteData() *model.AutocompleteData {
+func getConfigAutoCompeleteData() *model.AutocompleteData {
 	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
 	configCommand.AddTextArgument("project identifier. (vcs/org/projectname)", "[project identifier]", "")
 	return configCommand
 }
 
 // ExecuteConfigCommand executes the config command
-func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
+func (p *Plugin) executeConfigCommand(args *model.CommandArgs, db store.Store) string {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
