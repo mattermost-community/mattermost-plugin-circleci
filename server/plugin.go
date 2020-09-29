@@ -17,8 +17,6 @@ const (
 )
 
 var (
-	badgeFailedURL     string
-	badgePassedURL     string
 	buildFailedIconURL string
 	buildGreenIconURL  string
 )
