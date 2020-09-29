@@ -130,7 +130,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 	jobs, errr := circle.GetWorkflowJobs(token, workflowID)
 	if errr != nil {
 		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to fetch jobs info for workflow", workflowID, err.Error())}
+			"Failed to fetch jobs info for workflow", workflowID, errr.Error())}
 	}
 
 	_ = jobs
