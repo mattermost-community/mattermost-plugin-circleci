@@ -6,6 +6,7 @@ import (
 
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
+
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
@@ -103,7 +104,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 			buildTime = strconv.Itoa(*build.BuildTimeMillis/1000) + "s"
 		}
 
-		statusImageMarkdown := utils.BuildStatusToMarkdown(build)
+		statusImageMarkdown := utils.BuildStatusToMarkdown(build, badgePassedURL, badgeFailedURL)
 
 		text += fmt.Sprintf("| % s | % s | [%d](%s) | `%s` | %s | %s | %s | %s |\n",
 			build.Workflows.WorkflowName,

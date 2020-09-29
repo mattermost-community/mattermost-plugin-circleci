@@ -4,13 +4,10 @@ import (
 	"fmt"
 
 	"github.com/jszwedko/go-circleci"
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
-)
 
-var (
-	badgeFailedURL string
-	badgePassedURL string
+	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 // GetCircleUserInfo returns info about logged in user
@@ -21,7 +18,7 @@ func GetCircleUserInfo(circleToken string) (*circleci.User, error) {
 
 	user, err := circleClient.Me()
 	if err != nil {
-		return nil, fmt.Errorf("Error when reaching CircleCI. CircleCI error: %s", err.Error())
+		return nil, fmt.Errorf("error when reaching CircleCI. CircleCI error: %s", err.Error())
 	}
 
 	return user, nil
@@ -32,7 +29,7 @@ func GetCircleciUserProjects(circleCiToken string) ([]*circleci.Project, error) 
 	circleciClient := &circleci.Client{Token: circleCiToken}
 	projects, err := circleciClient.ListProjects()
 	if err != nil {
-		return nil, fmt.Errorf("Unable to get circleCI user projects. CircleCI API error: %s", err.Error())
+		return nil, fmt.Errorf("unable to get circleCI user projects. CircleCI API error: %s", err.Error())
 	}
 
 	return projects, nil

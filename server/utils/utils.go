@@ -6,13 +6,8 @@ import (
 	v1 "github.com/jszwedko/go-circleci"
 )
 
-var (
-	badgeFailedURL string
-	badgePassedURL string
-)
-
 // BuildStatusToMarkdown returns Markdown text with the formatted status, or a badge if we have it
-func BuildStatusToMarkdown(build *v1.Build) string {
+func BuildStatusToMarkdown(build *v1.Build, badgeFailedURL string, badgePassedURL string) string {
 	switch build.Status {
 	case "running":
 		return "Running"
