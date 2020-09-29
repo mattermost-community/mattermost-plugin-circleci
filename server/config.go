@@ -1,4 +1,4 @@
-package commands
+package main
 
 import (
 	"fmt"
@@ -16,7 +16,6 @@ const (
 	helpText             = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
 )
 
-// GetConfigAutoCompeleteData returns the auto complete info
 func getConfigAutoCompeleteData() *model.AutocompleteData {
 	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
 	configCommand.AddTextArgument("project identifier. (vcs/org/projectname)", "[project identifier]", "")

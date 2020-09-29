@@ -10,7 +10,6 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/commands"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -96,7 +95,7 @@ func getAutocompleteData() *model.AutocompleteData {
 	subscribe.AddCommand(listAllSubscribedChannels)
 
 	// Config
-	configCommand := commands.GetConfigAutoCompeleteData()
+	configCommand := getConfigAutoCompeleteData()
 
 	// Workflow
 	workflow := GetWorkflowAutoCompeleteData()
@@ -181,8 +180,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case subscribeTrigger:
 		return p.executeSubscribe(args, token, split[2:])
 
-	case commands.ConfigCommandTrigger:
-		result := commands.ExecuteConfigCommand(args, p.Store)
+	case configCommandTrigger:
+		result := p.executeConfigCommand(args, p.Store)
 		return p.sendEphemeralResponse(args, result), nil
 	case workflowTrigger:
 		return p.executeWorkflowTrigger(args, token, split[2:])
