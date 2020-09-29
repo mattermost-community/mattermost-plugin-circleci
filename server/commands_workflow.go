@@ -43,7 +43,6 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 
 func (p *Plugin) executeWorflowGet(args *model.CommandArgs,
 	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
-
 	wf, err := circle.GetWorkflow(token, workflowID)
 	if err != nil {
 		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
@@ -111,8 +110,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs,
 
 func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
-
-	wf, err := circle.GetWorkflow(token, workflowID)
+	_, err := circle.GetWorkflow(token, workflowID)
 	if err != nil {
 		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
 			"Failed to fetch info for workflow", workflowID, err.Error())}
