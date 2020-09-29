@@ -16,7 +16,7 @@ import (
 
 const (
 	commandTrigger          = "circleci"
-	commandAutocompleteHint = "<" + accountTrigger + "|" + projectTrigger + "|" + subscribeTrigger + ">"
+	commandAutocompleteHint = "<" + accountTrigger + "|" + projectTrigger + "|" + subscribeTrigger + "|" + workflowTrigger + ">"
 	commandAutocompleteDesc = "Interact with CircleCI jobs and builds"
 
 	notConnectedText    = "You are not connected to CircleCI. Please try `/" + commandTrigger + " " + accountTrigger + " " + accountConnectTrigger + "`"
@@ -97,11 +97,16 @@ func getAutocompleteData() *model.AutocompleteData {
 
 	// Config
 	configCommand := commands.GetConfigAutoCompeleteData()
+
+	// Workflow
+	workflow := GetWorkflowAutoCompeleteData()
+
 	// Add all subcommands
 	mainCommand.AddCommand(account)
 	mainCommand.AddCommand(project)
 	mainCommand.AddCommand(subscribe)
 	mainCommand.AddCommand(configCommand)
+	mainCommand.AddCommand(workflow)
 	return mainCommand
 }
 
@@ -179,6 +184,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case commands.ConfigCommandTrigger:
 		result := commands.ExecuteConfigCommand(args, p.Store)
 		return p.sendEphemeralResponse(args, result), nil
+	case workflowTrigger:
+		return p.executeWorkflowTrigger(args, token, split[2:])
 
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
