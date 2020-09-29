@@ -26,6 +26,21 @@ const (
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
 )
 
+func getProjectAutoComplete() *model.AutocompleteData {
+	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
+
+	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
+	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
+	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
+	projectRecentBuild.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
+	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
+
+	project.AddCommand(projectRecentBuild)
+	project.AddCommand(projectList)
+
+	return project
+}
+
 func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {

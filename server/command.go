@@ -9,8 +9,6 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -51,54 +49,19 @@ func getAutocompleteData() *model.AutocompleteData {
 	mainCommand := model.NewAutocompleteData(commandTrigger, commandAutocompleteHint, commandAutocompleteDesc)
 
 	// Account subcommands
-	account := model.NewAutocompleteData(accountTrigger, accountHint, accountHelpText)
-
-	view := model.NewAutocompleteData(accountViewTrigger, "", AccountViewHelpText)
-	connect := model.NewAutocompleteData(accountConnectTrigger, accountConnectHint, accountConnectHelpText)
-	connect.AddTextArgument("Generate a Personal API Token from your CircleCI user settings", accountConnectHint, "")
-	disconnect := model.NewAutocompleteData(accountDisconnectTrigger, "", accountDisconnectHelpText)
-
-	account.AddCommand(view)
-	account.AddCommand(connect)
-	account.AddCommand(disconnect)
+	account := getAccountAutoCompleteData()
 
 	// Project management subcommands
-	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
-
-	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
-	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
-	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
-	projectRecentBuild.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
-	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
-
-	project.AddCommand(projectRecentBuild)
-	project.AddCommand(projectList)
+	project := getProjectAutoComplete()
 
 	// Subscriptions subcommands
-	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
+	subscribe := getSubscribeAutoCompleteData()
 
-	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
-	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
-	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
-	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
-	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
-	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
-	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	// Config subcommands
+	configCommand := getConfigAutoCompleteData()
 
-	subscribe.AddCommand(subscribeList)
-	subscribe.AddCommand(subscribeChannel)
-	subscribe.AddCommand(unsubscribeChannel)
-	subscribe.AddCommand(listAllSubscribedChannels)
-
-	// Config
-	configCommand := getConfigAutoCompeleteData()
-
-	// Workflow
-	workflow := GetWorkflowAutoCompeleteData()
+	// Workflow subcommands
+	workflow := getWorkflowAutoCompeleteData()
 
 	// Add all subcommands
 	mainCommand.AddCommand(account)

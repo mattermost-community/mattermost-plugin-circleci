@@ -35,6 +35,29 @@ const (
 	subscribeListAllChannelsHelpText = "List all channels subscribed to this repository in the current team"
 )
 
+func getSubscribeAutoCompleteData() *model.AutocompleteData {
+	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
+
+	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
+	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
+	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
+	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
+	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
+	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
+	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
+	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
+	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+
+	subscribe.AddCommand(subscribeList)
+	subscribe.AddCommand(subscribeChannel)
+	subscribe.AddCommand(unsubscribeChannel)
+	subscribe.AddCommand(listAllSubscribedChannels)
+
+	return subscribe
+}
+
 func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {

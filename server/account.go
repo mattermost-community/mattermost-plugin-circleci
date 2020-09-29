@@ -26,6 +26,21 @@ const (
 	accountDisconnectHelpText = "Disconnect your Mattermost account from CircleCI"
 )
 
+func getAccountAutoCompleteData() *model.AutocompleteData {
+	account := model.NewAutocompleteData(accountTrigger, accountHint, accountHelpText)
+
+	view := model.NewAutocompleteData(accountViewTrigger, "", AccountViewHelpText)
+	connect := model.NewAutocompleteData(accountConnectTrigger, accountConnectHint, accountConnectHelpText)
+	connect.AddTextArgument("Generate a Personal API Token from your CircleCI user settings", accountConnectHint, "")
+	disconnect := model.NewAutocompleteData(accountDisconnectTrigger, "", accountDisconnectHelpText)
+
+	account.AddCommand(view)
+	account.AddCommand(connect)
+	account.AddCommand(disconnect)
+
+	return account
+}
+
 func (p *Plugin) executeAccount(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
