@@ -9,6 +9,7 @@ import (
 
 // Config configuration for the plugin
 type Config struct {
+	VcsType string
 	Org     string
 	Project string
 }
