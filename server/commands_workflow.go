@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
