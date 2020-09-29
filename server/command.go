@@ -97,13 +97,9 @@ func getAutocompleteData() *model.AutocompleteData {
 
 	// Config
 	configCommand := commands.GetConfigAutoCompeleteData()
-	workflow := model.NewAutocompleteData(workflowTrigger, workflowHint, workflowHelpText)
-	workflowGet := model.NewAutocompleteData(workflowGetTrigger, workflowGetHint, workflowGetHelpText)
-	workflowGet.AddTextArgument("workflow id", workflowGetHint, "")
-	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsTriggerHelpText)
-	workflowGetJobs.AddTextArgument("workflow id", workflowGetJobsHint, "")
-	workflow.AddCommand(workflowGet)
-	workflow.AddCommand(workflowGetJobs)
+
+	// Workflow
+	workflow := GetWorkflowAutoCompeleteData()
 
 	// Add all subcommands
 	mainCommand.AddCommand(account)

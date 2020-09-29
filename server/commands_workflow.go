@@ -21,6 +21,18 @@ const (
 	workflowGetJobsTriggerHelpText = "Get jobs list of workflow"
 )
 
+// GetWorkflowAutoCompeleteData returns the auto complete info
+func GetWorkflowAutoCompeleteData() *model.AutocompleteData {
+	workflow := model.NewAutocompleteData(workflowTrigger, workflowHint, workflowHelpText)
+	workflowGet := model.NewAutocompleteData(workflowGetTrigger, workflowGetHint, workflowGetHelpText)
+	workflowGet.AddTextArgument("workflow id", workflowGetHint, "")
+	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsTriggerHelpText)
+	workflowGetJobs.AddTextArgument("workflow id", workflowGetJobsHint, "")
+	workflow.AddCommand(workflowGet)
+	workflow.AddCommand(workflowGetJobs)
+	return workflow
+}
+
 func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
