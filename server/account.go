@@ -6,6 +6,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 const (
@@ -49,13 +51,13 @@ func (p *Plugin) executeAccount(args *model.CommandArgs, circleciToken string, s
 }
 
 func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*model.CommandResponse, *model.AppError) {
-	user, ok := p.getCircleUserInfo(token)
-	if !ok {
+	user, err := v1.GetCircleUserInfo(token)
+	if err != nil {
 		p.API.LogInfo("Unable to get CircleCI info", "MM UserID", args.UserId)
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
-	projects, _ := p.getCircleciUserProjects(token)
+	projects, _ := v1.GetCircleciUserProjects(token)
 	projectsListString := ""
 	for _, project := range projects {
 		// TODO : add circleCI url
@@ -68,8 +70,8 @@ func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*mod
 		[]*model.SlackAttachment{
 			{
 				ThumbURL: user.AvatarURL,
-				Fallback: "User:" + circleciUserToString(user) + ". Email:" + *user.SelectedEmail,
-				Pretext:  "Information for CircleCI user " + circleciUserToString(user),
+				Fallback: "User:" + utils.CircleciUserToString(user) + ". Email:" + *user.SelectedEmail,
+				Pretext:  "Information for CircleCI user " + utils.CircleciUserToString(user),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Name",
@@ -100,12 +102,12 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	}
 
 	if token, exists := p.Store.GetTokenForUser(args.UserId); exists {
-		user, ok := p.getCircleUserInfo(token)
-		if !ok {
+		user, err := v1.GetCircleUserInfo(token)
+		if err != nil {
 			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
 		}
 
-		return p.sendEphemeralResponse(args, "You are already connected as "+circleciUserToString(user)), nil
+		return p.sendEphemeralResponse(args, "You are already connected as "+utils.CircleciUserToString(user)), nil
 	}
 
 	circleciToken := split[0]

@@ -6,6 +6,8 @@ import (
 
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
+	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 const (
@@ -45,8 +47,8 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 }
 
 func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken string) (*model.CommandResponse, *model.AppError) {
-	projects, ok := p.getCircleciUserProjects(circleciToken)
-	if !ok {
+	projects, err := v1.GetCircleciUserProjects(circleciToken)
+	if err != nil {
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
@@ -94,14 +96,14 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 
 	text := "| Workflow | Job | Build | Subject | Start time | Status | Duration | Triggered by|\n| :---- | :----- | :----- | :----- | :----- | :----- | :---- | \n"
 	for _, build := range builds {
-		buildStartTime := buildStartTimeToString(build)
+		buildStartTime := utils.BuildStartTimeToString(build)
 
 		buildTime := "/"
 		if build.BuildTimeMillis != nil {
 			buildTime = strconv.Itoa(*build.BuildTimeMillis/1000) + "s"
 		}
 
-		statusImageMarkdown := buildStatusToMarkdown(build, p)
+		statusImageMarkdown := utils.BuildStatusToMarkdown(build)
 
 		text += fmt.Sprintf("| % s | % s | [%d](%s) | `%s` | %s | %s | %s | %s |\n",
 			build.Workflows.WorkflowName,

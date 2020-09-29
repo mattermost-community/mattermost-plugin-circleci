@@ -6,8 +6,8 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 const (
@@ -154,7 +154,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 	// TODO add message "add the orb, here is the docs for doing it"
 	return p.sendEphemeralResponse(context, fmt.Sprintf(
 		"Successfully subscribed this channel to notifications from **%s**\nSend webhooks to `%s`",
-		circle.GetFullNameFromOwnerAndRepo(owner, repo),
+		utils.GetFullNameFromOwnerAndRepo(owner, repo),
 		p.getWebhookURL(),
 	)), nil
 }
@@ -173,7 +173,8 @@ func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []st
 	}
 
 	if removed := subs.RemoveSubscription(context.ChannelId, owner, repo); !removed {
-		return p.sendEphemeralResponse(context, fmt.Sprintf("This channel is not subscribed to **%s**", circle.GetFullNameFromOwnerAndRepo(owner, repo))), nil
+		return p.sendEphemeralResponse(context, fmt.Sprintf("This channel is not subscribed to **%s**",
+			utils.GetFullNameFromOwnerAndRepo(owner, repo))), nil
 	}
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
@@ -183,7 +184,7 @@ func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []st
 
 	return p.sendEphemeralResponse(context, fmt.Sprintf(
 		"Successfully unsubscribed this channel to notifications from **%s**",
-		circle.GetFullNameFromOwnerAndRepo(owner, repo),
+		utils.GetFullNameFromOwnerAndRepo(owner, repo),
 	)), nil
 }
 
@@ -213,7 +214,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, spli
 		), nil
 	}
 
-	message := "Channels of this team subscribed to **" + circle.GetFullNameFromOwnerAndRepo(owner, repo) + "**\n"
+	message := "Channels of this team subscribed to **" + utils.GetFullNameFromOwnerAndRepo(owner, repo) + "**\n"
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {

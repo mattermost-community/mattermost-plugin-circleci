@@ -4,7 +4,11 @@ import (
 	"fmt"
 
 	v1 "github.com/jszwedko/go-circleci"
-	"github.com/mattermost/mattermost-server/model"
+)
+
+var (
+	badgeFailedURL string
+	badgePassedURL string
 )
 
 // BuildStatusToMarkdown returns Markdown text with the formatted status, or a badge if we have it
@@ -60,57 +64,4 @@ func CircleciUserToString(user *v1.User) string {
 // GetFullNameFromOwnerAndRepo get full name
 func GetFullNameFromOwnerAndRepo(owner string, repository string) string {
 	return fmt.Sprintf("%s/%s", owner, repository)
-}
-
-// BuildInfos ..
-type BuildInfos struct {
-	Owner          string `json:"Owner"`
-	Repository     string `json:"Repository"`
-	CircleBuildNum int    `json:"CircleBuildNum"`
-	Failed         bool   `json:"Failed"`
-	Message        string `json:"Message"`
-}
-
-// ToPostAttachments converts the build info into a post attachment
-func (bi *BuildInfos) ToPostAttachments(buildFailedIconURL, buildGreenIconURL string) []*model.SlackAttachment {
-	// TODO add link to build
-	attachment := &model.SlackAttachment{
-		Fields: []*model.SlackAttachmentField{
-			{
-				Title: "Repo",
-				Short: true,
-				Value: GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
-			},
-			{
-				Title: "Job number",
-				Short: true,
-				Value: fmt.Sprintf("%d", bi.CircleBuildNum),
-			},
-		},
-	}
-
-	if bi.Message != "" {
-		attachment.Fields = append(attachment.Fields,
-			&model.SlackAttachmentField{
-				Title: "Message",
-				Short: false,
-				Value: fmt.Sprintf("```\n%s\n```", bi.Message),
-			},
-		)
-	}
-
-	if bi.Failed {
-		attachment.ThumbURL = buildFailedIconURL
-		attachment.Title = "Job failed"
-		attachment.Color = "#FF1919" // red
-	} else {
-		attachment.ThumbURL = buildGreenIconURL
-		attachment.Title = "Job passed"
-		attachment.Color = "#50F100" // green
-	}
-
-	attachment.Fallback = attachment.Title
-	return []*model.SlackAttachment{
-		attachment,
-	}
 }

@@ -5,9 +5,8 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 	"github.com/pkg/errors"
-
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
 func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
@@ -16,7 +15,7 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buildInfos := new(circle.BuildInfos)
+	buildInfos := new(v1.BuildInfos)
 	if err := json.NewDecoder(r.Body).Decode(&buildInfos); err != nil {
 		p.API.LogError("Unable to decode JSON for received webkook.", "Error", err.Error())
 		return
