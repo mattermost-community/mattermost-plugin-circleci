@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
+
 	"github.com/pkg/errors"
 )
 
