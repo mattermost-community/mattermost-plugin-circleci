@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	configCommandTrigger = "config"
-	hint                 = "[vcs/org-name/project-name]"
-	helpText             = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
+	configCommandTrigger  = "config"
+	configCommandHint     = "[vcs/org-name/project-name]"
+	configCommandHelpText = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
 )
 
 func getConfigAutoCompleteData() *model.AutocompleteData {
-	configCommand := model.NewAutocompleteData(configCommandTrigger, hint, helpText)
+	configCommand := model.NewAutocompleteData(configCommandTrigger, configCommandHint, configCommandHelpText)
 	configCommand.AddTextArgument("project identifier. (vcs/org/projectname)", "[project identifier]", "")
 	return configCommand
 }
