@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-
-	"github.com/pkg/errors"
 )
 
 func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
