@@ -7,7 +7,6 @@ import (
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 const (
@@ -85,8 +84,8 @@ func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*mod
 		[]*model.SlackAttachment{
 			{
 				ThumbURL: user.AvatarURL,
-				Fallback: "User:" + utils.CircleciUserToString(user) + ". Email:" + *user.SelectedEmail,
-				Pretext:  "Information for CircleCI user " + utils.CircleciUserToString(user),
+				Fallback: "User:" + v1.CircleciUserToString(user) + ". Email:" + *user.SelectedEmail,
+				Pretext:  "Information for CircleCI user " + v1.CircleciUserToString(user),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Name",
@@ -122,7 +121,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
 		}
 
-		return p.sendEphemeralResponse(args, "You are already connected as "+utils.CircleciUserToString(user)), nil
+		return p.sendEphemeralResponse(args, "You are already connected as "+v1.CircleciUserToString(user)), nil
 	}
 
 	circleciToken := split[0]

@@ -6,8 +6,6 @@ import (
 	"github.com/jszwedko/go-circleci"
 
 	"github.com/mattermost/mattermost-server/v5/model"
-
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 // GetCircleUserInfo returns info about logged in user
@@ -52,7 +50,7 @@ func (bi *BuildInfos) ToPostAttachments(buildFailedIconURL, buildGreenIconURL st
 			{
 				Title: "Repo",
 				Short: true,
-				Value: utils.GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
+				Value: GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
 			},
 			{
 				Title: "Job number",

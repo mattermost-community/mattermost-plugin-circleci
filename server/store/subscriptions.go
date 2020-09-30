@@ -6,7 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
+	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
 
 const (
@@ -27,7 +27,7 @@ type Subscriptions struct {
 
 func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttachmentField {
 	return &model.SlackAttachmentField{
-		Title: utils.GetFullNameFromOwnerAndRepo(s.Owner, s.Repository),
+		Title: v1.GetFullNameFromOwnerAndRepo(s.Owner, s.Repository),
 		Short: true,
 		Value: fmt.Sprintf(
 			"Subscribed by: @%s\nFlags: ` %s`",
@@ -39,7 +39,7 @@ func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttac
 
 // AddSubscription adds a new subscription in the struct
 func (s *Subscriptions) AddSubscription(newSub *Subscription) {
-	key := utils.GetFullNameFromOwnerAndRepo(newSub.Owner, newSub.Repository)
+	key := v1.GetFullNameFromOwnerAndRepo(newSub.Owner, newSub.Repository)
 
 	repoSubs := s.Repositories[key]
 
@@ -65,7 +65,7 @@ func (s *Subscriptions) AddSubscription(newSub *Subscription) {
 // RemoveSubscription removes a subscription from the struct
 // Return true if the subscription has been found and removed
 func (s *Subscriptions) RemoveSubscription(channelID, owner, repository string) bool {
-	key := utils.GetFullNameFromOwnerAndRepo(owner, repository)
+	key := v1.GetFullNameFromOwnerAndRepo(owner, repository)
 
 	repoSubs := s.Repositories[key]
 	if repoSubs == nil {
@@ -114,7 +114,7 @@ func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscript
 
 // Return a list of subscribed channel IDs
 func (s *Subscriptions) GetSubscribedChannelsForRepository(owner, repository string) []string {
-	key := utils.GetFullNameFromOwnerAndRepo(owner, repository)
+	key := v1.GetFullNameFromOwnerAndRepo(owner, repository)
 
 	subs := s.Repositories[key]
 	if subs == nil {

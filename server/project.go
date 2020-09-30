@@ -8,7 +8,6 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/utils"
 )
 
 const (
@@ -112,14 +111,14 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 
 	text := "| Workflow | Job | Build | Subject | Start time | Status | Duration | Triggered by|\n| :---- | :----- | :----- | :----- | :----- | :----- | :---- | \n"
 	for _, build := range builds {
-		buildStartTime := utils.BuildStartTimeToString(build)
+		buildStartTime := v1.BuildStartTimeToString(build)
 
 		buildTime := "/"
 		if build.BuildTimeMillis != nil {
 			buildTime = strconv.Itoa(*build.BuildTimeMillis/1000) + "s"
 		}
 
-		statusImageMarkdown := utils.BuildStatusToMarkdown(build, badgePassedURL, badgeFailedURL)
+		statusImageMarkdown := v1.BuildStatusToMarkdown(build, badgePassedURL, badgeFailedURL)
 
 		text += fmt.Sprintf("| % s | % s | [%d](%s) | `%s` | %s | %s | %s | %s |\n",
 			build.Workflows.WorkflowName,
