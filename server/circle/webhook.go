@@ -58,7 +58,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 
 	case wi.IsWaitingApproval:
 		attachment.Title = "CircleCI Job waiting approval"
-		attachment.Color = "#DBAB09" // yellow
+		attachment.Color = "#8267E4" // purple
 
 		// TODO : add button to approve / refuse the job
 		// attachment.Actions = []*model.PostAction{
