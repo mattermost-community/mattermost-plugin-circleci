@@ -12,68 +12,112 @@ import (
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
 
-// BuildInfos ..
-type BuildInfos struct {
-	Owner          string `json:"Owner"`
-	Repository     string `json:"Repository"`
-	CircleBuildNum int    `json:"CircleBuildNum"`
-	Failed         bool   `json:"Failed"`
-	Message        string `json:"Message"`
+// TODO Add information to the notification: which branCIRCLE_BRANCHche is concerned / which commit? (may need modification to the orb)
+
+// WebhookInfo from the webhookCIRCLE_BRANCH
+type WebhookInfo struct {
+	Owner                  string `json:"Owner"`
+	Repository             string `json:"Repository"`
+	RepositoryURL          string `json:"RepositoryURL"`
+	Branch                 string `json:"Branch"`
+	CircleBuildNum         int    `json:"CircleBuildNum"`
+	CircleBuildURL         string `json:"CircleBuildURL"`
+	Username               string `json:"Username"`
+	AssociatedPullRequests string `json:"AssociatedPullRequests"`
+	IsFailed               bool   `json:"IsFailed"`
+	IsWaitingApproval      bool   `json:"IsWaitingApproval"`
+	Message                string `json:"Message"`
 }
 
-// ToPostAttachments converts the build info into a post attachment
-func (bi *BuildInfos) ToPostAttachments(buildFailedIconURL, buildGreenIconURL string) []*model.SlackAttachment {
-	// TODO add link to build
+// Convert the build info into a post attachment
+func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	attachment := &model.SlackAttachment{
+		TitleLink: wi.CircleBuildURL,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repo",
 				Short: true,
-				Value: v1.GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
+				Value: fmt.Sprintf(
+					"[%s](%s)",
+					v1.GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
+					wi.RepositoryURL,
+				),
+			},
+			{
+				Title: "Branch",
+				Short: true,
+				Value: fmt.Sprintf("`%s`", wi.Branch),
 			},
 			{
 				Title: "Job number",
 				Short: true,
-				Value: fmt.Sprintf("%d", bi.CircleBuildNum),
+				Value: fmt.Sprintf("%d", wi.CircleBuildNum),
+			},
+			{
+				Title: "Build informations",
+				Short: false,
+				Value: fmt.Sprintf(
+					"- Build triggered by: %s\n- Associated PRs: %s",
+					wi.Username,
+					wi.AssociatedPullRequests,
+				),
 			},
 		},
 	}
 
-	if bi.Message != "" {
-		attachment.Fields = append(attachment.Fields,
-			&model.SlackAttachmentField{
-				Title: "Message",
-				Short: false,
-				Value: fmt.Sprintf("```\n%s\n```", bi.Message),
-			},
-		)
-	}
-
-	if bi.Failed {
+	switch {
+	case wi.IsFailed:
 		attachment.ThumbURL = buildFailedIconURL
-		attachment.Title = "Job failed"
+		attachment.Title = "CircleCI Job failed"
 		attachment.Color = "#FF1919" // red
-	} else {
+
+	case wi.IsWaitingApproval:
+		attachment.Title = "CircleCI Job waiting approval"
+		attachment.Color = "#8267E4" // purple
+
+		// TODO : add button to approve / refuse the job
+		// attachment.Actions = []*model.PostAction{
+		// 	{
+		// 		Id:   "approve-circleci-job",
+		// 		Name: "Approve Job",
+		// 		Integration: &model.PostActionIntegration{
+		// 			URL: "",
+		// 			Context: map[string]interface{}{
+		// 				"a": "b",
+		// 			},
+		// 		},
+		// 	},
+		// }
+
+	default:
+		// Not failed and not waiting approval = passed
 		attachment.ThumbURL = buildGreenIconURL
-		attachment.Title = "Job passed"
+		attachment.Title = "CircleCI Job passed"
 		attachment.Color = "#50F100" // green
 	}
 
 	attachment.Fallback = attachment.Title
-	return []*model.SlackAttachment{
-		attachment,
+
+	post := model.Post{
+		Message: wi.Message,
 	}
+
+	post.AddProp("attachments", []*model.SlackAttachment{
+		attachment,
+	})
+
+	return &post
 }
 
 func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be POST"))
+		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method "+r.Method+" is not allowed, must be POST"))
 		return
 	}
 
-	buildInfos := new(BuildInfos)
-	if err := json.NewDecoder(r.Body).Decode(&buildInfos); err != nil {
-		p.API.LogError("Unable to decode JSON for received webkook.", "Error", err.Error())
+	wi := new(WebhookInfo)
+	if err := json.NewDecoder(r.Body).Decode(&wi); err != nil {
+		p.API.LogError("Unable to decode JSON for received webhook.", "Error", err.Error())
 		return
 	}
 
@@ -83,15 +127,13 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetSubscribedChannelsForRepository(buildInfos.Owner, buildInfos.Repository)
+	channelsToPost := allSubs.GetFilteredChannelsForBuild(wi.Owner, wi.Repository, wi.IsFailed)
 	if channelsToPost == nil {
-		p.API.LogWarn("Received webhooks without any subscriptions", "webhook", buildInfos)
+		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
 	}
 
-	postWithoutChannel := &model.Post{
-		UserId: p.botUserID,
-	}
-	postWithoutChannel.AddProp("attachments", buildInfos.ToPostAttachments(buildFailedIconURL, buildGreenIconURL))
+	postWithoutChannel := wi.ToPost(buildFailedIconURL, buildGreenIconURL)
+	postWithoutChannel.UserId = p.botUserID
 
 	for _, channel := range channelsToPost {
 		post := postWithoutChannel.Clone()

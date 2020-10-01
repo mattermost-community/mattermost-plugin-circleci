@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
@@ -35,9 +36,10 @@ func (p *Plugin) sendEphemeralResponse(args *model.CommandArgs, message string) 
 }
 
 func (p *Plugin) getWebhookURL() string {
-	siteURL := p.API.GetConfig().ServiceSettings.SiteURL
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+	siteURL = strings.TrimRight(siteURL, "/")
 	webhookSecret := p.getConfiguration().WebhooksSecret
-	return fmt.Sprintf("%s/plugins/%s%s/%s", *siteURL, manifest.Id, routeWebhooksPrefix, webhookSecret)
+	return fmt.Sprintf("%s/plugins/%s%s/%s", siteURL, manifest.Id, routeWebhooksPrefix, webhookSecret)
 }
 
 // HTTP Utils below

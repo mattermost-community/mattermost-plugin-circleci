@@ -4,6 +4,8 @@ A Work-In-Progress [CircleCI](https://circleci.com) plugin to interact with jobs
 
 To learn more about plugins, see [the Mattermost plugin documentation](https://developers.mattermost.com/extend/plugins/).
 
+This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](https://github.com/nathanaelhoun)**: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
+
 **This plugin is under development and is not ready for production**
 
 ## Features
@@ -11,16 +13,24 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 #### Connect to your CircleCI account
 
 -   `/circleci account view` - Get informations about yourself
--   `/circleci account connect [API token]` - Connect your Mattermost account to CircleCI
+-   `/circleci account connect <API token>` - Connect your Mattermost account to CircleCI
 -   `/circleci account disconnect` - Disconnect your Mattermost account from CircleCI
 
 #### Manage CircleCI projects
 
 -   `/circleci project list-followed` - List followed projects
--   `/circleci project recent-build [username] [repository] [branch]` - List the 10 last builds for a project
+-   `/circleci project recent-build <owner-name> <project-name> <branch>` - List the 10 last builds for a project
+
+#### Subscribe to notifications projects
+
+-   `/circleci subscription list` — List the CircleCI subscriptions for the current channel
+-   `/circleci subscription subscribe <owner> <repository> [--flags]` — Subscribe the current channel to CircleCI notifications for a repository
+-   `/circleci subscription unsubscribe <owner> <repository> [--flags]` — Unsubscribe the current channel to CircleCI notifications for a repository
+-   `/circleci subscription list-channels <owner> <repository>` — List all channels subscribed to this repository in the current team
 
 #### Config
-- `/circleci config vcs/orgname/projectname` - Allows you to set a default project to run your commands against
+
+-   `/circleci config <vcs/org-name/project-name>` - Allows you to set a default project to run your commands against
 
 ## TODO (tracking list)
 
@@ -28,7 +38,7 @@ To learn more about plugins, see [the Mattermost plugin documentation](https://d
 
 -   [x] Connect to CircleCI, see your profile, disconnect
 
--   [ ] Setup webhook notifications about successful and failed CircleCI builds
+-   [x] Setup webhook notifications about successful and failed CircleCI builds
 
 -   [ ] Interact with CircleCI jobs
 
@@ -83,6 +93,6 @@ Apache License.
 
 ## Thanks to
 
--   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI Go API](https://github.com/jszwedko/go-circleci)
--   Another [CircleCI Plugin](https://github.com/chetanyakan/mattermost-plugin-circleci) by **[@chetanyakan](https://github.com/chetanyakan)**
+-   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
+-   **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
 -   [Mattermost](https://mattermost.org) for providing a good software and having a great community
