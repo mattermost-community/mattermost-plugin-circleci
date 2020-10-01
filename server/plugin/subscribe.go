@@ -41,7 +41,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
 	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
-	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
+	subscribeChannel.AddDynamicListArgument("", routeFollowedProjects, true)
 	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
 	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list

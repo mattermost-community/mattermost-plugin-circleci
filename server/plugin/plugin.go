@@ -3,6 +3,7 @@ package plugin
 import (
 	"sync"
 
+	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
@@ -36,6 +37,8 @@ type Plugin struct {
 	configuration *configuration
 
 	botUserID string
+
+	router *mux.Router
 }
 
 func (p *Plugin) OnActivate() error {
@@ -64,6 +67,8 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to ensure bot")
 	}
 	p.botUserID = botUserID
+
+	p.initializeRouter()
 
 	// Register slash command
 	if err := p.API.RegisterCommand(p.getCommand()); err != nil {

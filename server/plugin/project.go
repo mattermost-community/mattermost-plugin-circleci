@@ -31,7 +31,7 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
 	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
 	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
-	projectRecentBuild.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
+	projectRecentBuild.AddDynamicListArgument("", routeFollowedProjects, true)
 	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
 
 	project.AddCommand(projectRecentBuild)

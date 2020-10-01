@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
+	"github.com/gorilla/mux"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
@@ -65,9 +65,11 @@ func (bi *BuildInfos) ToPostAttachments(buildFailedIconURL, buildGreenIconURL st
 	}
 }
 
-func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be POST"))
+func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
+	// Checking secret
+	vars := mux.Vars(r)
+	if vars["secret"] != p.getConfiguration().WebhooksSecret {
+		http.NotFound(w, r)
 		return
 	}
 
