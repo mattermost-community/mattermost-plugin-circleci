@@ -13,6 +13,8 @@ const (
 	pipelineTrigger = "pipeline"
 	pipelineHint    = "<" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" +
 		pipelineGetRecentTrigger + "|" + pipelineWorkflowTrigger + ">"
+	pipelineTrigger  = "pipeline"
+	pipelineHint     = "<" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" + pipelineGetRecentTrigger + ">"
 	pipelineHelpText = "Manage the connection to your CircleCI acccount"
 
 	pipelineGetRecentTrigger  = "recent"
@@ -46,6 +48,9 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	pipeline.AddCommand(recent)
 	pipeline.AddCommand(mine)
 	pipeline.AddCommand(wf)
+	pipeline.AddCommand(all)
+	pipeline.AddCommand(recent)
+	pipeline.AddCommand(mine)
 	return pipeline
 }
 
@@ -136,6 +141,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs,
 	)
 
 	return &model.CommandResponse{}, nil
+
 }
 
 func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs,
