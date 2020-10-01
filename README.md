@@ -4,7 +4,7 @@ A Work-In-Progress [CircleCI](https://circleci.com) plugin to interact with jobs
 
 To learn more about plugins, see [the Mattermost plugin documentation](https://developers.mattermost.com/extend/plugins/).
 
-This plugin uses the CircleCI Orb for Mattermost Plugin by @nathanaelhoun: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
+This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](https://github.com/nathanaelhoun)**: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
 
 **This plugin is under development and is not ready for production**
 
