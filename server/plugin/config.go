@@ -1,4 +1,4 @@
-package commands
+package plugin
 
 import (
 	"fmt"
@@ -10,21 +10,19 @@ import (
 )
 
 const (
-	// ConfigCommandTrigger trigger for the command
-	ConfigCommandTrigger = "config"
-	hint                 = "[vcs/org-name/project-name]"
-	helpText             = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
+	configCommandTrigger  = "config"
+	configCommandHint     = "[vcs/org-name/project-name]"
+	configCommandHelpText = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
 )
 
-// GetConfigAutoCompeleteData returns the auto complete info
-func GetConfigAutoCompeleteData() *model.AutocompleteData {
-	configCommand := model.NewAutocompleteData(ConfigCommandTrigger, hint, helpText)
-	configCommand.AddTextArgument("project identifier. (vcs/org/projectname)", "[project identifier]", "")
+func getConfigAutoCompleteData() *model.AutocompleteData {
+	configCommand := model.NewAutocompleteData(configCommandTrigger, configCommandHint, configCommandHelpText)
+	configCommand.AddTextArgument("project identifier. (vcs/org-name/project-name)", "[project identifier]", "")
 	return configCommand
 }
 
 // ExecuteConfigCommand executes the config command
-func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
+func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
@@ -32,16 +30,23 @@ func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
 	}
 
 	if projectSlug == "" {
-		return getConfig(args.UserId, db)
+		return p.sendEphemeralResponse(args, getConfig(args.UserId, p.Store)), nil
 	}
 
 	slug := strings.Split(projectSlug, "/")
 
 	if len(slug) != 3 {
-		return ":red_circle: Project should be specified in the format `vcs/orgname/projectname`. ex: `gh/mattermost/mattermost-server`"
+		return p.sendEphemeralResponse(
+			args,
+			":red_circle: Project should be specified in the format `vcs/org-name/project-name`. ex: `gh/mattermost/mattermost-server`",
+		), nil
 	}
+
 	if slug[0] != "gh" && slug[0] != "bb" {
-		return ":red_circle: Invalid vcs value. Vcs should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`"
+		return p.sendEphemeralResponse(
+			args,
+			":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`",
+		), nil
 	}
 
 	defaultConfig := &store.Config{
@@ -50,7 +55,8 @@ func ExecuteConfigCommand(args *model.CommandArgs, db store.Store) string {
 		Project: slug[2],
 	}
 
-	return setConfig(args.UserId, *defaultConfig, db)
+	result := setConfig(args.UserId, *defaultConfig, p.Store)
+	return p.sendEphemeralResponse(args, result), nil
 }
 
 func getConfig(userID string, db store.Store) string {

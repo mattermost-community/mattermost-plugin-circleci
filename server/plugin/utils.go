@@ -1,10 +1,15 @@
-package main
+package plugin
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/pkg/errors"
 )
+
+// Plugin utils
 
 func (p *Plugin) sendEphemeralPost(args *model.CommandArgs, message string, attachments []*model.SlackAttachment) *model.Post {
 	post := &model.Post{
@@ -33,4 +38,28 @@ func (p *Plugin) getWebhookURL() string {
 	siteURL := p.API.GetConfig().ServiceSettings.SiteURL
 	webhookSecret := p.getConfiguration().WebhooksSecret
 	return fmt.Sprintf("%s/plugins/%s%s/%s", *siteURL, manifest.Id, routeWebhooksPrefix, webhookSecret)
+}
+
+// HTTP Utils below
+
+func (p *Plugin) respondAndLogErr(w http.ResponseWriter, code int, err error) {
+	http.Error(w, err.Error(), code)
+	p.API.LogError(err.Error())
+}
+
+func (p *Plugin) respondJSON(w http.ResponseWriter, obj interface{}) {
+	data, err := json.Marshal(obj)
+	if err != nil {
+		p.respondAndLogErr(w, http.StatusInternalServerError, errors.WithMessage(err, "failed to marshal response"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		p.respondAndLogErr(w, http.StatusInternalServerError, errors.WithMessage(err, "failed to write response"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

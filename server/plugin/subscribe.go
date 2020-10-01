@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -34,6 +34,29 @@ const (
 	subscribeListAllChannelsHint     = "<owner> <repository>"
 	subscribeListAllChannelsHelpText = "List all channels subscribed to this repository in the current team"
 )
+
+func getSubscribeAutoCompleteData() *model.AutocompleteData {
+	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
+
+	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
+	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
+	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
+	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
+	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
+	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
+	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
+	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
+	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+
+	subscribe.AddCommand(subscribeList)
+	subscribe.AddCommand(subscribeChannel)
+	subscribe.AddCommand(unsubscribeChannel)
+	subscribe.AddCommand(listAllSubscribedChannels)
+
+	return subscribe
+}
 
 func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
@@ -154,7 +177,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 	// TODO add message "add the orb, here is the docs for doing it"
 	return p.sendEphemeralResponse(context, fmt.Sprintf(
 		"Successfully subscribed this channel to notifications from **%s**\nSend webhooks to `%s`",
-		circle.GetFullNameFromOwnerAndRepo(owner, repo),
+		v1.GetFullNameFromOwnerAndRepo(owner, repo),
 		p.getWebhookURL(),
 	)), nil
 }
@@ -173,7 +196,8 @@ func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []st
 	}
 
 	if removed := subs.RemoveSubscription(context.ChannelId, owner, repo); !removed {
-		return p.sendEphemeralResponse(context, fmt.Sprintf("This channel is not subscribed to **%s**", circle.GetFullNameFromOwnerAndRepo(owner, repo))), nil
+		return p.sendEphemeralResponse(context, fmt.Sprintf("This channel is not subscribed to **%s**",
+			v1.GetFullNameFromOwnerAndRepo(owner, repo))), nil
 	}
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
@@ -183,7 +207,7 @@ func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []st
 
 	return p.sendEphemeralResponse(context, fmt.Sprintf(
 		"Successfully unsubscribed this channel to notifications from **%s**",
-		circle.GetFullNameFromOwnerAndRepo(owner, repo),
+		v1.GetFullNameFromOwnerAndRepo(owner, repo),
 	)), nil
 }
 
@@ -213,7 +237,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, spli
 		), nil
 	}
 
-	message := "Channels of this team subscribed to **" + circle.GetFullNameFromOwnerAndRepo(owner, repo) + "**\n"
+	message := "Channels of this team subscribed to **" + v1.GetFullNameFromOwnerAndRepo(owner, repo) + "**\n"
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {

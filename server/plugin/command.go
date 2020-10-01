@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"encoding/base64"
@@ -9,9 +9,6 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/commands"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -51,62 +48,13 @@ func (p *Plugin) getCommand() *model.Command {
 func getAutocompleteData() *model.AutocompleteData {
 	mainCommand := model.NewAutocompleteData(commandTrigger, commandAutocompleteHint, commandAutocompleteDesc)
 
-	// Account subcommands
-	account := model.NewAutocompleteData(accountTrigger, accountHint, accountHelpText)
-
-	view := model.NewAutocompleteData(accountViewTrigger, "", AccountViewHelpText)
-	connect := model.NewAutocompleteData(accountConnectTrigger, accountConnectHint, accountConnectHelpText)
-	connect.AddTextArgument("Generate a Personal API Token from your CircleCI user settings", accountConnectHint, "")
-	disconnect := model.NewAutocompleteData(accountDisconnectTrigger, "", accountDisconnectHelpText)
-
-	account.AddCommand(view)
-	account.AddCommand(connect)
-	account.AddCommand(disconnect)
-
-	// Project management subcommands
-	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
-
-	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
-	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
-	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
-	projectRecentBuild.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
-	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
-
-	project.AddCommand(projectRecentBuild)
-	project.AddCommand(projectList)
-
-	// Subscriptions subcommands
-	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
-
-	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
-	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
-	subscribeChannel.AddDynamicListArgument("", routeAutocompleteFollowedProjects, true)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
-	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
-	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
-	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
-	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
-
-	subscribe.AddCommand(subscribeList)
-	subscribe.AddCommand(subscribeChannel)
-	subscribe.AddCommand(unsubscribeChannel)
-	subscribe.AddCommand(listAllSubscribedChannels)
-
-	// Config
-	configCommand := commands.GetConfigAutoCompeleteData()
-
-	// Workflow
-	workflow := GetWorkflowAutoCompeleteData()
-
 	// Add all subcommands
-	mainCommand.AddCommand(account)
-	mainCommand.AddCommand(project)
-	mainCommand.AddCommand(subscribe)
-	mainCommand.AddCommand(configCommand)
-	mainCommand.AddCommand(workflow)
+	mainCommand.AddCommand(getAccountAutoCompleteData())
+	mainCommand.AddCommand(getProjectAutoComplete())
+	mainCommand.AddCommand(getSubscribeAutoCompleteData())
+	mainCommand.AddCommand(getConfigAutoCompleteData())
+	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
+
 	return mainCommand
 }
 
@@ -175,18 +123,17 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case projectTrigger:
 		return p.executeProject(args, token, split[2:])
 
-	case commandHelpTrigger:
-		return p.sendHelpResponse(args, "")
-
 	case subscribeTrigger:
 		return p.executeSubscribe(args, token, split[2:])
 
-	case commands.ConfigCommandTrigger:
-		result := commands.ExecuteConfigCommand(args, p.Store)
-		return p.sendEphemeralResponse(args, result), nil
+	case configCommandTrigger:
+		return p.executeConfig(args)
+
 	case workflowTrigger:
 		return p.executeWorkflowTrigger(args, token, split[2:])
 
+	case commandHelpTrigger:
+		return p.sendHelpResponse(args, "")
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
 	}

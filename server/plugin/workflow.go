@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"fmt"
@@ -22,8 +22,7 @@ const (
 	workflowGetJobsTriggerHelpText = "Get jobs list of workflow"
 )
 
-// GetWorkflowAutoCompeleteData returns the auto complete info
-func GetWorkflowAutoCompeleteData() *model.AutocompleteData {
+func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	workflow := model.NewAutocompleteData(workflowTrigger, workflowHint, workflowHelpText)
 	workflowGet := model.NewAutocompleteData(workflowGetTrigger, workflowGetHint, workflowGetHelpText)
 	workflowGet.AddTextArgument("workflow id", workflowGetHint, "")
