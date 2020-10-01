@@ -12,11 +12,14 @@ import (
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
 
-// WebhookInfo from the webbhook
+// TODO Add information to the notification: which branCIRCLE_BRANCHche is concerned / which commit? (may need modification to the orb)
+
+// WebhookInfo from the webhookCIRCLE_BRANCH
 type WebhookInfo struct {
 	Owner                  string `json:"Owner"`
 	Repository             string `json:"Repository"`
 	RepositoryURL          string `json:"RepositoryURL"`
+	Branch                 string `json:"Branch"`
 	CircleBuildNum         int    `json:"CircleBuildNum"`
 	CircleBuildURL         string `json:"CircleBuildURL"`
 	Username               string `json:"Username"`
@@ -39,6 +42,11 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 					v1.GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
 					wi.RepositoryURL,
 				),
+			},
+			{
+				Title: "Branch",
+				Short: true,
+				Value: fmt.Sprintf("`%s`", wi.Branch),
 			},
 			{
 				Title: "Job number",
