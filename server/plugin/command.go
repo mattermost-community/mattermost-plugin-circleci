@@ -31,6 +31,12 @@ const (
 		"* `/" + commandTrigger + " " + projectTrigger + " " + projectListTrigger + "` — " + projectListHelpText + "\n" +
 		"* `/" + commandTrigger + " " + projectTrigger + " " + projectRecentBuildsTrigger + " " + projectRecentBuildsHint + "` — " + projectRecentBuildsHelpText + "\n"
 
+	subscriptionHelp = "#### Subscribe to notifications projects\n" +
+		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeListTrigger + " " + subscribeListHint + "` — " + subscribeListHelpText + "\n" +
+		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeChannelTrigger + " " + subscribeChannelHint + "` — " + subscribeChannelHelpText + "\n" +
+		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeUnsubscribeChannelTrigger + " " + subscribeUnsubscribeChannelHint + "` — " + subscribeUnsubscribeChannelHelpText + "\n" +
+		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeListAllChannelsTrigger + " " + subscribeListAllChannelsHint + "` — " + subscribeListAllChannelsHelpText + "\n"
+
 	help = "## CircleCI plugin Help\n" + accountHelp + projectHelp
 )
 
@@ -83,6 +89,9 @@ func (p *Plugin) sendHelpResponse(args *model.CommandArgs, currentCommand string
 
 	case projectTrigger:
 		message += projectHelp
+
+	case subscribeTrigger:
+		message += subscriptionHelp
 
 	default:
 		message += help
