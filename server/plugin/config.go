@@ -17,12 +17,12 @@ const (
 
 func getConfigAutoCompleteData() *model.AutocompleteData {
 	configCommand := model.NewAutocompleteData(configCommandTrigger, configCommandHint, configCommandHelpText)
-	configCommand.AddTextArgument("project identifier. (vcs/org/projectname)", "[project identifier]", "")
+	configCommand.AddTextArgument("project identifier. (vcs/org-name/project-name)", "[project identifier]", "")
 	return configCommand
 }
 
 // ExecuteConfigCommand executes the config command
-func (p *Plugin) executeConfigCommand(args *model.CommandArgs, db store.Store) string {
+func (p *Plugin) executeConfig(args *model.CommandArgs) string {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
@@ -30,16 +30,16 @@ func (p *Plugin) executeConfigCommand(args *model.CommandArgs, db store.Store) s
 	}
 
 	if projectSlug == "" {
-		return getConfig(args.UserId, db)
+		return getConfig(args.UserId, p.Store)
 	}
 
 	slug := strings.Split(projectSlug, "/")
 
 	if len(slug) != 3 {
-		return ":red_circle: Project should be specified in the format `vcs/orgname/projectname`. ex: `gh/mattermost/mattermost-server`"
+		return ":red_circle: Project should be specified in the format `vcs/org-name/project-name`. ex: `gh/mattermost/mattermost-server`"
 	}
 	if slug[0] != "gh" && slug[0] != "bb" {
-		return ":red_circle: Invalid vcs value. Vcs should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`"
+		return ":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`"
 	}
 
 	defaultConfig := &store.Config{
@@ -48,7 +48,8 @@ func (p *Plugin) executeConfigCommand(args *model.CommandArgs, db store.Store) s
 		Project: slug[2],
 	}
 
-	return setConfig(args.UserId, *defaultConfig, db)
+	result := setConfig(args.UserId, *defaultConfig, p.Store)
+	return p.sendEphemeralResponse(args, result), nil
 }
 
 func getConfig(userID string, db store.Store) string {

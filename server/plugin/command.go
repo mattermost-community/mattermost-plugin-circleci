@@ -48,27 +48,13 @@ func (p *Plugin) getCommand() *model.Command {
 func getAutocompleteData() *model.AutocompleteData {
 	mainCommand := model.NewAutocompleteData(commandTrigger, commandAutocompleteHint, commandAutocompleteDesc)
 
-	// Account subcommands
-	account := getAccountAutoCompleteData()
-
-	// Project management subcommands
-	project := getProjectAutoComplete()
-
-	// Subscriptions subcommands
-	subscribe := getSubscribeAutoCompleteData()
-
-	// Config subcommands
-	configCommand := getConfigAutoCompleteData()
-
-	// Workflow subcommands
-	workflow := getWorkflowAutoCompeleteData()
-
 	// Add all subcommands
-	mainCommand.AddCommand(account)
-	mainCommand.AddCommand(project)
-	mainCommand.AddCommand(subscribe)
-	mainCommand.AddCommand(configCommand)
-	mainCommand.AddCommand(workflow)
+	mainCommand.AddCommand(getAccountAutoCompleteData())
+	mainCommand.AddCommand(getProjectAutoComplete())
+	mainCommand.AddCommand(getSubscribeAutoCompleteData())
+	mainCommand.AddCommand(getConfigAutoCompleteData())
+	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
+
 	return mainCommand
 }
 
@@ -137,18 +123,17 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case projectTrigger:
 		return p.executeProject(args, token, split[2:])
 
-	case commandHelpTrigger:
-		return p.sendHelpResponse(args, "")
-
 	case subscribeTrigger:
 		return p.executeSubscribe(args, token, split[2:])
 
 	case configCommandTrigger:
-		result := p.executeConfigCommand(args, p.Store)
-		return p.sendEphemeralResponse(args, result), nil
+		return p.executeConfig(args)
+
 	case workflowTrigger:
 		return p.executeWorkflowTrigger(args, token, split[2:])
 
+	case commandHelpTrigger:
+		return p.sendHelpResponse(args, "")
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
 	}
