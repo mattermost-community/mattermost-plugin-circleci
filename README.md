@@ -94,5 +94,5 @@ Apache License.
 ## Thanks to
 
 -   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
--   **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2/circleci)
+-   **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
 -   [Mattermost](https://mattermost.org) for providing a good software and having a great community
