@@ -60,6 +60,7 @@ func getAutocompleteData() *model.AutocompleteData {
 	mainCommand.AddCommand(getSubscribeAutoCompleteData())
 	mainCommand.AddCommand(getConfigAutoCompleteData())
 	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
+	mainCommand.AddCommand(getPipelineAutoCompeleteData())
 
 	return mainCommand
 }
@@ -141,8 +142,12 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case workflowTrigger:
 		return p.executeWorkflowTrigger(args, token, split[2:])
 
+	case pipelineTrigger:
+		return p.executePipelineTrigger(args, token, split[2:])
+
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, "")
+
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
 	}
