@@ -37,7 +37,7 @@ const (
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeUnsubscribeChannelTrigger + " " + subscribeUnsubscribeChannelHint + "` — " + subscribeUnsubscribeChannelHelpText + "\n" +
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeListAllChannelsTrigger + " " + subscribeListAllChannelsHint + "` — " + subscribeListAllChannelsHelpText + "\n"
 
-	help = "## CircleCI plugin Help\n" + accountHelp + projectHelp
+	help = "## CircleCI plugin Help\n" + accountHelp + projectHelp + subscriptionHelp
 )
 
 func (p *Plugin) getCommand() *model.Command {
