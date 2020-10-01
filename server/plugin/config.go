@@ -37,15 +37,15 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 
 	if len(slug) != 3 {
 		return p.sendEphemeralResponse(
-			args, 
-			":red_circle: Project should be specified in the format `vcs/org-name/project-name`. ex: `gh/mattermost/mattermost-server`"
+			args,
+			":red_circle: Project should be specified in the format `vcs/org-name/project-name`. ex: `gh/mattermost/mattermost-server`",
 		), nil
 	}
-	
+
 	if slug[0] != "gh" && slug[0] != "bb" {
 		return p.sendEphemeralResponse(
-			args, 
-			":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`"
+			args,
+			":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`",
 		), nil
 	}
 
