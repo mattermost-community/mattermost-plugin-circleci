@@ -22,7 +22,7 @@ func getConfigAutoCompleteData() *model.AutocompleteData {
 }
 
 // ExecuteConfigCommand executes the config command
-func (p *Plugin) executeConfig(args *model.CommandArgs) string {
+func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	commandArgs := strings.Fields(args.Command)
 	projectSlug := ""
 	if len(commandArgs) > 2 {
