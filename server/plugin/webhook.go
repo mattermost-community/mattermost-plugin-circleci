@@ -29,7 +29,7 @@ func (bi *BuildInfos) ToPostAttachments(buildFailedIconURL, buildGreenIconURL st
 			{
 				Title: "Repo",
 				Short: true,
-				Value: GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
+				Value: v1.GetFullNameFromOwnerAndRepo(bi.Owner, bi.Repository),
 			},
 			{
 				Title: "Job number",
@@ -71,7 +71,7 @@ func httpHandleWebhook(p *Plugin, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buildInfos := new(v1.BuildInfos)
+	buildInfos := new(BuildInfos)
 	if err := json.NewDecoder(r.Body).Decode(&buildInfos); err != nil {
 		p.API.LogError("Unable to decode JSON for received webkook.", "Error", err.Error())
 		return
