@@ -30,7 +30,7 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 	}
 
 	if projectSlug == "" {
-		return getConfig(args.UserId, p.Store)
+		return p.sendEphemeralResponse(args, getConfig(args.UserId, p.Store)), nil
 	}
 
 	slug := strings.Split(projectSlug, "/")
