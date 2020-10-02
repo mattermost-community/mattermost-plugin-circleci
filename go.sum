@@ -97,8 +97,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsr
 github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d/go.mod h1:URriBxXwVq5ijiJ12C7iIZqlA69nTlI+LgI6/pwftG8=
 github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548/go.mod h1:e6NPNENfs9mPDVNRekM7lKScauxd5kXTr1Mfyig6TDM=
 github.com/cznic/strutil v0.0.0-20181122101858-275e90344537/go.mod h1:AHHPPPXTw0h6pVabbcbyGRK1DckRn7r/STdZEeIDzZc=
-github.com/darkLord19/circleci-v2 v0.0.0-20200926115305-db49ebeecf44 h1:M1QeNwJgHfECg9RQqd9FuZL3nU3dQN/olImPqrxX3Wg=
-github.com/darkLord19/circleci-v2 v0.0.0-20200926115305-db49ebeecf44/go.mod h1:CVhPAfz1laxymeGknHwAVk0bEvskVL9qnxBnGcmzN2k=
 github.com/darkLord19/circleci-v2 v1.0.0 h1:ZChS1JYrBunsO+6vUlMOPn9zyve07nPkwQTbCLBcmwE=
 github.com/darkLord19/circleci-v2 v1.0.0/go.mod h1:CVhPAfz1laxymeGknHwAVk0bEvskVL9qnxBnGcmzN2k=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
