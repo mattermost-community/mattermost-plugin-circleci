@@ -124,3 +124,9 @@ func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse
 	ms, _, err := client.WorkflowApi.RerunWorkflow(getContext(apiToken), workflowID, nil)
 	return ms, err
 }
+
+// CancelWorkflow reruns a given workflow
+func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
+	ms, _, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
+	return ms, err
+}
