@@ -108,3 +108,9 @@ func TriggerPipeline(apiToken string, projectSlug string) (circleci.PipelineCrea
 	pl, _, err = client.PipelineApi.TriggerPipeline(getContext(apiToken), projectSlug, nil)
 	return pl, err
 }
+
+// GetPipelineByID get info about single pipeline
+func GetPipelineByID(apiToken string, pipelineID string) (circleci.Pipeline, error) {
+	pl, _, err := client.PipelineApi.GetPipelineById(getContext(apiToken), pipelineID)
+	return pl, err
+}
