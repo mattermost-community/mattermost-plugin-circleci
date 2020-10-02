@@ -25,6 +25,10 @@ const (
 	pipelineGetMineTrigger  = "mine"
 	pipelineGetMineHint     = "<vcs-slug/org-name/repo-name>"
 	pipelineGetMineHelpText = "Get list of all my pipelines triggered by you"
+
+	pipelineWorkflowTrigger  = "workflows"
+	pipelineWorkflowHint     = "<pipeline id>"
+	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
 )
 
 func getPipelineAutoCompeleteData() *model.AutocompleteData {
@@ -35,9 +39,12 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	recent.AddTextArgument("< vcs-slug/org-name >", pipelineGetRecentHint, "")
 	mine := model.NewAutocompleteData(pipelineGetMineTrigger, pipelineGetMineHint, pipelineGetMineHelpText)
 	mine.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineGetMineHint, "")
+	wf := model.NewAutocompleteData(pipelineWorkflowTrigger, pipelineWorkflowHint, pipelineWorkflowHelpText)
+	wf.AddTextArgument("< pipeline id >", pipelineWorkflowHint, "")
 	pipeline.AddCommand(all)
 	pipeline.AddCommand(recent)
 	pipeline.AddCommand(mine)
+	pipeline.AddCommand(wf)
 	return pipeline
 }
 
@@ -61,6 +68,8 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		return p.executePipelineGetRecent(args, circleciToken, project)
 	case pipelineGetMineTrigger:
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, project)
+	case pipelineWorkflowTrigger:
+		return p.executePipelineGetWorkflowByID(args, circleciToken, project)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}
@@ -154,6 +163,39 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs,
 			{
 				Fallback: "Projects list",
 				Text:     projectsListString,
+			},
+		},
+	)
+
+	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
+	token string, pipelineID string) (*model.CommandResponse, *model.AppError) {
+	wfs, err := circle.GetWorkflowsByPipeline(token, pipelineID)
+	if err != nil {
+		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
+			"Failed to fetch wokflows for given pipeline ", pipelineID, err.Error())}
+	}
+	workflowListString := "| Name | Started By | Status | ID |\n| :---- | :----- | \n"
+	for _, wf := range wfs {
+		uname, _ := circle.GetNameByID(token, wf.StartedBy)
+		workflowListString += fmt.Sprintf(
+			"| %s | %s | %s | %s |\n",
+			wf.Name,
+			uname,
+			wf.Status,
+			wf.Id,
+		)
+	}
+
+	_ = p.sendEphemeralPost(
+		args,
+		"Workflows for given pipeline ID: "+pipelineID,
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Workflow List",
+				Text:     workflowListString,
 			},
 		},
 	)

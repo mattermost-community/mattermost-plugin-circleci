@@ -80,3 +80,23 @@ func GetAllMyPipelinesForProject(apiToken string, projectSlug string) ([]circlec
 
 	return pl.Items, nil
 }
+
+// GetWorkflowsByPipeline get all workflows by pipeline ID
+func GetWorkflowsByPipeline(apiToken string, pipelineID string) ([]circleci.Workflow1, error) {
+	wf, _, err := client.PipelineApi.ListWorkflowsByPipelineId(getContext(apiToken), pipelineID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return wf.Items, nil
+}
+
+// GetNameByID returns username from user id
+func GetNameByID(apiToken string, id string) (string, error) {
+	user, _, err := client.UserApi.GetUser(getContext(apiToken), id)
+	if err != nil {
+		return "", err
+	}
+
+	return user.Name, nil
+}
