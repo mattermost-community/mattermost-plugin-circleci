@@ -9,7 +9,14 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func httpAutocompleteFollowedProject(p *Plugin, w http.ResponseWriter, r *http.Request, circleciToken string) {
+func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Request) {
+	// Check token
+	userID := r.Header.Get("Mattermost-User-Id")
+	circleciToken, exists := p.Store.GetTokenForUser(userID)
+	if !exists {
+		http.NotFound(w, r)
+	}
+
 	if r.Method != http.MethodGet {
 		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be GET"))
 		return
