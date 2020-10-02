@@ -6,6 +6,7 @@ require (
 	github.com/antihax/optional v1.0.0 // indirect
 	github.com/darkLord19/circleci-v2 v0.0.0-20200926115305-db49ebeecf44
 	github.com/google/go-cmp v0.5.1 // indirect
+	github.com/gorilla/mux v1.7.4
 	github.com/jszwedko/go-circleci v0.3.0
 	github.com/mattermost/mattermost-server/v5 v5.27.0
 	github.com/onsi/ginkgo v1.14.1

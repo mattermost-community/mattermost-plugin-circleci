@@ -14,7 +14,7 @@ const manifestStr = `
 {
   "id": "com.github.nathanaelhoun.plugin-circleci",
   "name": "CircleCI",
-  "description": "Interact with CircleCI jobs and builds with slash commands",
+  "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
   "icon_path": "public/circleci.png",
   "version": "0.1.0",
   "min_server_version": "5.12.0",
@@ -27,7 +27,7 @@ const manifestStr = `
     "executable": ""
   },
   "settings_schema": {
-    "header": "This plugin is under development. To contribute or submit a request, visit the [repository on Github](https://github.com/nathanaelhoun/mattermost-plugin-circleci/)",
+    "header": "This plugin is under development. To contribute or submit a request, visit the [repository on Github](https://github.com/nathanaelhoun/mattermost-plugin-circleci)",
     "footer": "",
     "settings": [
       {
