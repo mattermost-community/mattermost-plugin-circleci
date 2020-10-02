@@ -136,7 +136,6 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs,
 	)
 
 	return &model.CommandResponse{}, nil
-
 }
 
 func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs,
