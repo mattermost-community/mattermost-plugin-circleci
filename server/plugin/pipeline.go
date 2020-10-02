@@ -234,7 +234,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Pipeline triggered succesfully for project " + projectSlug,
+				Fallback: "Pipeline triggered successfully for project " + projectSlug,
 				Pretext:  "Triggered pipeline for project " + projectSlug,
 				Fields: []*model.SlackAttachmentField{
 					{
