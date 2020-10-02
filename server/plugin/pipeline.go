@@ -32,7 +32,7 @@ const (
 	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
 
 	pipelineTriggerTrigger  = "trigger"
-	pipelineTriggerHint     = "<vcs-slug/org-name/repo-name>"
+	pipelineTriggerHint     = "<vcs-slug/org-name/repo-name> <branch>"
 	pipelineTriggerHelpText = "Trigger pipeline for given project"
 
 	pipelineGetSingleTrigger  = "get"
@@ -52,6 +52,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	wf.AddTextArgument("< pipeline id >", pipelineWorkflowHint, "")
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
 	trigger.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineTriggerHint, "")
+	trigger.AddTextArgument("<branch>", pipelineTriggerHint, "")
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
 	get.AddTextArgument("< pipeline id >", pipelineGetSingleHint, "")
 	pipeline.AddCommand(all)
@@ -86,7 +87,11 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	case pipelineWorkflowTrigger:
 		return p.executePipelineGetWorkflowByID(args, circleciToken, project)
 	case pipelineTriggerTrigger:
-		return p.executeTriggerPipeline(args, circleciToken, project)
+		branch := ""
+		if len(split) > 2 {
+			branch = split[2]
+		}
+		return p.executeTriggerPipeline(args, circleciToken, project, branch)
 	case pipelineGetSingleTrigger:
 		return p.executePipelineGetSingle(args, circleciToken, project)
 	default:
@@ -222,20 +227,25 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs,
-	token string, projectSlug string) (*model.CommandResponse, *model.AppError) {
+	token string, projectSlug string, branch string) (*model.CommandResponse, *model.AppError) {
 	p.API.LogError("trigger pipeline called")
-	pl, err := circle.TriggerPipeline(token, projectSlug)
+	pl, err := circle.TriggerPipeline(token, projectSlug, branch)
 	if err != nil {
+		p.API.LogError("uparmar", err.Error())
 		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
 			"Could not trigger pipeline for project ", projectSlug, err.Error())}
 	}
+	if branch == "" {
+		branch = "master"
+	}
+	p.API.LogError("uparmar no error")
 	_ = p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Pipeline triggered successfully for project " + projectSlug,
-				Pretext:  "Triggered pipeline for project " + projectSlug,
+				Fallback: "Pipeline triggered successfully for project " + projectSlug + "for branch: " + branch,
+				Pretext:  "Triggered pipeline for project " + projectSlug + "branch " + branch,
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Id",
