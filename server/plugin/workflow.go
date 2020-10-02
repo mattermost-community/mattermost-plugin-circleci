@@ -10,7 +10,7 @@ import (
 
 const (
 	workflowTrigger  = "workflow"
-	workflowHint     = "<" + workflowGetTrigger + ">"
+	workflowHint     = "<" + workflowGetJobsTrigger + "|" + workflowGetTrigger + "|" + workflowRerunTrigger + ">"
 	workflowHelpText = "Manage the connection to your CircleCI acccount"
 
 	workflowGetTrigger  = "get"
@@ -20,6 +20,10 @@ const (
 	workflowGetJobsTrigger         = "jobs"
 	workflowGetJobsHint            = "< workflow_id >"
 	workflowGetJobsTriggerHelpText = "Get jobs list of workflow"
+
+	workflowRerunTrigger  = "rerun"
+	workflowRerunHint     = "< workflow ID >"
+	workflowRerunHelpText = "Rerun a workflow"
 )
 
 func getWorkflowAutoCompeleteData() *model.AutocompleteData {
@@ -28,8 +32,11 @@ func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	workflowGet.AddTextArgument("workflow id", workflowGetHint, "")
 	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsTriggerHelpText)
 	workflowGetJobs.AddTextArgument("workflow id", workflowGetJobsHint, "")
+	rerun := model.NewAutocompleteData(workflowRerunTrigger, workflowRerunHint, workflowRerunHelpText)
+	rerun.AddTextArgument("workflow id", workflowRerunHint, "")
 	workflow.AddCommand(workflowGet)
 	workflow.AddCommand(workflowGetJobs)
+	workflow.AddCommand(rerun)
 	return workflow
 }
 
@@ -51,6 +58,8 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 		return p.executeWorflowGet(args, circleciToken, workflow)
 	case workflowGetJobsTrigger:
 		return p.executeWorflowGetJobs(args, circleciToken, workflow)
+	case workflowRerunTrigger:
+		return p.executeRerunWorkflow(args, circleciToken, workflow)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
 	}
@@ -160,4 +169,15 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 	)
 
 	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs,
+	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
+	_, err := circle.RerunWorkflow(token, workflowID)
+	if err != nil {
+		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
+			"Failed to re run workflow", workflowID, err.Error())}
+	}
+	wf, err := circle.GetWorkflow(token, workflowID)
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)), nil
 }
