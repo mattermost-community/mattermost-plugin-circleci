@@ -50,3 +50,53 @@ func GetWorkflowJobs(apiToken string, workflowID string) (*[]circleci.Job, error
 
 	return &wf.Items, nil
 }
+
+// GetRecentlyBuiltPipelines get all recently built pipelines in a org
+func GetRecentlyBuiltPipelines(apiToken string, orgSlug string, mine bool) ([]circleci.Pipeline1, error) {
+	pl, _, err := client.PipelineApi.ListPipelines(getContext(apiToken), orgSlug, mine, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return pl.Items, nil
+}
+
+// GetAllPipelinesForProject get all pipelines for a given project
+func GetAllPipelinesForProject(apiToken string, projectSlug string) ([]circleci.Pipeline1, error) {
+	pl, _, err := client.PipelineApi.ListPipelinesForProject(getContext(apiToken), projectSlug, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return pl.Items, nil
+}
+
+// GetAllMyPipelinesForProject get all pipelines triggered by you
+func GetAllMyPipelinesForProject(apiToken string, projectSlug string) ([]circleci.Pipeline1, error) {
+	pl, _, err := client.PipelineApi.ListMyPipelines(getContext(apiToken), projectSlug, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return pl.Items, nil
+}
+
+// GetWorkflowsByPipeline get all workflows by pipeline ID
+func GetWorkflowsByPipeline(apiToken string, pipelineID string) ([]circleci.Workflow1, error) {
+	wf, _, err := client.PipelineApi.ListWorkflowsByPipelineId(getContext(apiToken), pipelineID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return wf.Items, nil
+}
+
+// GetNameByID returns username from user id
+func GetNameByID(apiToken string, id string) (string, error) {
+	user, _, err := client.UserApi.GetUser(getContext(apiToken), id)
+	if err != nil {
+		return "", err
+	}
+
+	return user.Name, nil
+}

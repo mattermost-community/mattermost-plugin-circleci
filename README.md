@@ -32,6 +32,12 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 -   `/circleci config <vcs/org-name/project-name>` - Allows you to set a default project to run your commands against
 
+#### Pipeline
+- `/circleci pipeline recent vcs/orgname` - Lists recently built pipelines in a given org
+- `/circleci pipeline all vcs/orgname/project` - Lists all pipelines for a given project
+- `/circleci pipeline mine vcs/orgname/project` - Lists all pipelines triggered by you in a given project
+- `/circleci pipeline workflows pipelineId` - Lists all workflows for a given pipeline
+
 ## TODO (tracking list)
 
 -   [x] Get help
