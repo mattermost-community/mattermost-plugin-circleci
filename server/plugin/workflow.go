@@ -39,15 +39,18 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 		subcommand = split[0]
 	}
 
+	var workflow string
+	if len(split) > 1 {
+		workflow = split[1]
+	} else {
+		p.sendIncorrectSubcommandResponse(args, workflowTrigger)
+	}
+
 	switch subcommand {
 	case workflowGetTrigger:
-		if len(split) > 1 {
-			if split[1] == workflowGetJobsTrigger {
-				return p.executeWorflowGetJobs(args, circleciToken, split[1])
-			}
-			return p.executeWorflowGet(args, circleciToken, split[1])
-		}
-		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
+		return p.executeWorflowGet(args, circleciToken, workflow)
+	case workflowGetJobsTrigger:
+		return p.executeWorflowGetJobs(args, circleciToken, workflow)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
 	}
@@ -133,65 +136,28 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 			"Failed to fetch jobs info for workflow", workflowID, errr.Error())}
 	}
 
-	_ = jobs
-	// TODO: return formatted jobs list
+	workflowJobsListString := "| Name | Type | Status | Project | ID |\n| :----- | :----- | :----- | :----- | :----- | \n"
+	for _, job := range *jobs {
+		workflowJobsListString += fmt.Sprintf(
+			"| %s | %s | %s | %s | %s |\n",
+			job.Name,
+			job.Type_,
+			*job.Status,
+			job.ProjectSlug,
+			job.Id,
+		)
+	}
 
-	// _ = p.sendEphemeralPost(
-	// 	args,
-	// 	"",
-	// 	[]*model.SlackAttachment{
-	// 		{
-	// 			Fallback: "Workflow Name: " + wf.Name,
-	// 			Pretext:  "Jobs information for worflow Id " + wf.Id,
-	// 			Fields: []*model.SlackAttachmentField{
-	// 				{
-	// 					Title: "Name",
-	// 					Value: wf.Name,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "ID",
-	// 					Value: wf.Id,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Project slug",
-	// 					Value: wf.ProjectSlug,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Pipeline ID",
-	// 					Value: wf.PipelineId,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Pipeline Number",
-	// 					Value: wf.PipelineNumber,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Status",
-	// 					Value: wf.Status,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Created At",
-	// 					Value: wf.CreatedAt,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Stopped At",
-	// 					Value: wf.StoppedAt,
-	// 					Short: true,
-	// 				},
-	// 				{
-	// 					Title: "Started By",
-	// 					Value: wf.StartedBy,
-	// 					Short: true,
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// )
+	_ = p.sendEphemeralPost(
+		args,
+		"Jobs for given workflow ID: "+workflowID,
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Workflow Jobs List",
+				Text:     workflowJobsListString,
+			},
+		},
+	)
+
 	return &model.CommandResponse{}, nil
 }
