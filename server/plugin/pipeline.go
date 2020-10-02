@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	pipelineTrigger  = "pipeline"
-	pipelineHint     = "<" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" + pipelineGetRecentTrigger + ">"
+	pipelineTrigger = "pipeline"
+	pipelineHint    = "<" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" +
+		pipelineGetRecentTrigger + "|" + pipelineWorkflowTrigger + ">"
 	pipelineHelpText = "Manage the connection to your CircleCI acccount"
 
 	pipelineGetRecentTrigger  = "recent"
