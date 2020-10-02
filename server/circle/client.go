@@ -100,3 +100,11 @@ func GetNameByID(apiToken string, id string) (string, error) {
 
 	return user.Name, nil
 }
+
+// TriggerPipeline get all workflows by pipeline ID
+func TriggerPipeline(apiToken string, projectSlug string) (circleci.PipelineCreation, error) {
+	var pl circleci.PipelineCreation
+	var err error
+	pl, _, err = client.PipelineApi.TriggerPipeline(getContext(apiToken), projectSlug, nil)
+	return pl, err
+}

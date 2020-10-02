@@ -11,7 +11,7 @@ import (
 
 const (
 	pipelineTrigger = "pipeline"
-	pipelineHint    = "<" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" +
+	pipelineHint    = "<" + pipelineTriggerTrigger + "|" + pipelineGetAllTrigger + "|" + pipelineGetMineTrigger + "|" +
 		pipelineGetRecentTrigger + "|" + pipelineWorkflowTrigger + ">"
 	pipelineHelpText = "Manage the connection to your CircleCI acccount"
 
@@ -30,6 +30,10 @@ const (
 	pipelineWorkflowTrigger  = "workflows"
 	pipelineWorkflowHint     = "<pipeline id>"
 	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
+
+	pipelineTriggerTrigger  = "trigger"
+	pipelineTriggerHint     = "<vcs-slug/org-name/repo-name>"
+	pipelineTriggerHelpText = "Trigger pipeline for given project"
 )
 
 func getPipelineAutoCompeleteData() *model.AutocompleteData {
@@ -42,10 +46,13 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	mine.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineGetMineHint, "")
 	wf := model.NewAutocompleteData(pipelineWorkflowTrigger, pipelineWorkflowHint, pipelineWorkflowHelpText)
 	wf.AddTextArgument("< pipeline id >", pipelineWorkflowHint, "")
+	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
+	trigger.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineTriggerHint, "")
 	pipeline.AddCommand(all)
 	pipeline.AddCommand(recent)
 	pipeline.AddCommand(mine)
 	pipeline.AddCommand(wf)
+	pipeline.AddCommand(trigger)
 	return pipeline
 }
 
@@ -71,6 +78,8 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, project)
 	case pipelineWorkflowTrigger:
 		return p.executePipelineGetWorkflowByID(args, circleciToken, project)
+	case pipelineTriggerTrigger:
+		return p.executeTriggerPipeline(args, circleciToken, project)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}
@@ -196,6 +205,45 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 			{
 				Fallback: "Workflow List",
 				Text:     workflowListString,
+			},
+		},
+	)
+
+	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs,
+	token string, projectSlug string) (*model.CommandResponse, *model.AppError) {
+	p.API.LogError("trigger pipeline called")
+	pl, err := circle.TriggerPipeline(token, projectSlug)
+	if err != nil {
+		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
+			"Could not trigger pipeline for project ", projectSlug, err.Error())}
+	}
+	_ = p.sendEphemeralPost(
+		args,
+		"",
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Pipeline triggered succesfully for project " + projectSlug,
+				Pretext:  "Triggered pipeline for project " + projectSlug,
+				Fields: []*model.SlackAttachmentField{
+					{
+						Title: "Id",
+						Value: pl.Id,
+						Short: true,
+					},
+					{
+						Title: "CreatedAt",
+						Value: pl.CreatedAt.String(),
+						Short: true,
+					},
+					{
+						Title: "State",
+						Value: pl.State,
+						Short: true,
+					},
+				},
 			},
 		},
 	)
