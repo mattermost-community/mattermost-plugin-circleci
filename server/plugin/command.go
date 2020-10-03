@@ -140,7 +140,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	}
 
 	var splitWithoutProject []string
-	if config != nil || command == accountTrigger || command == configCommandTrigger {
+	if (config != nil && !strings.Contains(args.Command, "--project")) || command == accountTrigger || command == configCommandTrigger {
 		splitWithoutProject = split
 	} else {
 		// Trying to get the config from the commands, with the args `--project`
@@ -150,6 +150,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	scan:
 		for _, arg := range split {
+			p.API.LogDebug("parsing command", "argument", arg)
+
 			switch {
 			case nextIsValue:
 				slug = arg
