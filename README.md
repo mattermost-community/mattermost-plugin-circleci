@@ -32,7 +32,7 @@ See [`HOW_TO.md`](./docs/HOW_TO.md) to know how to configure the plugin after in
 
 ## License
 
-This repository is licensed under the [Apache 2.0 License](https://github.com/mattermost/mattermost-plugin-github/blob/master/LICENSE).
+This repository is licensed under the [Apache 2.0 License](LICENSE).
 
 ## Contributing
 
