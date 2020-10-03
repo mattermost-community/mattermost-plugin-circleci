@@ -118,3 +118,15 @@ func GetPipelineByID(apiToken string, pipelineID string) (circleci.Pipeline, err
 	pl, _, err := client.PipelineApi.GetPipelineById(getContext(apiToken), pipelineID)
 	return pl, err
 }
+
+// RerunWorkflow reruns a given workflow
+func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
+	ms, _, err := client.WorkflowApi.RerunWorkflow(getContext(apiToken), workflowID, nil)
+	return ms, err
+}
+
+// CancelWorkflow reruns a given workflow
+func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
+	ms, _, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
+	return ms, err
+}
