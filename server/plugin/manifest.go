@@ -15,6 +15,7 @@ const manifestStr = `
   "id": "com.github.nathanaelhoun.plugin-circleci",
   "name": "CircleCI",
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
+  "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci",
   "icon_path": "public/circleci.png",
   "version": "0.1.0",
   "min_server_version": "5.12.0",
@@ -36,6 +37,14 @@ const manifestStr = `
         "type": "generated",
         "help_text": "The secret used to authenticate the webhook to Mattermost",
         "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations",
+        "placeholder": "",
+        "default": null
+      },
+      {
+        "key": "EncryptionKey",
+        "display_name": "At Rest Encryption Key",
+        "type": "generated",
+        "help_text": "The AES encryption key used to encrypt stored access tokens.",
         "placeholder": "",
         "default": null
       }

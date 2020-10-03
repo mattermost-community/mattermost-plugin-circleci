@@ -34,5 +34,9 @@ func (s SubscriptionFlags) String() string {
 		flags = append(flags, flag)
 	}
 
+	if len(flags) == 0 {
+		return "No flags set"
+	}
+
 	return strings.Join(flags, ",")
 }

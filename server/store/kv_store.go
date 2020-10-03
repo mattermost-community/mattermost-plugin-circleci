@@ -12,7 +12,7 @@ const (
 )
 
 // Return false if no token is saved for this user
-func (s *Store) GetTokenForUser(userID string) (string, bool) {
+func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, bool) {
 	raw, appErr := s.api.KVGet(userID + KVStoreSuffix)
 	if appErr != nil {
 		s.api.LogError("Unable to reach KVStore", "KVStore error", appErr)
@@ -23,13 +23,24 @@ func (s *Store) GetTokenForUser(userID string) (string, bool) {
 		return "", false
 	}
 
-	userToken := string(raw)
+	userToken, err := decrypt([]byte(encryptionKey), string(raw))
+	if err != nil {
+		s.api.LogWarn("Failed to decrypt access token", "error", err)
+		return "", false
+	}
+
 	return userToken, true
 }
 
 // Return false if the token has not been saved
-func (s *Store) StoreTokenForUser(userID string, circleciToken string) bool {
-	appErr := s.api.KVSet(userID+KVStoreSuffix, []byte(circleciToken))
+func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) bool {
+	encryptedToken, err := encrypt([]byte(encryptionKey), circleciToken)
+	if err != nil {
+		s.api.LogError("Error occurred while encrypting access token", "error", err)
+		return false
+	}
+
+	appErr := s.api.KVSet(userID+KVStoreSuffix, []byte(encryptedToken))
 	if appErr != nil {
 		s.api.LogError("Unable to write in KVStore", "KVStore error", appErr)
 		return false

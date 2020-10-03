@@ -39,7 +39,7 @@ func (p *Plugin) getWebhookURL() string {
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 	siteURL = strings.TrimRight(siteURL, "/")
 	webhookSecret := p.getConfiguration().WebhooksSecret
-	return fmt.Sprintf("%s/plugins/%s/%s/%s", siteURL, manifest.Id, routeWebhooks, webhookSecret)
+	return fmt.Sprintf("%s/plugins/%s%s/%s", siteURL, manifest.Id, routeWebhooks, webhookSecret)
 }
 
 // HTTP Utils below

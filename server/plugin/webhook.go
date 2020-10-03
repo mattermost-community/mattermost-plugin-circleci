@@ -10,14 +10,13 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-// WebhookInfo from the webhookCIRCLE_BRANCH
+// WebhookInfo from the webhook
 type WebhookInfo struct {
 	Organization           string `json:"Organization"`
 	Repository             string `json:"Repository"`
 	RepositoryURL          string `json:"RepositoryURL"`
 	Username               string `json:"Username"`
 	WorkflowID             string `json:"WorkflowID"`
-	PipelineNumber         string `json:"PipelineNumber"`
 	JobName                string `json:"JobName"`
 	CircleBuildNumber      int    `json:"CircleBuildNumber"`
 	CircleBuildURL         string `json:"CircleBuildURL"`
@@ -32,6 +31,10 @@ type WebhookInfo struct {
 
 // Convert the build info into a Post
 func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
+	if wi.AssociatedPullRequests == "" {
+		wi.AssociatedPullRequests = ":grey_question: No PR"
+	}
+
 	attachment := &model.SlackAttachment{
 		TitleLink: wi.CircleBuildURL,
 		Fields: []*model.SlackAttachmentField{
@@ -64,7 +67,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Title: "Build informations",
 				Short: false,
 				Value: fmt.Sprintf(
-					"- Build triggered by: %s\n- Associated PRs: %s",
+					"- Build triggered by: %s\n- Associated PRs: %s\n",
 					wi.Username,
 					wi.AssociatedPullRequests,
 				),
@@ -76,7 +79,6 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 	case wi.IsWaitingApproval:
 		attachment.Title = "You have a CircleCI Workflow waiting for approval"
 		attachment.Color = "#8267E4" // purple
-
 		// TODO : add button to approve / refuse the job
 		// attachment.Actions = []*model.PostAction{
 		// 	{
