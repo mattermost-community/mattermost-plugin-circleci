@@ -37,19 +37,19 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 #### Pipeline commands
 
-- `/circleci pipeline recent vcs/orgname` - Lists recently built pipelines in a given org
-- `/circleci pipeline all vcs/orgname/project` - Lists all pipelines for a given project
-- `/circleci pipeline mine vcs/orgname/project` - Lists all pipelines triggered by you in a given project
-- `/circleci pipeline trigger vcs/orgname/project branch` - Trigger a pipeline for given project slug and branch
-- `/circleci pipeline workflows pipelineId` - Lists all workflows for a given pipeline
-- `/circleci pipeline get pipelineId` - Get Info about a single pipeline
+- `/circleci pipeline recent <vcs/orgname>` - Lists recently built pipelines in a given org
+- `/circleci pipeline all <vcs/org-name/project-name>` - Lists all pipelines for a given project
+- `/circleci pipeline mine <vcs/org-name/project-name>` - Lists all pipelines triggered by you in a given project
+- `/circleci pipeline trigger <vcs/org-name/project-name> <branch>` - Trigger a pipeline for given project slug and branch
+- `/circleci pipeline workflows <pipelineID>` - Lists all workflows for a given pipeline
+- `/circleci pipeline get <pipelineID>` - Get Info about a single pipeline
 
 #### Workflow commands
 
-- `/circleci pipeline get worfkflowID` - Get info about a single workflow
-- `/circleci pipeline jobs worfkflowID` - List jobs of given workflow
-- `/circleci pipeline rerun worfkflowID` - Rerun a given workflow
-- `/circleci pipeline cancel worfkflowID` - Cancel a given workflow
+- `/circleci pipeline get <workflowID>` - Get info about a single workflow
+- `/circleci pipeline jobs <workflowID>` - List jobs of given workflow
+- `/circleci pipeline rerun <workflowID>` - Rerun a given workflow
+- `/circleci pipeline cancel <workflowID>` - Cancel a given workflow
 
 ## TODO (tracking list)
 
