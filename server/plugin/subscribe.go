@@ -22,11 +22,11 @@ const (
 	subscribeListHint     = ""
 	subscribeListHelpText = "List the CircleCI subscriptions for the current channel"
 
-	subscribeChannelTrigger  = "subscribe"
+	subscribeChannelTrigger  = "add"
 	subscribeChannelHint     = "<owner> <repository> [--flags]"
 	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a repository"
 
-	subscribeUnsubscribeChannelTrigger  = "unsubscribe"
+	subscribeUnsubscribeChannelTrigger  = "remove"
 	subscribeUnsubscribeChannelHint     = "<owner> <repository> [--flags]"
 	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a repository"
 
@@ -174,12 +174,25 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 		return p.sendEphemeralResponse(context, "Internal error when storing new subscription."), nil
 	}
 
-	// TODO add message "add the orb, here is the docs for doing it"
-	return p.sendEphemeralResponse(context, fmt.Sprintf(
-		"Successfully subscribed this channel to notifications from **%s**\nSend webhooks to `%s`",
-		v1.GetFullNameFromOwnerAndRepo(owner, repo),
+	msg := fmt.Sprintf(
+		"This channel has been subscribed to notifications from **%s/%s** with flags: %s\n"+
+			"#### How to finish setup:\n"+
+			"(See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications))\n"+
+			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
+			"2. Add the `MM_WEBHOOK` environment variable to your project using `/%s %s %s %s` or the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project)\n"+
+			"**Webhook URL: `%s`**",
+		owner,
+		repo,
+		newSub.Flags,
+		manifest.HomepageURL,
+		commandTrigger,
+		projectTrigger,
+		projectEnvVarTrigger,
+		projectEnvVarAddTrigger,
 		p.getWebhookURL(),
-	)), nil
+	)
+
+	return p.sendEphemeralResponse(context, msg), nil
 }
 
 func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
