@@ -115,7 +115,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Please tell me your token. If you don't have a CircleCI Personal API Token, you can get one from your [Account Dashboard](https://circleci.com/account/api)"), nil
 	}
 
-	if token, exists := p.Store.GetTokenForUser(args.UserId); exists {
+	if token, exists := p.Store.GetTokenForUser(args.UserId, p.getConfiguration().EncryptionKey); exists {
 		user, err := v1.GetCircleUserInfo(token)
 		if err != nil {
 			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
@@ -132,7 +132,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Can't connect to CircleCI. Please check that your user API token is valid"), nil
 	}
 
-	if ok := p.Store.StoreTokenForUser(args.UserId, circleciToken); !ok {
+	if ok := p.Store.StoreTokenForUser(args.UserId, circleciToken, p.getConfiguration().EncryptionKey); !ok {
 		return p.sendEphemeralResponse(args, "Internal error when storing your token"), nil
 	}
 

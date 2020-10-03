@@ -12,7 +12,7 @@ import (
 func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Request) {
 	// Check token
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.Store.GetTokenForUser(userID)
+	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
 	if !exists {
 		http.NotFound(w, r)
 	}
