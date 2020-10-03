@@ -132,9 +132,9 @@ Subscribe a channel to notifications from a CircleCI project.
 
 ## Frequently Asked Questions
 
-### Any information missing?
+### How do I share feedback on this plugin?
 
-Feel free to fill a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose) and we'll add your information to this guide!
+Feel free to create a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community instance to discuss.
 
 ## License
 
