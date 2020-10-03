@@ -92,6 +92,11 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 		), nil
 	}
 
+	uname := wf.StartedBy
+	tmp, err := circle.GetNameByID(token, wf.StartedBy)
+	if err == nil {
+		uname = tmp
+	}
 	p.API.LogDebug("Trying to send the post")
 	_ = p.sendEphemeralPost(
 		args,
@@ -123,7 +128,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 					},
 					{
 						Title: "Pipeline Number",
-						Value: wf.PipelineNumber,
+						Value: string(wf.PipelineNumber),
 						Short: true,
 					},
 					{
@@ -133,17 +138,17 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 					},
 					{
 						Title: "Created At",
-						Value: wf.CreatedAt,
+						Value: wf.CreatedAt.String(),
 						Short: true,
 					},
 					{
 						Title: "Stopped At",
-						Value: wf.StoppedAt,
+						Value: wf.StoppedAt.String(),
 						Short: true,
 					},
 					{
 						Title: "Started By",
-						Value: wf.StartedBy,
+						Value: uname,
 						Short: true,
 					},
 				},

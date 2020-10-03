@@ -95,11 +95,7 @@ func GetWorkflowsByPipeline(apiToken string, pipelineID string) ([]circleci.Work
 // GetNameByID returns username from user id
 func GetNameByID(apiToken string, id string) (string, error) {
 	user, _, err := client.UserApi.GetUser(getContext(apiToken), id)
-	if err != nil {
-		return "", err
-	}
-
-	return user.Name, nil
+	return user.Name, err
 }
 
 // TriggerPipeline get all workflows by pipeline ID
