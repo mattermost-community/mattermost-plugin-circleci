@@ -229,12 +229,13 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs,
 	token string, projectSlug string, branch string) (*model.CommandResponse, *model.AppError) {
 	pl, err := circle.TriggerPipeline(token, projectSlug, branch)
-	if err != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Could not trigger pipeline for project ", projectSlug, err.Error())}
-	}
 	if branch == "" {
 		branch = "master"
+	}
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not trigger pipeline for project %s on `%s` branch", projectSlug, branch)),
+			&model.AppError{Message: fmt.Sprintf("%s%s. err %s",
+				"Could not trigger pipeline for project ", projectSlug, err.Error())}
 	}
 	_ = p.sendEphemeralPost(
 		args,
