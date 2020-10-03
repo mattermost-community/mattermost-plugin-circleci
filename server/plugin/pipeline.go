@@ -52,7 +52,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	wf.AddTextArgument("< pipeline id >", pipelineWorkflowHint, "")
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
 	trigger.AddTextArgument("< vcs-slug/org-name/repo-name >", "The repo to trigger the pipeline on. Ex: gh/mattermost/mattermost-server", "")
-	trigger.AddTextArgument("<branch>", pipelineTriggerHint, "")
+	trigger.AddTextArgument("<branch>", "The branch to trigger the pipeline on", "")
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
 	get.AddTextArgument("< pipeline id >", pipelineGetSingleHint, "")
 	pipeline.AddCommand(all)
