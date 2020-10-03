@@ -20,6 +20,9 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 -   `/circleci project list-followed` - List followed projects
 -   `/circleci project recent-build <owner-name> <project-name> <branch>` - List the 10 last builds for a project
+-   `/circleci project env list <vcs/orgname/project>` - List environment variables for a given project
+-   `/circleci project env add <vcs/orgname/project> <name> <value>` - Add an environment variable with a given name and value for a given project
+-   `/circleci project env add <vcs/orgname/project> <name>` - Remove an environment variable with a given name from a given project
 
 #### Subscribe to notifications projects
 
@@ -32,11 +35,21 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 -   `/circleci config <vcs/org-name/project-name>` - Allows you to set a default project to run your commands against
 
-#### Pipeline
-- `/circleci pipeline recent vcs/orgname` - Lists recently built pipelines in a given org
-- `/circleci pipeline all vcs/orgname/project` - Lists all pipelines for a given project
-- `/circleci pipeline mine vcs/orgname/project` - Lists all pipelines triggered by you in a given project
-- `/circleci pipeline workflows pipelineId` - Lists all workflows for a given pipeline
+#### Pipeline commands
+
+- `/circleci pipeline recent <vcs/orgname>` - Lists recently built pipelines in a given org
+- `/circleci pipeline all <vcs/org-name/project-name>` - Lists all pipelines for a given project
+- `/circleci pipeline mine <vcs/org-name/project-name>` - Lists all pipelines triggered by you in a given project
+- `/circleci pipeline trigger <vcs/org-name/project-name> <branch>` - Trigger a pipeline for given project slug and branch
+- `/circleci pipeline workflows <pipelineID>` - Lists all workflows for a given pipeline
+- `/circleci pipeline get <pipelineID>` - Get Info about a single pipeline
+
+#### Workflow commands
+
+- `/circleci pipeline get <workflowID>` - Get info about a single workflow
+- `/circleci pipeline jobs <workflowID>` - List jobs of given workflow
+- `/circleci pipeline rerun <workflowID>` - Rerun a given workflow
+- `/circleci pipeline cancel <workflowID>` - Cancel a given workflow
 
 ## TODO (tracking list)
 
