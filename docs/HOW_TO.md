@@ -138,7 +138,7 @@ Feel free to fill a [Github Issue](https://github.com/nathanaelhoun/mattermost-p
 
 ## License
 
-Apache License.
+This repository is licensed under the [Apache 2.0 License](../LICENSE).
 
 ## Development
 
