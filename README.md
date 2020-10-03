@@ -33,65 +33,23 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   `/circleci config <vcs/org-name/project-name>` - Allows you to set a default project to run your commands against
 
 #### Pipeline
-- `/circleci pipeline recent vcs/orgname` - Lists recently built pipelines in a given org
-- `/circleci pipeline all vcs/orgname/project` - Lists all pipelines for a given project
-- `/circleci pipeline mine vcs/orgname/project` - Lists all pipelines triggered by you in a given project
-- `/circleci pipeline workflows pipelineId` - Lists all workflows for a given pipeline
 
-## TODO (tracking list)
+-   `/circleci pipeline recent vcs/orgname` - Lists recently built pipelines in a given org
+-   `/circleci pipeline all vcs/orgname/project` - Lists all pipelines for a given project
+-   `/circleci pipeline mine vcs/orgname/project` - Lists all pipelines triggered by you in a given project
+-   `/circleci pipeline workflows pipelineId` - Lists all workflows for a given pipeline
 
--   [x] Get help
-
--   [x] Connect to CircleCI, see your profile, disconnect
-
--   [x] Setup webhook notifications about successful and failed CircleCI builds
-
--   [ ] Interact with CircleCI jobs
-
-    -   [ ] Trigger jobs with and without parameters
-    -   [ ] Abort a job
-    -   [ ] Configure/create/delete jobs
-    -   [ ] Get logs from a job in a file attachment, not as a message (this is because the logs can be huge, so it’s easier to preview a file attachment)
-    -   [ ] Get artifacts
-    -   [ ] Get test results
-
--   [ ] Meet [requirements](https://developers.mattermost.com/extend/plugins/community-plugin-marketplace/#requirements-for-adding-a-community-plugin-to-the-marketplace) to publish to Marketplace
-
-## Installation
+## Installation instructions
 
 _Coming_
 
+## How to use this plugin
+
+See [`HOW_TO.md`](./blob/master/HOW_TO.md)
+
 ## Contributing
 
-### I saw a bug, I have a feature request or a suggestion
-
-Please fill a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
-
-### I want to code
-
-Pull Requests are welcome! You can contact me on the [Mattermost Community ~plugin-circleci channel](https://community.mattermost.com/core/channels/plugin-circleci) where I am `@nathanaelhoun`.
-
-## Development
-
-To avoid having to manually install your plugin, build and deploy your plugin using one of the following options.
-
-### Deploying with Local Mode
-
-If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
-
-```
-make deploy
-```
-
-### Deploying with credentials
-
-Alternatively, you can authenticate with the server's API with a [personal access token](https://docs.mattermost.com/developer/personal-access-tokens.html):
-
-```
-export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
-make deploy
-```
+See [`CONTRIBUTING.md`](./blob/master/CONTRIBUTING.md)
 
 ## License
 
