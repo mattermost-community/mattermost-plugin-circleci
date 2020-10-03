@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-// WebhookInfo from the webhookCIRCLE_BRANCH
+// WebhookInfo from the webhook
 type WebhookInfo struct {
 	Organization           string `json:"Organization"`
 	Repository             string `json:"Repository"`
