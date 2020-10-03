@@ -55,10 +55,17 @@ To prevent this, either:
 
 Open **System Console > Plugins > CircleCI**:
 
--   Generate a new value for **Webhooks Secret**
--   Generate a new value for **At Rest Encryption Key**.
--   Hit **Save**.
--   Go to **System Console > Plugins > Management** and click **Enable** to enable the CircleCI plugin.
+1.  Generate a new value for **Webhooks Secret**
+2.  Generate a new value for **At Rest Encryption Key**.
+3.  Hit **Save**.
+4.  Go to **System Console > Plugins > Management** and click **Enable** to enable the CircleCI plugin.
+
+**Authorize integrations to override profile picture icons**
+
+For an optimal experience, enable the plugin to update it's icon when receiving notifications from failed or successful jobs
+
+1.  Open **System Console > Integrations > Integration Management
+2.  Set **Enable integrations to override profile picture icons** to `true`
 
 You're all set!
 
