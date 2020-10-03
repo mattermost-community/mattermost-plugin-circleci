@@ -156,3 +156,9 @@ func GetWorkflowMetrics(apiToken string, projectSlug string) ([]circleci.InlineR
 	met, _, err := client.InsightsApi.GetProjectWorkflowMetrics(getContext(apiToken), projectSlug, nil)
 	return met.Items, err
 }
+
+// GetWorkflowJobsMetrics returns jobs metrics for given workflow
+func GetWorkflowJobsMetrics(apiToken string, projectSlug string, workflowName string) ([]circleci.InlineResponse2002Items, error) {
+	met, _, err := client.InsightsApi.GetProjectWorkflowJobMetrics(getContext(apiToken), projectSlug, workflowName, nil)
+	return met.Items, err
+}

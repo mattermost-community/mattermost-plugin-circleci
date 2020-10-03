@@ -93,6 +93,41 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 
 func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
 	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 2 {
+		return p.sendEphemeralResponse(args, "Please provide project slug and workflow name to get jobs metrics"), nil
+	}
+	wfm, err := circle.GetWorkflowJobsMetrics(token, split[0], split[1])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get job metrics for project %s, workflow %s",
+				split[0], split[1])), &model.AppError{Message: "Failed to get jobs metrics for project " +
+				split[0] + " workflow " + split[1]}
+	}
+	wfMetricsString := "| Name | Sucess Rate | Failed Runs | Successful Runs | Throughput" +
+		"| MTTR | Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
+	for _, wf := range wfm {
+		mean := float32(wf.Metrics.DurationMetrics.Mean / 3600)
+		median := float32(wf.Metrics.DurationMetrics.Median / 3600)
+		min := float32(wf.Metrics.DurationMetrics.Min / 3600)
+		max := float32(wf.Metrics.DurationMetrics.Max / 3600)
+		wfMetricsString += fmt.Sprintf(
+			"| %s | %f | %d | %d | %f | %d | %f | %f | %f | %f | %s |\n",
+			wf.Name, wf.Metrics.SuccessRate*100, wf.Metrics.FailedRuns,
+			wf.Metrics.SuccessfulRuns, wf.Metrics.Throughput,
+			wf.Metrics.TotalCreditsUsed, mean, median, min, max,
+			fmt.Sprintf("%s to %s", wf.WindowStart.Format("2006-01-02"), wf.WindowEnd.Format("2006-01-02")),
+		)
+	}
+
+	_ = p.sendEphemeralPost(
+		args,
+		"Job metrics for project: "+split[0]+" workflow: "+split[1],
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Job Metrics",
+				Text:     wfMetricsString,
+			},
+		},
+	)
 
 	return &model.CommandResponse{}, nil
 }
