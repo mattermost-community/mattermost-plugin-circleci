@@ -41,7 +41,7 @@ _Coming_
 
 ## How to use this plugin
 
-See [`HOW_TO.md`](HOW_TO.md)
+See [`HOW_TO.md`](./docs/HOW_TO.md)
 
 ## Contributing
 
