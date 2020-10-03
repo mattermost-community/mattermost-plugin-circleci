@@ -21,7 +21,7 @@ Once connected, you'll have access to the following features:
 -   **Workflows notifications** - Receive worflows notifications directly in your Mattermost channel, including their status
 -   **Slash commands** - Interact with the CircleCI plugin using the `/circleci` slash command. Read more about slash commands [here](#slash-commands).
 
-See [`HOW_TO.md`](./docs/HOW_TO.md#slash-commands) to discover all the functionnality.
+See [`HOW_TO.md`](./docs/HOW_TO.md#slash-commands) to discover all the functionnalities.
 
 ## Installation instructions
 
