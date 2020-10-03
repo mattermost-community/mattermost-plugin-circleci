@@ -5,6 +5,8 @@
     "version": "0.1.0",
     "min_server_version": "5.12.0",
     "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci",
+    "support_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues",
+    "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-broomer/releases",
     "icon_path": "public/circleci.png",
     "server": {
         "executables": {
