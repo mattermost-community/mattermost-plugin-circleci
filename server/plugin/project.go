@@ -227,3 +227,21 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 
 	return &model.CommandResponse{}, nil
 }
+
+func (p *Plugin) executeProjectAddEnvVars(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 3 {
+		return p.sendEphemeralResponse(args, "Please provide project slug, varibale name and value"),
+			&model.AppError{Message: "received empty project slug or variable name or value"}
+	}
+	err := circle.AddEnvVar(token, split[0], split[1], split[2])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment varibale",
+				"`%s: %s` for ptoject %s", split[1], split[2], split[0])),
+			&model.AppError{Message: "Could not add env var %s:%s for project" + split[1] + split[2] +
+				split[0] + "err: " + err.Error()}
+	}
+
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully added environment variable `%s:%s` for project %s",
+		split[1], split[2], split[0])), nil
+}
