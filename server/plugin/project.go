@@ -25,7 +25,7 @@ const (
 	projectRecentBuildsHint     = "<username> <repository> <branch>"
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
 
-	projectEnvVarTrigger  = "envvar"
+	projectEnvVarTrigger  = "env"
 	projectEnvVarHint     = "<" + projectEnvVarListTrigger + "|" + projectEnvVarAddTrigger + "|" + projectEnvVarAddTrigger + ">"
 	projectEnvVarHelpText = "get, add or remove environment varibales for given project"
 
@@ -208,7 +208,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 	}
 
 	if len(envvars) == 0 {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having nay environment variables", split[0])), nil
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having any environment variables", split[0])), nil
 	}
 
 	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
