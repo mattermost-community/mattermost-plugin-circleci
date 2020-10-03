@@ -302,7 +302,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	}
 	if !isUUID && config.ToSlug() == "" {
 		return p.sendEphemeralResponse(args,
-			"Please provide project slug via --project flag. i.e. --project vcs/org/repo or configure default project"), nil
+			"Please provide project slug via `--project` flag. i.e. `--project <vcs/org-name/project-name` or configure default project"), nil
 	}
 
 	if isUUID {
