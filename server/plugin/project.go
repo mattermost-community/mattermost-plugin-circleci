@@ -102,7 +102,7 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		case projectEnvVarDelTrigger:
 			return p.executeProjectDelEnvVar(args, circleciToken, split[2:])
 		default:
-			return p.sendIncorrectSubcommandResponse(args, projectEnvVarListTrigger)
+			return p.sendIncorrectSubcommandResponse(args, projectEnvVarTrigger)
 		}
 	default:
 		return p.sendIncorrectSubcommandResponse(args, projectTrigger)
