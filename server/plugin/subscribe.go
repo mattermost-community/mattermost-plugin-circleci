@@ -6,7 +6,6 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
@@ -23,32 +22,32 @@ const (
 	subscribeListHelpText = "List the CircleCI subscriptions for the current channel"
 
 	subscribeChannelTrigger  = "add"
-	subscribeChannelHint     = "<owner> <repository> [--flags]"
-	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a repository"
+	subscribeChannelHint     = "[--flags]"
+	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a project"
 
 	subscribeUnsubscribeChannelTrigger  = "remove"
-	subscribeUnsubscribeChannelHint     = "<owner> <repository> [--flags]"
-	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a repository"
+	subscribeUnsubscribeChannelHint     = "[--flags]"
+	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a project"
 
 	subscribeListAllChannelsTrigger  = "list-channels"
-	subscribeListAllChannelsHint     = "<owner> <repository>"
-	subscribeListAllChannelsHelpText = "List all channels subscribed to this repository in the current team"
+	subscribeListAllChannelsHint     = ""
+	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to a project"
 )
 
 func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
 
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
+
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
-	subscribeChannel.AddDynamicListArgument("", routeAutocomplete+subrouteFollowedProjects, true)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
+	subscribeChannel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
-	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	unsubscribeChannel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
-	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	listAllSubscribedChannels.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(subscribeChannel)
@@ -58,7 +57,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	return subscribe
 }
 
-func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -72,13 +71,13 @@ func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken stri
 		return executeSubscribeList(p, context)
 
 	case subscribeChannelTrigger:
-		return executeSubscribeChannel(p, context, split[1:])
+		return executeSubscribeChannel(p, context, config, split[1:])
 
 	case subscribeUnsubscribeChannelTrigger:
-		return executeUnsubscribeChannel(p, context, split[1:])
+		return executeUnsubscribeChannel(p, context, config)
 
 	case subscribeListAllChannelsTrigger:
-		return executeSubscribeListAllChannels(p, context, split[1:])
+		return executeSubscribeListAllChannels(p, context, config)
 
 	default:
 		return p.sendIncorrectSubcommandResponse(context, subscribeTrigger)
@@ -127,13 +126,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	return &model.CommandResponse{}, nil
 }
 
-func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(context, "Please provide the project owner and repository names"), nil
-	}
-
-	owner, repo := split[0], split[1]
-
+func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
 	// ? TODO check that project exists
 
 	subs, err := p.Store.GetSubscriptions()
@@ -145,8 +138,8 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 	newSub := &store.Subscription{
 		ChannelID:  context.ChannelId,
 		CreatorID:  context.UserId,
-		Owner:      owner,
-		Repository: repo,
+		Owner:      config.Org,
+		Repository: config.Project,
 		Flags:      store.SubscriptionFlags{},
 	}
 
@@ -175,14 +168,13 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 	}
 
 	msg := fmt.Sprintf(
-		"This channel has been subscribed to notifications from **%s/%s** with flags: %s\n"+
+		"This channel has been subscribed to notifications from %s with flags: %s\n"+
 			"#### How to finish setup:\n"+
 			"(See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications))\n"+
 			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
 			"2. Add the `MM_WEBHOOK` environment variable to your project using `/%s %s %s %s` or the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project)\n"+
 			"**Webhook URL: `%s`**",
-		owner,
-		repo,
+		config.ToMarkdown(),
 		newSub.Flags,
 		manifest.HomepageURL,
 		commandTrigger,
@@ -195,54 +187,43 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, split []stri
 	return p.sendEphemeralResponse(context, msg), nil
 }
 
-func executeUnsubscribeChannel(p *Plugin, context *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(context, "Please provide the project owner and repository names"), nil
-	}
-
-	owner, repo := split[0], split[1]
-
+func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(args, "Internal error when getting subscriptions"), nil
 	}
 
-	if removed := subs.RemoveSubscription(context.ChannelId, owner, repo); !removed {
-		return p.sendEphemeralResponse(context, fmt.Sprintf("This channel is not subscribed to **%s**",
-			v1.GetFullNameFromOwnerAndRepo(owner, repo))), nil
+	if removed := subs.RemoveSubscription(args.ChannelId, config.Org, config.Project); !removed {
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("This channel was not subscribed to %s", config.ToMarkdown()),
+		), nil
 	}
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
-		return p.sendEphemeralResponse(context, "Internal error when storing new subscription."), nil
+		return p.sendEphemeralResponse(args, "Internal error when storing new subscription."), nil
 	}
 
-	return p.sendEphemeralResponse(context, fmt.Sprintf(
-		"Successfully unsubscribed this channel to notifications from **%s**",
-		v1.GetFullNameFromOwnerAndRepo(owner, repo),
-	)), nil
+	return p.sendEphemeralResponse(args,
+		fmt.Sprintf("Successfully unsubscribed this channel from %s", config.ToMarkdown()),
+	), nil
 }
 
-func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(context, "Please provide the project owner and repository names"), nil
-	}
-
-	owner, repo := split[0], split[1]
-
+func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
 		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
 	}
 
-	channelIDs := allSubs.GetSubscribedChannelsForRepository(owner, repo)
+	channelIDs := allSubs.GetSubscribedChannelsForRepository(config.Org, config.Project)
 	if channelIDs == nil {
 		return p.sendEphemeralResponse(
 			context,
 			fmt.Sprintf(
-				"No channel is subscribed to this repository. Try `/%s %s %s`",
+				"No channel is subscribed to the project %s. Try `/%s %s %s`",
+				config.ToMarkdown(),
 				commandTrigger,
 				subscribeTrigger,
 				subscribeChannelTrigger,
@@ -250,7 +231,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, spli
 		), nil
 	}
 
-	message := "Channels of this team subscribed to **" + v1.GetFullNameFromOwnerAndRepo(owner, repo) + "**\n"
+	message := fmt.Sprintf("Channels of this team subscribed to %s\n", config.ToMarkdown())
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {

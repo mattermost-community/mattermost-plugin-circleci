@@ -6,59 +6,50 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 ## Features
 
-#### Connect to your CircleCI account
+### Connect to your CircleCI account
 
--   `/circleci account view` - Get informations about yourself
--   `/circleci account connect <API token>` - Connect your Mattermost account to CircleCI
--   `/circleci account disconnect` - Disconnect your Mattermost account from CircleCI
+-   `/circleci account view` — Get informations about yourself
+-   `/circleci account connect` <API token> — Connect your Mattermost account to CircleCI
+-   `/circleci account disconnect` — Disconnect your Mattermost account from CircleCI
 
-#### Manage CircleCI projects
+### Set your default project
 
--   `/circleci project list-followed` - List followed projects
--   `/circleci project recent-build <owner-name> <project-name> <branch>` - List the 10 last builds for a project
--   `/circleci project env list <vcs/orgname/project>` - List environment variables for a given project
--   `/circleci project env add <vcs/orgname/project> <name> <value>` - Add an environment variable with a given name and value for a given project
--   `/circleci project env add <vcs/orgname/project> <name>` - Remove an environment variable with a given name from a given project
+* `/circleci config <vcs/org-name/project-name>` — View the config. Pass in the project (vcs/org/projectname) to set the default config
 
-#### Subscribe to notifications projects
+### Subscribe your channel to notifications
 
--   `/circleci subscription list` — List the CircleCI subscriptions for the current channel
--   `/circleci subscription add <owner> <repository> [--flags]` — Subscribe the current channel to CircleCI notifications for a repository
--   `/circleci subscription remove <owner> <repository> [--flags]` — Unsubscribe the current channel to CircleCI notifications for a repository
--   `/circleci subscription list-channels <owner> <repository>` — List all channels subscribed to this repository in the current team
+* `/circleci subscription list` — List the CircleCI subscriptions for the current channel
+* `/circleci subscription add [--flags]` — Subscribe the current channel to CircleCI notifications for a project
+* `/circleci subscription remove [--flags]` — Unsubscribe the current channel to CircleCI notifications for a project
+* `/circleci subscription list-channels` — List all channels in the current team subscribed to a project
 
-#### Config
+### Manage pipelines
 
--   `/circleci config <vcs/org-name/project-name>` - Allows you to set a default project to run your commands against
+* `/circleci pipeline trigger <branch>` — Trigger pipeline for a project
+* `/circleci pipeline workflows <pipelineID>` — Get list of workflows for given pipeline
+* `/circleci pipeline recent <vcs-slug/org-name>` — Get list of all recently ran pipelines
+* `/circleci pipeline all` — Get list of all pipelines for a project
+* `/circleci pipeline mine` — Get list of all pipelines triggered by you for a project
+* `/circleci pipeline get` <pipelineID> — Get informations about a single pipeline
 
-#### Pipeline commands
+### Manage worflows
 
-- `/circleci pipeline recent <vcs/orgname>` - Lists recently built pipelines in a given org
-- `/circleci pipeline all <vcs/org-name/project-name>` - Lists all pipelines for a given project
-- `/circleci pipeline mine <vcs/org-name/project-name>` - Lists all pipelines triggered by you in a given project
-- `/circleci pipeline trigger <vcs/org-name/project-name> <branch>` - Trigger a pipeline for given project slug and branch
-- `/circleci pipeline workflows <pipelineID>` - Lists all workflows for a given pipeline
-- `/circleci pipeline get <pipelineID>` - Get Info about a single pipeline
+* `/circleci workflow get <workflowID>` — Get informations about workflow
+* `/circleci workflow jobs <workflowID>` — Get jobs list of workflow
+* `/circleci workflow rerun <workflowID>` — Rerun a workflow
+* `/circleci workflow cancel <workflowID>` — Cancel a workflow
 
-#### Workflow commands
+### Manage CircleCI projects
 
-- `/circleci pipeline get <workflowID>` - Get info about a single workflow
-- `/circleci pipeline jobs <workflowID>` - List jobs of given workflow
-- `/circleci pipeline rerun <workflowID>` - Rerun a given workflow
-- `/circleci pipeline cancel <workflowID>` - Cancel a given workflow
-
-## TODO (tracking list)
-
--   [x] Get help
-
--   [x] Connect to CircleCI, see your profile, disconnect
-
+  * `/circleci project list-followed` — List followed projects
+  * `/circleci project recent-build <branch>` — List the 10 last builds for a project
+  * `/circleci project env <list|add|add>` — get, add or remove environment variables for given project
 
 ## Installation instructions
 
 _Coming_
 
-After installation, generate the secrets in **System Console > Plugins > CircleCI** for `Webhooks Secret` and `At Rest Encryption Key`. 
+After installation, generate the secrets in **System Console > Plugins > CircleCI** for `Webhooks Secret` and `At Rest Encryption Key`.
 
 ## How to use this plugin
 

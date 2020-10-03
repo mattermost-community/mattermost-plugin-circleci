@@ -9,6 +9,8 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -19,7 +21,12 @@ const (
 	notConnectedText    = "You are not connected to CircleCI. Please try `/" + commandTrigger + " " + accountTrigger + " " + accountConnectTrigger + "`"
 	errorConnectionText = "Error when reaching to CircleCI. Please check that your token is still valid"
 
-	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding commands_*.go file
+	namedArgProjectName     = "project"
+	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
+	namedArgProjectHint     = "[vcs/org-name/project-name]"
+	namedArgProjectPattern  = "" // TODO wait for https://github.com/mattermost/mattermost-server/pull/14781 to get merged
+
+	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding .go file
 	commandHelpTrigger = "help"
 
 	accountHelp = "#### Connect to your CircleCI account\n" +
@@ -29,15 +36,34 @@ const (
 
 	projectHelp = "#### Manage CircleCI projects\n" +
 		"* `/" + commandTrigger + " " + projectTrigger + " " + projectListTrigger + "` — " + projectListHelpText + "\n" +
-		"* `/" + commandTrigger + " " + projectTrigger + " " + projectRecentBuildsTrigger + " " + projectRecentBuildsHint + "` — " + projectRecentBuildsHelpText + "\n"
+		"* `/" + commandTrigger + " " + projectTrigger + " " + projectRecentBuildsTrigger + " " + projectRecentBuildsHint + "` — " + projectRecentBuildsHelpText + "\n" +
+		"* `/" + commandTrigger + " " + projectTrigger + " " + projectEnvVarTrigger + " " + projectEnvVarHint + "` — " + projectEnvVarHelpText + "\n"
 
-	subscriptionHelp = "#### Subscribe to notifications projects\n" +
+	subscriptionHelp = "#### Subscribe your channel to notifications\n" +
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeListTrigger + " " + subscribeListHint + "` — " + subscribeListHelpText + "\n" +
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeChannelTrigger + " " + subscribeChannelHint + "` — " + subscribeChannelHelpText + "\n" +
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeUnsubscribeChannelTrigger + " " + subscribeUnsubscribeChannelHint + "` — " + subscribeUnsubscribeChannelHelpText + "\n" +
 		"* `/" + commandTrigger + " " + subscribeTrigger + " " + subscribeListAllChannelsTrigger + " " + subscribeListAllChannelsHint + "` — " + subscribeListAllChannelsHelpText + "\n"
 
-	help = "## CircleCI plugin Help\n" + accountHelp + projectHelp + subscriptionHelp
+	workflowHelp = "#### Manage worflows\n" +
+		"* `/" + commandTrigger + " " + workflowTrigger + " " + workflowGetTrigger + " " + workflowGetHint + "` — " + workflowGetHelpText + "\n" +
+		"* `/" + commandTrigger + " " + workflowTrigger + " " + workflowGetJobsTrigger + " " + workflowGetJobsHint + "` — " + workflowGetJobsHelpText + "\n" +
+		"* `/" + commandTrigger + " " + workflowTrigger + " " + workflowRerunTrigger + " " + workflowRerunHint + "` — " + workflowRerunHelpText + "\n" +
+		"* `/" + commandTrigger + " " + workflowTrigger + " " + workflowCancelTrigger + " " + workflowCancelHint + "` — " + workflowCancelHelpText + "\n"
+
+	pipelineHelp = "#### Manage pipelines\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineTriggerTrigger + " " + pipelineTriggerHint + "` — " + pipelineTriggerHelpText + "\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineWorkflowTrigger + " " + pipelineWorkflowHint + "` — " + pipelineWorkflowHelpText + "\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetRecentTrigger + " " + pipelineGetRecentHint + "` — " + pipelineGetRecentHelpText + "\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetAllTrigger + " " + pipelineGetAllHint + "` — " + pipelineGetAllHelpText + "\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetMineTrigger + " " + pipelineGetMineHint + "` — " + pipelineGetMineHelpText + "\n" +
+		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetSingleTrigger + " " + pipelineGetSingleHint + "` — " + pipelineGetSingleHelpText + "\n"
+
+	configHelp = "#### Set your default project\n" +
+
+		"* `/" + commandTrigger + " " + configCommandTrigger + " " + configCommandHint + "` — " + configCommandHelpText + "\n"
+
+	help = "## CircleCI plugin Help\n" + accountHelp + configHelp + subscriptionHelp + pipelineHelp + workflowHelp + projectHelp
 )
 
 func (p *Plugin) getCommand() *model.Command {
@@ -95,6 +121,15 @@ func (p *Plugin) sendHelpResponse(args *model.CommandArgs, currentCommand string
 	case subscribeTrigger:
 		message += subscriptionHelp
 
+	case configCommandTrigger:
+		message += configHelp
+
+	case workflowTrigger:
+		message += workflowHelp
+
+	case pipelineTrigger:
+		message += pipelineHelp
+
 	default:
 		message += help
 	}
@@ -127,27 +162,75 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.sendEphemeralResponse(args, notConnectedText), nil
 	}
 
+	config, err := p.Store.GetConfig(args.UserId)
+	if err != nil {
+		p.API.LogError("Could not get user config", "error", err)
+	}
+
+	var splitWithoutProject []string
+	if (config != nil && !strings.Contains(args.Command, "--project")) || command == accountTrigger || command == configCommandTrigger {
+		splitWithoutProject = split
+	} else {
+		// Trying to get the config from the commands, with the args `--project`
+		slug := ""
+		nextIsValue := false
+		splitWithoutProject = []string{}
+
+	scan:
+		for _, arg := range split {
+			p.API.LogDebug("parsing command", "argument", arg)
+
+			switch {
+			case nextIsValue:
+				slug = arg
+				break scan
+
+			case arg == "--project":
+				nextIsValue = true
+
+			default:
+				splitWithoutProject = append(splitWithoutProject, arg)
+			}
+		}
+
+		if slug == "" {
+			// The argument has not been found
+			return p.sendEphemeralResponse(args,
+				fmt.Sprintf("No CircleCI project set. Try `%s %s %s` to set a project to use", commandTrigger, configCommandTrigger, configCommandHint),
+			), nil
+		}
+
+		confFromArg, userErr := store.CreateConfigFromSlug(slug)
+		if userErr != "" {
+			return p.sendEphemeralResponse(args,
+				fmt.Sprintf("Incorrect value for argument `--project`: `%s`. %s", slug, userErr),
+			), nil
+		}
+
+		config = confFromArg
+	}
+
 	switch command {
 	case accountTrigger:
-		return p.executeAccount(args, token, split[2:])
+		return p.executeAccount(args, token, splitWithoutProject[2:])
 
 	case projectTrigger:
-		return p.executeProject(args, token, split[2:])
+		return p.executeProject(args, token, config, splitWithoutProject[2:])
 
 	case subscribeTrigger:
-		return p.executeSubscribe(args, token, split[2:])
+		return p.executeSubscribe(args, token, config, splitWithoutProject[2:])
 
 	case configCommandTrigger:
 		return p.executeConfig(args)
 
 	case workflowTrigger:
-		return p.executeWorkflowTrigger(args, token, split[2:])
+		return p.executeWorkflow(args, token, splitWithoutProject[2:])
 
 	case pipelineTrigger:
-		return p.executePipelineTrigger(args, token, split[2:])
+		return p.executePipelineTrigger(args, token, config, splitWithoutProject[2:])
 
 	case insightTrigger:
-		return p.executeInsightTrigger(args, token, split[2:])
+		return p.executeInsightTrigger(args, token, config, splitWithoutProject[2:])
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, "")
