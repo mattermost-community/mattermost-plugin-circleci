@@ -2,7 +2,9 @@ package plugin
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/darkLord19/circleci-v2/circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
@@ -27,17 +29,17 @@ const (
 	pipelineGetMineHint     = ""
 	pipelineGetMineHelpText = "Get list of all pipelines triggered by you for a project"
 
-	pipelineWorkflowTrigger  = "workflows"
-	pipelineWorkflowHint     = "<pipelineID>"
-	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
-
 	pipelineTriggerTrigger  = "trigger"
 	pipelineTriggerHint     = "<branch>"
 	pipelineTriggerHelpText = "Trigger pipeline for a project"
 
+	pipelineWorkflowTrigger  = "workflows"
+	pipelineWorkflowHint     = "<pipeline number>"
+	pipelineWorkflowHelpText = "Get list of workflows for given pipeline id"
+
 	pipelineGetSingleTrigger  = "get"
-	pipelineGetSingleHint     = "<pipelineID>"
-	pipelineGetSingleHelpText = "Get informations about a single pipeline"
+	pipelineGetSingleHint     = "<pipeline id> or <pipeline number>"
+	pipelineGetSingleHelpText = "Get informations about a single pipeline for a given project or a pipeline id"
 )
 
 func getPipelineAutoCompeleteData() *model.AutocompleteData {
@@ -47,7 +49,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	all.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	recent := model.NewAutocompleteData(pipelineGetRecentTrigger, pipelineGetRecentHint, pipelineGetRecentHelpText)
-	recent.AddTextArgument("VCS is either bb or gh.", pipelineGetRecentHint, "")
+	recent.AddTextArgument("VCS is either bb or gh. Leave blank for default org", pipelineGetRecentHint, "")
 
 	mine := model.NewAutocompleteData(pipelineGetMineTrigger, pipelineGetMineHint, pipelineGetMineHelpText)
 	mine.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
@@ -60,14 +62,14 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	trigger.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
-	get.AddTextArgument("< pipeline id >", pipelineGetSingleHint, "")
+	get.AddTextArgument("< pipeline number > or < pipelineID >", pipelineGetSingleHint, "")
 
-	pipeline.AddCommand(all)
-	pipeline.AddCommand(recent)
-	pipeline.AddCommand(mine)
-	pipeline.AddCommand(wf)
 	pipeline.AddCommand(trigger)
 	pipeline.AddCommand(get)
+	pipeline.AddCommand(wf)
+	pipeline.AddCommand(all)
+	pipeline.AddCommand(mine)
+	pipeline.AddCommand(recent)
 
 	return pipeline
 }
@@ -87,7 +89,7 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	case pipelineGetAllTrigger:
 		return p.executePipelineGetAllForProject(args, circleciToken, config)
 	case pipelineGetRecentTrigger:
-		return p.executePipelineGetRecent(args, circleciToken, argument)
+		return p.executePipelineGetRecent(args, circleciToken, config)
 	case pipelineGetMineTrigger:
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, config)
 	case pipelineWorkflowTrigger:
@@ -99,7 +101,7 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		}
 		return p.executeTriggerPipeline(args, circleciToken, config, branch)
 	case pipelineGetSingleTrigger:
-		return p.executePipelineGetSingle(args, circleciToken, argument)
+		return p.executePipelineGetSingle(args, circleciToken, config, argument)
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, pipelineTrigger)
@@ -108,17 +110,19 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	}
 }
 
-func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string, orgSlug string) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetRecentlyBuiltPipelines(token, orgSlug, false)
+func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
+	config *store.Config) (*model.CommandResponse, *model.AppError) {
+	pipelines, err := circle.GetRecentlyBuiltPipelines(token, fmt.Sprintf("%s/%s", config.VCSType, config.Org), false)
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "org", orgSlug, "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "org", config.ToSlug(), "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
-	pipelineListString := "| Pipeline ID | State |\n| :---- | :----- | \n"
+	pipelineListString := "| Pipeline No. | Pipeline ID | State |\n| :---- | :----- | \n"
 	for _, pipeline := range pipelines {
 		pipelineListString += fmt.Sprintf(
-			"| %s | %s |\n",
+			"| %d | %s | %s |\n",
+			pipeline.Number,
 			pipeline.Id,
 			pipeline.State,
 		)
@@ -145,10 +149,11 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
-	projectsListString := "| Pipeline ID | State |\n| :---- | :----- | \n"
+	projectsListString := "| Pipeline No. | Pipeline ID | State |\n| :---- | :----- | \n"
 	for _, pipeline := range pipelines {
 		projectsListString += fmt.Sprintf(
-			"| %s | %s |\n",
+			"| %d | %s | %s |\n",
+			pipeline.Number,
 			pipeline.Id,
 			pipeline.State,
 		)
@@ -159,7 +164,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 		fmt.Sprintf("Recently built pipelines for project %s.", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Projects list",
+				Fallback: "Pipelines list",
 				Text:     projectsListString,
 			},
 		},
@@ -175,10 +180,11 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
-	projectsListString := "| Pipeline ID | State |\n| :---- | :----- | \n"
+	projectsListString := "| Pipeline No. | Pipeline ID | State |\n| :---- | :----- | \n"
 	for _, pipeline := range pipelines {
 		projectsListString += fmt.Sprintf(
-			"| %s | %s |\n",
+			"| %d | %s | %s |\n",
+			pipeline.Number,
 			pipeline.Id,
 			pipeline.State,
 		)
@@ -189,7 +195,7 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 		fmt.Sprintf("Pipelines recently ran by you for project %s", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Projects list",
+				Fallback: "Pipelines list",
 				Text:     projectsListString,
 			},
 		},
@@ -198,9 +204,10 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs, token string, pipelineID string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
+	token string, pipelineID string) (*model.CommandResponse, *model.AppError) {
 	if pipelineID == "" {
-		return p.sendEphemeralResponse(args, "Please precise the pipelineID"), nil
+		return p.sendEphemeralResponse(args, "Please provide the pipelineID"), nil
 	}
 
 	wfs, err := circle.GetWorkflowsByPipeline(token, pipelineID)
@@ -213,7 +220,10 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs, token s
 
 	workflowListString := "| Name | Started By | Status | ID |\n| :---- | :----- | \n"
 	for _, wf := range wfs {
-		uname, _ := circle.GetNameByID(token, wf.StartedBy)
+		uname, err := circle.GetNameByID(token, wf.StartedBy)
+		if err != nil {
+			uname = wf.StartedBy
+		}
 		workflowListString += fmt.Sprintf(
 			"| %s | %s | %s | %s |\n",
 			wf.Name,
@@ -237,7 +247,8 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs, token s
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string, config *store.Config, branch string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
+	config *store.Config, branch string) (*model.CommandResponse, *model.AppError) {
 	pl, err := circle.TriggerPipeline(token, config.ToSlug(), branch)
 	if branch == "" {
 		branch = "master"
@@ -280,10 +291,28 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string, c
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string, pipelineID string) (*model.CommandResponse, *model.AppError) {
-	pl, err := circle.GetPipelineByID(token, pipelineID)
+func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
+	config *store.Config, num string) (*model.CommandResponse, *model.AppError) {
+	var isUUID bool
+	var err error
+	var pl circleci.Pipeline
+	_, err = strconv.ParseInt(num, 10, 64)
 	if err != nil {
-		p.API.LogError("Could not get info about pipeline", "pipelineID", pipelineID, "error", err)
+		isUUID = true
+	}
+	if !isUUID && config.ToSlug() == "" {
+		return p.sendEphemeralResponse(args,
+			"Please provide project slug via `--project` flag. i.e. `--project <vcs/org-name/project-name` or configure default project"), nil
+	}
+
+	if isUUID {
+		pl, err = circle.GetPipelineByID(token, num)
+	} else {
+		pl, err = circle.GetPipelineByNum(token, config.ToSlug(), num)
+	}
+
+	if err != nil {
+		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
 		return p.sendEphemeralResponse(args, "Could not get info about pipeline"), nil
 	}
 
@@ -293,8 +322,13 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipeline Info",
-				Pretext:  fmt.Sprintf("Informations about pipeline `%s`", pipelineID),
+				Pretext:  fmt.Sprintf("Informations about pipeline `%s`", num),
 				Fields: []*model.SlackAttachmentField{
+					{
+						Title: "Number",
+						Value: strconv.FormatInt(pl.Number, 10),
+						Short: true,
+					},
 					{
 						Title: "Id",
 						Value: pl.Id,
