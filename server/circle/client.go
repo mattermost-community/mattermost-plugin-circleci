@@ -130,3 +130,9 @@ func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageRespons
 	ms, _, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
 	return ms, err
 }
+
+// GetEnvVarsList returns list of environment variables for given projects
+func GetEnvVarsList(apiToken string, projectSlug string) ([]circleci.EnvironmentVariablePair1, error) {
+	env, _, err := client.ProjectApi.ListEnvVars(getContext(apiToken), projectSlug)
+	return env.Items, err
+}

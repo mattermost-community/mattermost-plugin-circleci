@@ -7,6 +7,7 @@ import (
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
 
@@ -94,7 +95,7 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		}
 		switch subsubcmd {
 		case projectEnvVarListTrigger:
-			return p.executeProjectListEnvVars(args, circleciToken, split[1:])
+			return p.executeProjectListEnvVars(args, circleciToken, split[2:])
 		case projectEnvVarAddTrigger:
 			return p.executeProjectAddEnvVar(args, circleciToken, split[1:])
 		case projectEnvVarDelTrigger:
@@ -186,6 +187,40 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 			{
 				Fallback: "Recent builds list",
 				Text:     text,
+			},
+		},
+	)
+
+	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Project Slug cannot be empty for list command"),
+			&model.AppError{Message: "received empty project slug"}
+	}
+	envvars, err := circle.GetEnvVarsList(token, split[0])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment varibales for ptoject %s", split[0])),
+			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
+	}
+	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
+	for _, env := range envvars {
+		envVarListString += fmt.Sprintf(
+			"| %s | %s |\n",
+			env.Name,
+			env.Value,
+		)
+	}
+
+	_ = p.sendEphemeralPost(
+		args,
+		"Environment variables for project "+split[0],
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Environment Varibale List",
+				Text:     envVarListString,
 			},
 		},
 	)
