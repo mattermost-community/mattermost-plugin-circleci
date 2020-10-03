@@ -139,7 +139,7 @@ func GetEnvVarsList(apiToken string, projectSlug string) ([]circleci.Environment
 
 // AddEnvVar returns list of environment variables for given projects
 func AddEnvVar(apiToken string, projectSlug string, name string, value string) error {
-	var opts *circleci.ProjectApiCreateEnvVarOpts
+	opts := new(circleci.ProjectApiCreateEnvVarOpts)
 	opts.Body = optional.NewInterface(circleci.EnvironmentVariablePair{Name: name, Value: value})
 	_, _, err := client.ProjectApi.CreateEnvVar(getContext(apiToken), projectSlug, opts)
 	return err
