@@ -238,7 +238,7 @@ func (p *Plugin) executeProjectAddEnvVars(args *model.CommandArgs,
 	if err != nil {
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment varibale",
 				"`%s: %s` for ptoject %s", split[1], split[2], split[0])),
-			&model.AppError{Message: "Could not add env var %s:%s for project" + split[1] + split[2] +
+			&model.AppError{Message: "Could not add env var %s:%s for project %s" + split[1] + split[2] +
 				split[0] + "err: " + err.Error()}
 	}
 
