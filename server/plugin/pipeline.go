@@ -2,7 +2,9 @@ package plugin
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/darkLord19/circleci-v2/circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
@@ -33,11 +35,11 @@ const (
 
 	pipelineWorkflowTrigger  = "workflows"
 	pipelineWorkflowHint     = "<pipeline number>"
-	pipelineWorkflowHelpText = "Get list of workflows for given pipeline number and project"
+	pipelineWorkflowHelpText = "Get list of workflows for given pipeline id"
 
 	pipelineGetSingleTrigger  = "get"
-	pipelineGetSingleHint     = "<pipeline number>"
-	pipelineGetSingleHelpText = "Get informations about a single pipeline for a given project"
+	pipelineGetSingleHint     = "<pipeline id> or <pipeline number>"
+	pipelineGetSingleHelpText = "Get informations about a single pipeline for a given project or a pipeline id"
 )
 
 func getPipelineAutoCompeleteData() *model.AutocompleteData {
@@ -60,7 +62,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	trigger.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
-	get.AddTextArgument("< pipeline number >", pipelineGetSingleHint, "")
+	get.AddTextArgument("< pipeline number > or < pipelineID >", pipelineGetSingleHint, "")
 
 	pipeline.AddCommand(trigger)
 	pipeline.AddCommand(get)
@@ -291,11 +293,24 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 
 func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	config *store.Config, num string) (*model.CommandResponse, *model.AppError) {
-	if config.ToSlug() == "" {
+	var isUUID bool
+	var err error
+	var pl circleci.Pipeline
+	_, err = strconv.ParseInt(num, 10, 64)
+	if err != nil {
+		isUUID = true
+	}
+	if !isUUID && config.ToSlug() == "" {
 		return p.sendEphemeralResponse(args,
 			"Please provide project slug via --project flag. i.e. --project vcs/org/repo or configure default project"), nil
 	}
-	pl, err := circle.GetPipelineByNum(token, config.ToSlug(), num)
+
+	if isUUID {
+		pl, err = circle.GetPipelineByID(token, num)
+	} else {
+		pl, err = circle.GetPipelineByNum(token, config.ToSlug(), num)
+	}
+
 	if err != nil {
 		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
 		return p.sendEphemeralResponse(args, "Could not get info about pipeline"), nil

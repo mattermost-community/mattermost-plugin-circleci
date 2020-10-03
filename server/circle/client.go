@@ -115,6 +115,12 @@ func GetPipelineByNum(apiToken string, projectSlug string, num string) (circleci
 	return pl, err
 }
 
+// GetPipelineByID get info about single pipeline
+func GetPipelineByID(apiToken string, pipelineID string) (circleci.Pipeline, error) {
+	pl, _, err := client.PipelineApi.GetPipelineById(getContext(apiToken), pipelineID)
+	return pl, err
+}
+
 // RerunWorkflow reruns a given workflow
 func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
 	ms, _, err := client.WorkflowApi.RerunWorkflow(getContext(apiToken), workflowID, nil)
