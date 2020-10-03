@@ -8,28 +8,29 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/mattermost/mattermost-server/v5/model"
-
-	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
-
-// TODO Add information to the notification: which branCIRCLE_BRANCHche is concerned / which commit? (may need modification to the orb)
 
 // WebhookInfo from the webhookCIRCLE_BRANCH
 type WebhookInfo struct {
-	Owner                  string `json:"Owner"`
+	Organization           string `json:"Organization"`
 	Repository             string `json:"Repository"`
 	RepositoryURL          string `json:"RepositoryURL"`
-	Branch                 string `json:"Branch"`
-	CircleBuildNum         int    `json:"CircleBuildNum"`
-	CircleBuildURL         string `json:"CircleBuildURL"`
 	Username               string `json:"Username"`
+	WorkflowID             string `json:"WorkflowID"`
+	PipelineNumber         string `json:"PipelineNumber"`
+	JobName                string `json:"JobName"`
+	CircleBuildNumber      int    `json:"CircleBuildNumber"`
+	CircleBuildURL         string `json:"CircleBuildURL"`
+	Branch                 string `json:"Branch"`
+	Tag                    string `json:"Tag"`
+	Commit                 string `json:"Commit"`
 	AssociatedPullRequests string `json:"AssociatedPullRequests"`
 	IsFailed               bool   `json:"IsFailed"`
 	IsWaitingApproval      bool   `json:"IsWaitingApproval"`
 	Message                string `json:"Message"`
 }
 
-// Convert the build info into a post attachment
+// Convert the build info into a Post
 func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	attachment := &model.SlackAttachment{
 		TitleLink: wi.CircleBuildURL,
@@ -38,8 +39,9 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Title: "Repo",
 				Short: true,
 				Value: fmt.Sprintf(
-					"[%s](%s)",
-					v1.GetFullNameFromOwnerAndRepo(wi.Owner, wi.Repository),
+					"[%s/%s](%s)",
+					wi.Organization,
+					wi.Repository,
 					wi.RepositoryURL,
 				),
 			},
@@ -49,9 +51,14 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Value: fmt.Sprintf("`%s`", wi.Branch),
 			},
 			{
+				Title: "Commit",
+				Short: true,
+				Value: fmt.Sprintf("`%s`", wi.Commit),
+			},
+			{
 				Title: "Job number",
 				Short: true,
-				Value: fmt.Sprintf("%d", wi.CircleBuildNum),
+				Value: fmt.Sprintf("%d", wi.CircleBuildNumber),
 			},
 			{
 				Title: "Build informations",
@@ -66,13 +73,8 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 	}
 
 	switch {
-	case wi.IsFailed:
-		attachment.ThumbURL = buildFailedIconURL
-		attachment.Title = "CircleCI Job failed"
-		attachment.Color = "#FF1919" // red
-
 	case wi.IsWaitingApproval:
-		attachment.Title = "CircleCI Job waiting approval"
+		attachment.Title = "You have a CircleCI Workflow waiting for approval"
 		attachment.Color = "#8267E4" // purple
 
 		// TODO : add button to approve / refuse the job
@@ -89,10 +91,15 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 		// 	},
 		// }
 
+	case wi.IsFailed:
+		attachment.ThumbURL = buildFailedIconURL
+		attachment.Title = fmt.Sprintf("Your CircleCI Job has failed: %s", wi.JobName)
+		attachment.Color = "#FF1919" // red
+
 	default:
 		// Not failed and not waiting approval = passed
 		attachment.ThumbURL = buildGreenIconURL
-		attachment.Title = "CircleCI Job passed"
+		attachment.Title = fmt.Sprintf("Your CircleCI Job has passed: %s", wi.JobName)
 		attachment.Color = "#50F100" // green
 	}
 
@@ -129,7 +136,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetFilteredChannelsForBuild(wi.Owner, wi.Repository, wi.IsFailed)
+	channelsToPost := allSubs.GetFilteredChannelsForBuild(wi.Organization, wi.Repository, wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
 	}
