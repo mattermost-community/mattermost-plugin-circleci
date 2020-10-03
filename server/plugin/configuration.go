@@ -20,6 +20,7 @@ import (
 // copy appropriate for your types.
 type configuration struct {
 	WebhooksSecret string `json:"WebhooksSecret"`
+	EncryptionKey  string `json:"EncryptionKey"`
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -68,6 +69,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	}
 
 	configuration.WebhooksSecret = strings.TrimSpace(configuration.WebhooksSecret)
+	configuration.WebhooksSecret = strings.TrimSpace(configuration.EncryptionKey)
 	p.configuration = configuration
 }
 

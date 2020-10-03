@@ -58,6 +58,8 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 _Coming_
 
+After installation, generate the secrets in **System Console > Plugins > CircleCI** for `Webhooks Secret` and `At Rest Encryption Key`. 
+
 ## How to use this plugin
 
 See [`HOW_TO.md`](./docs/HOW_TO.md)

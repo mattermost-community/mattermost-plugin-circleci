@@ -39,6 +39,14 @@ const manifestStr = `
         "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations",
         "placeholder": "",
         "default": null
+      },
+      {
+        "key": "EncryptionKey",
+        "display_name": "At Rest Encryption Key",
+        "type": "generated",
+        "help_text": "The AES encryption key used to encrypt stored access tokens.",
+        "placeholder": "",
+        "default": null
       }
     ]
   }
