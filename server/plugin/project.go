@@ -7,12 +7,13 @@ import (
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
 )
 
 const (
 	projectTrigger  = "project"
-	projectHint     = "<" + projectListTrigger + "|" + projectRecentBuildsTrigger + ">"
+	projectHint     = "<" + projectListTrigger + "|" + projectRecentBuildsTrigger + "|" + projectEnvVarTrigger + ">"
 	projectHelpText = "View informations about your CircleCI projects"
 
 	projectListTrigger  = "list-followed"
@@ -23,6 +24,22 @@ const (
 	// TODO rename in all files (code and UI strings) 'username' to 'owner' for repository
 	projectRecentBuildsHint     = "<username> <repository> <branch>"
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
+
+	projectEnvVarTrigger  = "env"
+	projectEnvVarHint     = "<" + projectEnvVarListTrigger + "|" + projectEnvVarAddTrigger + "|" + projectEnvVarAddTrigger + ">"
+	projectEnvVarHelpText = "get, add or remove environment variables for given project"
+
+	projectEnvVarListTrigger  = "list"
+	projectEnvVarListHint     = "<vcs-slug/org-name/repo-name>"
+	projectEnvVarListHelpText = "List all environment variables for given project"
+
+	projectEnvVarAddTrigger  = "add"
+	projectEnvVarAddHint     = "<vcs-slug/org-name/repo-name> <env var name> <value>"
+	projectEnvVarAddHelpText = "Add a new environment variable for a project"
+
+	projectEnvVarDelTrigger  = "remove"
+	projectEnvVarDelHint     = "<vcs-slug/org-name/repo-name> <env var name>"
+	projectEnvVarDelHelpText = "Delete an environment variable for a project"
 )
 
 func getProjectAutoComplete() *model.AutocompleteData {
@@ -34,8 +51,24 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	projectRecentBuild.AddDynamicListArgument("", routeAutocomplete+subrouteFollowedProjects, true)
 	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
 
+	envvar := model.NewAutocompleteData(projectEnvVarTrigger, projectEnvVarHint, projectEnvVarHelpText)
+	list := model.NewAutocompleteData(projectEnvVarListTrigger, projectEnvVarListHint, projectEnvVarListHelpText)
+	list.AddTextArgument("<vcs-slug/org-name/repo-name>", "The repo to get env vars of. Ex: gh/mattermost/mattermost-server", "")
+	add := model.NewAutocompleteData(projectEnvVarAddTrigger, projectEnvVarAddHint, projectEnvVarAddHelpText)
+	add.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
+	add.AddTextArgument("<env var name> ", "Name of environment variable to add. Ex: testVar", "")
+	add.AddTextArgument("<env var value> ", "Value of environment variable to add. Ex: testVal", "")
+	del := model.NewAutocompleteData(projectEnvVarDelTrigger, projectEnvVarDelHint, projectEnvVarDelHelpText)
+	del.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
+	del.AddTextArgument("<env var name>", "Name and value of environment variable to remove. Ex: testVar", "")
+
+	envvar.AddCommand(list)
+	envvar.AddCommand(add)
+	envvar.AddCommand(del)
+
 	project.AddCommand(projectRecentBuild)
 	project.AddCommand(projectList)
+	project.AddCommand(envvar)
 
 	return project
 }
@@ -56,6 +89,21 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, projectTrigger)
 
+	case projectEnvVarTrigger:
+		subsubcmd := "list"
+		if len(split) > 1 {
+			subsubcmd = split[1]
+		}
+		switch subsubcmd {
+		case projectEnvVarListTrigger:
+			return p.executeProjectListEnvVars(args, circleciToken, split[2:])
+		case projectEnvVarAddTrigger:
+			return p.executeProjectAddEnvVar(args, circleciToken, split[2:])
+		case projectEnvVarDelTrigger:
+			return p.executeProjectDelEnvVar(args, circleciToken, split[2:])
+		default:
+			return p.sendIncorrectSubcommandResponse(args, projectEnvVarTrigger)
+		}
 	default:
 		return p.sendIncorrectSubcommandResponse(args, projectTrigger)
 	}
@@ -145,4 +193,77 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 	)
 
 	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Project Slug cannot be empty for list command"),
+			&model.AppError{Message: "received empty project slug"}
+	}
+	envvars, err := circle.GetEnvVarsList(token, split[0])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment variables for ptoject %s", split[0])),
+			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
+	}
+
+	if len(envvars) == 0 {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having any environment variables", split[0])), nil
+	}
+
+	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
+	for _, env := range envvars {
+		envVarListString += fmt.Sprintf(
+			"| %s | %s |\n",
+			env.Name,
+			env.Value,
+		)
+	}
+
+	_ = p.sendEphemeralPost(
+		args,
+		"Environment variables for project "+split[0],
+		[]*model.SlackAttachment{
+			{
+				Fallback: "Environment Variable List",
+				Text:     envVarListString,
+			},
+		},
+	)
+
+	return &model.CommandResponse{}, nil
+}
+
+func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 3 {
+		return p.sendEphemeralResponse(args, "Please provide project slug, variable name and value"),
+			&model.AppError{Message: "received empty project slug or variable name or value"}
+	}
+	err := circle.AddEnvVar(token, split[0], split[1], split[2])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment variable `%s: %s` for project %s",
+				split[1], split[2], split[0])), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
+				split[1] + split[2] + split[0] + "err: " + err.Error()}
+	}
+
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s",
+		split[1], split[2], split[0])), nil
+}
+
+func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 2 {
+		return p.sendEphemeralResponse(args, "Please provide project slug and variable name"),
+			&model.AppError{Message: "received empty project slug or variable name"}
+	}
+	err := circle.DelEnvVar(token, split[0], split[1])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment variable `%s` for project %s",
+				split[1], split[0])), &model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
+				split[0] + "err: " + err.Error()}
+	}
+
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully removed environment variable `%s` for project %s",
+		split[1], split[0])), nil
 }
