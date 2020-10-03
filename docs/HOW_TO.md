@@ -23,7 +23,7 @@ Subscribe a channel to notifications from a CircleCI project.
 3.  Add the webhook URL given by `/circleci subscription add` to your CircleCI project.
 
     -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret
-    -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`
+    -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add projectSlug MM_WEBHOOK <webhook-url>`
 
 ## Any information missing?
 
