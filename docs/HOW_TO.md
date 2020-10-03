@@ -3,7 +3,7 @@
 ## Table of Contents
 
 -   [Audience](#audience)
--   [About the CircleCI Plugin](#about-the-github-plugin)
+-   [About the CircleCI Plugin](#about-the-circleci-plugin)
 -   [Before You Start](#before-you-start)
 -   [Configuration](#configuration)
 -   [Onboarding Your Users](#onboarding-your-users)
