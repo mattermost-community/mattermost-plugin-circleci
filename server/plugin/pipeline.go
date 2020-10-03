@@ -291,7 +291,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 
 func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	config *store.Config, num string) (*model.CommandResponse, *model.AppError) {
-	pl, err := circle.GetPipelineByNum(token, fmt.Sprintf("%s", config.ToSlug()), num)
+	pl, err := circle.GetPipelineByNum(token, config.ToSlug(), num)
 	if err != nil {
 		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
 		return p.sendEphemeralResponse(args, "Could not get info about pipeline"), nil
