@@ -7,6 +7,8 @@ A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [Ci
 
 This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](https://github.com/nathanaelhoun)**: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
 
+// TODO add screenshot here
+
 ## Features
 
 ### Connect to your CircleCI account
@@ -52,19 +54,16 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 _Coming_
 
-After installation, generate the secrets in **System Console > Plugins > CircleCI** for `Webhooks Secret` and `At Rest Encryption Key`.
 
-## How to use this plugin
+See [`HOW_TO.md`](./docs/HOW_TO.md) to know how to configure the plugin after installation.
 
-See [`HOW_TO.md`](./docs/HOW_TO.md)
+## License
+
+This repository is licensed under the [Apache 2.0 License](https://github.com/mattermost/mattermost-plugin-github/blob/master/LICENSE).
 
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md)
-
-## License
-
-Apache License.
 
 ## Thanks to
 

@@ -30,7 +30,7 @@
                 "key": "EncryptionKey",
                 "display_name": "At Rest Encryption Key",
                 "type": "generated",
-                "help_text": "The AES encryption key used to encrypt stored access tokens."
+                "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will make every user logged out of their CircleCI account"
             }
         ]
     }
