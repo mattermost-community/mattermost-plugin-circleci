@@ -132,6 +132,10 @@ Subscribe a channel to notifications from a CircleCI project.
 
 ## Frequently Asked Questions
 
+### How does the plugin save user data for each connected CircleCI user?
+
+CircleCI user tokens are AES encrypted with an At Rest Encryption Key configured in the plugin's settings page. Once encrypted, the tokens are saved in the `PluginKeyValueStore` table in your Mattermost database.
+
 ### How do I share feedback on this plugin?
 
 Feel free to create a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community instance to discuss.
