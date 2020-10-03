@@ -326,7 +326,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Number",
-						Value: num,
+						Value: strconv.FormatInt(pl.Number, 10),
 						Short: true,
 					},
 					{
