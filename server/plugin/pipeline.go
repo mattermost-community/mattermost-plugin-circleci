@@ -62,12 +62,12 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
 	get.AddTextArgument("< pipeline number >", pipelineGetSingleHint, "")
 
-	pipeline.AddCommand(all)
-	pipeline.AddCommand(recent)
-	pipeline.AddCommand(mine)
-	pipeline.AddCommand(wf)
 	pipeline.AddCommand(trigger)
 	pipeline.AddCommand(get)
+	pipeline.AddCommand(wf)
+	pipeline.AddCommand(all)
+	pipeline.AddCommand(mine)
+	pipeline.AddCommand(recent)
 
 	return pipeline
 }
