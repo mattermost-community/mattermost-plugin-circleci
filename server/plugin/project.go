@@ -56,7 +56,8 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	list.AddTextArgument("<vcs-slug/org-name/repo-name>", "The repo to get env vars of. Ex: gh/mattermost/mattermost-server", "")
 	add := model.NewAutocompleteData(projectEnvVarAddTrigger, projectEnvVarAddHint, projectEnvVarAddHelpText)
 	add.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
-	add.AddTextArgument("<env var name> <value>", "Name and value of environment variable to add. Ex: testVar testVal", "")
+	add.AddTextArgument("<env var name> ", "Name of environment variable to add. Ex: testVar", "")
+	add.AddTextArgument("<env var value> ", "Value of environment variable to add. Ex: testVal", "")
 	del := model.NewAutocompleteData(projectEnvVarDelTrigger, projectEnvVarDelHint, projectEnvVarDelHelpText)
 	del.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
 	del.AddTextArgument("<env var name>", "Name and value of environment variable to remove. Ex: testVar", "")
@@ -97,9 +98,9 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		case projectEnvVarListTrigger:
 			return p.executeProjectListEnvVars(args, circleciToken, split[2:])
 		case projectEnvVarAddTrigger:
-			return p.executeProjectAddEnvVar(args, circleciToken, split[1:])
+			return p.executeProjectAddEnvVar(args, circleciToken, split[2:])
 		case projectEnvVarDelTrigger:
-			return p.executeProjectDelEnvVar(args, circleciToken, split[1:])
+			return p.executeProjectDelEnvVar(args, circleciToken, split[2:])
 		default:
 			return p.sendIncorrectSubcommandResponse(args, projectEnvVarListTrigger)
 		}
@@ -236,10 +237,9 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
 	}
 	err := circle.AddEnvVar(token, split[0], split[1], split[2])
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment varibale",
-				"`%s: %s` for ptoject %s", split[1], split[2], split[0])),
-			&model.AppError{Message: "Could not add env var %s:%s for project %s" + split[1] + split[2] +
-				split[0] + "err: " + err.Error()}
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment varibale `%s: %s` for project %s",
+				split[1], split[2], split[0])), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
+				split[1] + split[2] + split[0] + "err: " + err.Error()}
 	}
 
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully added environment variable `%s:%s` for project %s",
@@ -254,12 +254,11 @@ func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
 	}
 	err := circle.DelEnvVar(token, split[0], split[1])
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment varibale",
-				"`%s` for ptoject %s", split[1], split[0])),
-			&model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment varibale `%s` for project %s",
+				split[1], split[0])), &model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
 				split[0] + "err: " + err.Error()}
 	}
 
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully removed environment variable `%s` for project %s",
-		split[1], split[2], split[0])), nil
+		split[1], split[0])), nil
 }
