@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -23,6 +24,24 @@ func (c *Config) ToSlug() string {
 // Return a link to the repo formatted in Markdown
 func (c *Config) ToMarkdown() string {
 	return fmt.Sprintf("[`%s/%s/%s`](https://github.com)", c.VCSType, c.Org, c.Project) // TODO Add link
+}
+
+func CreateConfigFromSlug(fullSlug string) (*Config, string) {
+	split := strings.Split(fullSlug, "/")
+
+	if len(split) != 3 {
+		return nil, ":red_circle: Project should be specified in the format `vcs/org-name/project-name`. Example: `gh/mattermost/mattermost-server`"
+	}
+
+	if split[0] != "gh" && split[0] != "bb" {
+		return nil, ":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example: `gh/mattermost/mattermost-server`"
+	}
+
+	return &Config{
+		VCSType: split[0],
+		Org:     split[1],
+		Project: split[2],
+	}, ""
 }
 
 const (

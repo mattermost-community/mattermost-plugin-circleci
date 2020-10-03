@@ -33,26 +33,9 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 		return p.sendEphemeralResponse(args, getConfig(args.UserId, p.Store)), nil
 	}
 
-	slug := strings.Split(projectSlug, "/")
-
-	if len(slug) != 3 {
-		return p.sendEphemeralResponse(
-			args,
-			":red_circle: Project should be specified in the format `vcs/org-name/project-name`. ex: `gh/mattermost/mattermost-server`",
-		), nil
-	}
-
-	if slug[0] != "gh" && slug[0] != "bb" {
-		return p.sendEphemeralResponse(
-			args,
-			":red_circle: Invalid vcs value. VCS should be either `gh` or `bb`. Example `gh/mattermost/mattermost-server`",
-		), nil
-	}
-
-	defaultConfig := &store.Config{
-		VCSType: slug[0],
-		Org:     slug[1],
-		Project: slug[2],
+	defaultConfig, userErr := store.CreateConfigFromSlug(projectSlug)
+	if userErr != "" {
+		return p.sendEphemeralResponse(args, userErr), nil
 	}
 
 	result := setConfig(args.UserId, *defaultConfig, p.Store)

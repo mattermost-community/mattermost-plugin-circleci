@@ -9,6 +9,8 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -134,8 +136,39 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	if config == nil {
 		// Trying to get the config from the commands, with the args `--project`
-		// TODO
+		slug := ""
+		nextIsValue := false
 
+	scan:
+		for _, arg := range split {
+			switch {
+			case nextIsValue:
+				slug = arg
+				break scan
+
+			case arg == "--project":
+				nextIsValue = true
+
+			default:
+				continue
+			}
+		}
+
+		if slug == "" {
+			// The argument has not been found
+			return p.sendEphemeralResponse(args,
+				fmt.Sprintf("No CircleCI project set. Try `%s %s %s` to set a project to use", commandTrigger, configCommandTrigger, configCommandHint),
+			), nil
+		}
+
+		confFromArg, userErr := store.CreateConfigFromSlug(slug)
+		if userErr != "" {
+			return p.sendEphemeralResponse(args,
+				fmt.Sprintf("Incorrect value for argument `--project`: `%s`. %s", slug, userErr),
+			), nil
+		}
+
+		config = confFromArg
 	}
 
 	switch command {
