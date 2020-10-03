@@ -185,26 +185,32 @@ func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs,
 	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	_, err := circle.RerunWorkflow(token, workflowID)
 	if err != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to re run workflow", workflowID, err.Error())}
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not re-run workflow. workflow ID: %s", workflowID)),
+			&model.AppError{Message: fmt.Sprintf("%s%s. err %s", "Failed to re run workflow", workflowID, err.Error())}
 	}
 	wf, err := circle.GetWorkflow(token, workflowID)
+	var errstr string
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Re running workflow. workflow ID: %s", workflowID)), nil
+		errstr = fmt.Sprintf("Re running workflow: workflow ID: %s", workflowID)
+	} else {
+		errstr = fmt.Sprintf("Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)
 	}
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)), nil
+	return p.sendEphemeralResponse(args, errstr), nil
 }
 
 func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs,
 	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	_, err := circle.CancelWorkflow(token, workflowID)
 	if err != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to cancel workflow", workflowID, err.Error())}
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not cancel workflow. workflow ID: %s", workflowID)),
+			&model.AppError{Message: fmt.Sprintf("%s%s. err %s", "Failed to cancel workflow", workflowID, err.Error())}
 	}
 	wf, err := circle.GetWorkflow(token, workflowID)
+	var errstr string
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Canceled workflow. workflow ID: %s", workflowID)), nil
+		errstr = "Canceled workflow. workflow ID: " + workflowID
+	} else {
+		errstr = fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)
 	}
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)), nil
+	return p.sendEphemeralResponse(args, errstr), nil
 }
