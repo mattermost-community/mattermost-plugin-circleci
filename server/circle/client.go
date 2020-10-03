@@ -150,3 +150,15 @@ func DelEnvVar(apiToken string, projectSlug string, name string) error {
 	_, _, err := client.ProjectApi.DeleteEnvVar(getContext(apiToken), projectSlug, name)
 	return err
 }
+
+// GetWorkflowMetrics retuirns workflow metrics for a project
+func GetWorkflowMetrics(apiToken string, projectSlug string) ([]circleci.InlineResponse200Items, error) {
+	met, _, err := client.InsightsApi.GetProjectWorkflowMetrics(getContext(apiToken), projectSlug, nil)
+	return met.Items, err
+}
+
+// GetWorkflowJobsMetrics returns jobs metrics for given workflow
+func GetWorkflowJobsMetrics(apiToken string, projectSlug string, workflowName string) ([]circleci.InlineResponse2002Items, error) {
+	met, _, err := client.InsightsApi.GetProjectWorkflowJobMetrics(getContext(apiToken), projectSlug, workflowName, nil)
+	return met.Items, err
+}
