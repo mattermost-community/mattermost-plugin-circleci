@@ -27,7 +27,7 @@ const (
 
 	projectEnvVarTrigger  = "env"
 	projectEnvVarHint     = "<" + projectEnvVarListTrigger + "|" + projectEnvVarAddTrigger + "|" + projectEnvVarAddTrigger + ">"
-	projectEnvVarHelpText = "get, add or remove environment varibales for given project"
+	projectEnvVarHelpText = "get, add or remove environment variables for given project"
 
 	projectEnvVarListTrigger  = "list"
 	projectEnvVarListHint     = "<vcs-slug/org-name/repo-name>"
@@ -35,11 +35,11 @@ const (
 
 	projectEnvVarAddTrigger  = "add"
 	projectEnvVarAddHint     = "<vcs-slug/org-name/repo-name> <env var name> <value>"
-	projectEnvVarAddHelpText = "Add a new environment varibale for a project"
+	projectEnvVarAddHelpText = "Add a new environment variable for a project"
 
 	projectEnvVarDelTrigger  = "remove"
 	projectEnvVarDelHint     = "<vcs-slug/org-name/repo-name> <env var name>"
-	projectEnvVarDelHelpText = "Delete an environment varibale for a project"
+	projectEnvVarDelHelpText = "Delete an environment variable for a project"
 )
 
 func getProjectAutoComplete() *model.AutocompleteData {
@@ -203,7 +203,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 	}
 	envvars, err := circle.GetEnvVarsList(token, split[0])
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment varibales for ptoject %s", split[0])),
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment variables for ptoject %s", split[0])),
 			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
 	}
 
@@ -225,7 +225,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 		"Environment variables for project "+split[0],
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Environment Varibale List",
+				Fallback: "Environment Variable List",
 				Text:     envVarListString,
 			},
 		},
@@ -237,33 +237,33 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
 	token string, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 3 {
-		return p.sendEphemeralResponse(args, "Please provide project slug, varibale name and value"),
+		return p.sendEphemeralResponse(args, "Please provide project slug, variable name and value"),
 			&model.AppError{Message: "received empty project slug or variable name or value"}
 	}
 	err := circle.AddEnvVar(token, split[0], split[1], split[2])
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment varibale `%s: %s` for project %s",
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment variable `%s: %s` for project %s",
 				split[1], split[2], split[0])), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
 				split[1] + split[2] + split[0] + "err: " + err.Error()}
 	}
 
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully added environment variable `%s:%s` for project %s",
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s",
 		split[1], split[2], split[0])), nil
 }
 
 func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
 	token string, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 2 {
-		return p.sendEphemeralResponse(args, "Please provide project slug and varibale name"),
+		return p.sendEphemeralResponse(args, "Please provide project slug and variable name"),
 			&model.AppError{Message: "received empty project slug or variable name"}
 	}
 	err := circle.DelEnvVar(token, split[0], split[1])
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment varibale `%s` for project %s",
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment variable `%s` for project %s",
 				split[1], split[0])), &model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
 				split[0] + "err: " + err.Error()}
 	}
 
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully removed environment variable `%s` for project %s",
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully removed environment variable `%s` for project %s",
 		split[1], split[0])), nil
 }
