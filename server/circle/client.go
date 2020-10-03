@@ -118,3 +118,35 @@ func GetPipelineByID(apiToken string, pipelineID string) (circleci.Pipeline, err
 	pl, _, err := client.PipelineApi.GetPipelineById(getContext(apiToken), pipelineID)
 	return pl, err
 }
+
+// RerunWorkflow reruns a given workflow
+func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
+	ms, _, err := client.WorkflowApi.RerunWorkflow(getContext(apiToken), workflowID, nil)
+	return ms, err
+}
+
+// CancelWorkflow reruns a given workflow
+func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
+	ms, _, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
+	return ms, err
+}
+
+// GetEnvVarsList returns list of environment variables for given projects
+func GetEnvVarsList(apiToken string, projectSlug string) ([]circleci.EnvironmentVariablePair1, error) {
+	env, _, err := client.ProjectApi.ListEnvVars(getContext(apiToken), projectSlug)
+	return env.Items, err
+}
+
+// AddEnvVar returns list of environment variables for given projects
+func AddEnvVar(apiToken string, projectSlug string, name string, value string) error {
+	opts := new(circleci.ProjectApiCreateEnvVarOpts)
+	opts.Body = optional.NewInterface(circleci.EnvironmentVariablePair{Name: name, Value: value})
+	_, _, err := client.ProjectApi.CreateEnvVar(getContext(apiToken), projectSlug, opts)
+	return err
+}
+
+// DelEnvVar returns list of environment variables for given projects
+func DelEnvVar(apiToken string, projectSlug string, name string) error {
+	_, _, err := client.ProjectApi.DeleteEnvVar(getContext(apiToken), projectSlug, name)
+	return err
+}
