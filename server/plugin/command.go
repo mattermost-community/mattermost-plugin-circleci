@@ -21,6 +21,11 @@ const (
 	notConnectedText    = "You are not connected to CircleCI. Please try `/" + commandTrigger + " " + accountTrigger + " " + accountConnectTrigger + "`"
 	errorConnectionText = "Error when reaching to CircleCI. Please check that your token is still valid"
 
+	namedArgProjectName     = "project"
+	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
+	namedArgProjectHint     = "[vcs/org-name/project-name]"
+	namedArgProjectPattern  = "" // TODO wait for https://github.com/mattermost/mattermost-server/pull/14781 to get merged
+
 	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding commands_*.go file
 	commandHelpTrigger = "help"
 
@@ -135,7 +140,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	}
 
 	var splitWithoutProject []string
-	if config != nil {
+	if config != nil || command == accountTrigger || command == configCommandTrigger {
 		splitWithoutProject = split
 	} else {
 		// Trying to get the config from the commands, with the args `--project`

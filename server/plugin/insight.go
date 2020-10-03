@@ -15,24 +15,27 @@ const (
 	insightHelpText = "Get insights about"
 
 	insightMetricsWorkflowTrigger  = "workflows"
-	insightMetricsWorkflowHint     = "<vcs-slug/org-name/repo-name>"
+	insightMetricsWorkflowHint     = ""
 	insightMetricsWorkflowHelpText = "Get summary metrics for a project's workflows"
 
 	insightMetricsWorkflowJobsTrigger  = "jobs"
-	insightMetricsWorkflowJobsHint     = "<vcs-slug/org-name/repo-name> <workflow name>"
+	insightMetricsWorkflowJobsHint     = "<workflow name>"
 	insightMetricsWorkflowJobsHelpText = "Get summary metrics for a project workflow's jobs"
 )
 
 func getInsightAutoCompeleteData() *model.AutocompleteData {
-	// TODO Update autocomplete
 	insight := model.NewAutocompleteData(insightTrigger, insightHint, insightHelpText)
+
 	wf := model.NewAutocompleteData(insightMetricsWorkflowTrigger, insightMetricsWorkflowHint, insightMetricsWorkflowHelpText)
-	wf.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project to get workflows metrics summary of. ex: gh/mattermost/mattermost-server", "")
+	wf.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	jb := model.NewAutocompleteData(insightMetricsWorkflowJobsTrigger, insightMetricsWorkflowJobsHint, insightMetricsWorkflowJobsHelpText)
-	jb.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project to get metrics summary of. ex: gh/mattermost/mattermost-server", "")
-	jb.AddTextArgument("<workflow name", "Name of workflow to get metrics. ex: worfkflow-test", "")
+	jb.AddTextArgument("<workflow name>", "Name of workflow to get metrics from", "")
+	jb.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	insight.AddCommand(wf)
 	insight.AddCommand(jb)
+
 	return insight
 }
 
@@ -103,7 +106,13 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string,
 	if err != nil {
 		p.API.LogError("Failed to get jobs metrics", "project", config.ToSlug(), "workflow", workflowName, "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not get job metrics for project %s, workflow %s", config.ToMarkdown(), workflowName),
+			fmt.Sprintf("Could not get job metrics for project %s, workflow `%s`", config.ToMarkdown(), workflowName),
+		), nil
+	}
+
+	if len(wfm) == 0 {
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("There is no metric for project: %s — workflow: `%s` ", config.ToMarkdown(), workflowName),
 		), nil
 	}
 
@@ -125,7 +134,7 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string,
 
 	_ = p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Job metrics for project: %s — workflow: %s ", config.ToMarkdown(), workflowName),
+		fmt.Sprintf("Job metrics for project: %s — workflow: `%s`", config.ToMarkdown(), workflowName),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Job Metrics",

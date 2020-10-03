@@ -22,33 +22,32 @@ const (
 	subscribeListHelpText = "List the CircleCI subscriptions for the current channel"
 
 	subscribeChannelTrigger  = "subscribe"
-	subscribeChannelHint     = "<owner> <repository> [--flags]"
-	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a repository"
+	subscribeChannelHint     = "[--flags]"
+	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a project"
 
 	subscribeUnsubscribeChannelTrigger  = "unsubscribe"
-	subscribeUnsubscribeChannelHint     = "<owner> <repository> [--flags]"
-	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a repository"
+	subscribeUnsubscribeChannelHint     = "[--flags]"
+	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a project"
 
 	subscribeListAllChannelsTrigger  = "list-channels"
-	subscribeListAllChannelsHint     = "<owner> <repository>"
-	subscribeListAllChannelsHelpText = "List all channels subscribed to this repository in the current team"
+	subscribeListAllChannelsHint     = ""
+	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to a project"
 )
 
 func getSubscribeAutoCompleteData() *model.AutocompleteData {
-	// TODO update autocomplete
 	subscribe := model.NewAutocompleteData(subscribeTrigger, subscribeHint, subscribeHelpText)
 
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
+
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "")
-	subscribeChannel.AddDynamicListArgument("", routeAutocomplete+subrouteFollowedProjects, true)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false)
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
+	subscribeChannel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
-	unsubscribeChannel.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	unsubscribeChannel.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	unsubscribeChannel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
-	listAllSubscribedChannels.AddTextArgument("Owner of the project's repository", "[owner]", "") // TODO make dynamic autocomplete list
-	listAllSubscribedChannels.AddTextArgument("Repository name", "[repository]", "")              // TODO make dynamic autocomplete list
+	listAllSubscribedChannels.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(subscribeChannel)

@@ -11,13 +11,13 @@ import (
 
 const (
 	configCommandTrigger  = "config"
-	configCommandHint     = "[vcs/org-name/project-name]"
+	configCommandHint     = "<vcs/org-name/project-name>"
 	configCommandHelpText = "View the config. Pass in the project (vcs/org/projectname) to set the default config"
 )
 
 func getConfigAutoCompleteData() *model.AutocompleteData {
 	configCommand := model.NewAutocompleteData(configCommandTrigger, configCommandHint, configCommandHelpText)
-	configCommand.AddTextArgument("project identifier. (vcs/org-name/project-name)", "[project identifier]", "")
+	configCommand.AddTextArgument("project identifier. (vcs/org-name/project-name)", "<project identifier>", namedArgProjectPattern)
 	return configCommand
 }
 
@@ -45,15 +45,16 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 func getConfig(userID string, db store.Store) string {
 	savedConfig, _ := db.GetConfig(userID)
 	if savedConfig != nil {
-		return fmt.Sprintf(":information_source: Organization: %s, Project: %s", savedConfig.Org, savedConfig.Project)
+		return fmt.Sprintf(":information_source: Current default project: %s", savedConfig.ToMarkdown())
 	}
-	return ":red_circle: No config exists. use `/circleci config vcs/orgname/projectname` to set the default project"
+
+	return ":red_circle: No config exists. use `/circleci config <vcs/org-name/project-name>` to set the default project"
 }
 
 func setConfig(userID string, config store.Config, db store.Store) string {
 	if err := db.SaveConfig(userID, config); err != nil {
-		fmt.Println("error occurred while saving")
+		fmt.Println(":red_circle: An error has occurred while saving your configuration")
 	}
 
-	return fmt.Sprintf(":white_check_mark: Successfully saved config. Vcs %s Org %s, Project %s as your default", config.VCSType, config.Org, config.Project)
+	return fmt.Sprintf(":white_check_mark: Successfully saved config. %s as your default project", config.ToMarkdown())
 }

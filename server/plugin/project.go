@@ -21,9 +21,8 @@ const (
 	projectListHint     = ""
 	projectListHelpText = "List followed projects"
 
-	projectRecentBuildsTrigger = "recent-build"
-	// TODO rename in all files (code and UI strings) 'username' to 'organization' or 'org' for repository
-	projectRecentBuildsHint     = "<username> <repository> <branch>"
+	projectRecentBuildsTrigger  = "recent-build"
+	projectRecentBuildsHint     = "<branch>"
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
 
 	projectEnvVarTrigger  = "env"
@@ -31,42 +30,41 @@ const (
 	projectEnvVarHelpText = "get, add or remove environment variables for given project"
 
 	projectEnvVarListTrigger  = "list"
-	projectEnvVarListHint     = "<vcs-slug/org-name/repo-name>"
-	projectEnvVarListHelpText = "List all environment variables for given project"
+	projectEnvVarListHint     = ""
+	projectEnvVarListHelpText = "List all environment variables for a project"
 
 	projectEnvVarAddTrigger  = "add"
-	projectEnvVarAddHint     = "<vcs-slug/org-name/repo-name> <env var name> <value>"
+	projectEnvVarAddHint     = "<env-var name> <value>"
 	projectEnvVarAddHelpText = "Add a new environment variable for a project"
 
 	projectEnvVarDelTrigger  = "remove"
-	projectEnvVarDelHint     = "<vcs-slug/org-name/repo-name> <env var name>"
+	projectEnvVarDelHint     = "<env-var name>"
 	projectEnvVarDelHelpText = "Delete an environment variable for a project"
 )
 
 func getProjectAutoComplete() *model.AutocompleteData {
-	// TODO : update autocomplete
 	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
 
 	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
+
 	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
-	projectRecentBuild.AddTextArgument("Owner of the project's repository", "[username]", "")
-	projectRecentBuild.AddDynamicListArgument("", routeAutocomplete+subrouteFollowedProjects, true)
-	projectRecentBuild.AddTextArgument("Branch name", "[branch]", "")
+	projectRecentBuild.AddTextArgument("The branch to get recent builds from", "<branch>", "")
+	projectRecentBuild.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	envvar := model.NewAutocompleteData(projectEnvVarTrigger, projectEnvVarHint, projectEnvVarHelpText)
-	list := model.NewAutocompleteData(projectEnvVarListTrigger, projectEnvVarListHint, projectEnvVarListHelpText)
-	list.AddTextArgument("<vcs-slug/org-name/repo-name>", "The repo to get env vars of. Ex: gh/mattermost/mattermost-server", "")
-	add := model.NewAutocompleteData(projectEnvVarAddTrigger, projectEnvVarAddHint, projectEnvVarAddHelpText)
-	add.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
-	add.AddTextArgument("<env var name> ", "Name of environment variable to add. Ex: testVar", "")
-	add.AddTextArgument("<env var value> ", "Value of environment variable to add. Ex: testVal", "")
-	del := model.NewAutocompleteData(projectEnvVarDelTrigger, projectEnvVarDelHint, projectEnvVarDelHelpText)
-	del.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project slug. Ex:gh/mattermost/mattermost-server", "")
-	del.AddTextArgument("<env var name>", "Name and value of environment variable to remove. Ex: testVar", "")
+	envvarList := model.NewAutocompleteData(projectEnvVarListTrigger, projectEnvVarListHint, projectEnvVarListHelpText)
+	envvarList.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	envvarAdd := model.NewAutocompleteData(projectEnvVarAddTrigger, projectEnvVarAddHint, projectEnvVarAddHelpText)
+	envvarAdd.AddTextArgument("<env-var name> ", "Name of environment variable to add. Ex: testVar", "")
+	envvarAdd.AddTextArgument("<env-var value> ", "Value of environment variable to add. Ex: testVal", "")
+	envvarAdd.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	envvarDel := model.NewAutocompleteData(projectEnvVarDelTrigger, projectEnvVarDelHint, projectEnvVarDelHelpText)
+	envvarDel.AddTextArgument("<env-var name>", "Name and value of environment variable to remove. Ex: testVar", "")
+	envvarDel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
-	envvar.AddCommand(list)
-	envvar.AddCommand(add)
-	envvar.AddCommand(del)
+	envvar.AddCommand(envvarList)
+	envvar.AddCommand(envvarAdd)
+	envvar.AddCommand(envvarDel)
 
 	project.AddCommand(projectRecentBuild)
 	project.AddCommand(projectList)

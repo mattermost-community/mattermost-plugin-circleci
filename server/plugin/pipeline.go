@@ -17,50 +17,58 @@ const (
 
 	pipelineGetRecentTrigger  = "recent"
 	pipelineGetRecentHint     = "<vcs-slug/org-name>"
-	pipelineGetRecentHelpText = "Get list of all recently run pipelines"
+	pipelineGetRecentHelpText = "Get list of all recently ran pipelines"
 
 	pipelineGetAllTrigger  = "all"
-	pipelineGetAllHint     = "<vcs-slug/org-name/repo-name>"
-	pipelineGetAllHelpText = "Get list of all pipelines for a given project"
+	pipelineGetAllHint     = ""
+	pipelineGetAllHelpText = "Get list of all pipelines for a project"
 
 	pipelineGetMineTrigger  = "mine"
-	pipelineGetMineHint     = "<vcs-slug/org-name/repo-name>"
-	pipelineGetMineHelpText = "Get list of all my pipelines triggered by you"
+	pipelineGetMineHint     = ""
+	pipelineGetMineHelpText = "Get list of all pipelines triggered by you for a project"
 
 	pipelineWorkflowTrigger  = "workflows"
-	pipelineWorkflowHint     = "<pipeline id>"
+	pipelineWorkflowHint     = "<pipelineID>"
 	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
 
 	pipelineTriggerTrigger  = "trigger"
-	pipelineTriggerHint     = "<vcs-slug/org-name/repo-name> <branch>"
-	pipelineTriggerHelpText = "Trigger pipeline for given project"
+	pipelineTriggerHint     = "<branch>"
+	pipelineTriggerHelpText = "Trigger pipeline for a project"
 
 	pipelineGetSingleTrigger  = "get"
-	pipelineGetSingleHint     = "<pipeline id>"
-	pipelineGetSingleHelpText = "Get info about a single pipeline"
+	pipelineGetSingleHint     = "<pipelineID>"
+	pipelineGetSingleHelpText = "Get informations about a single pipeline"
 )
 
 func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	pipeline := model.NewAutocompleteData(pipelineTrigger, pipelineHint, pipelineHelpText)
+
 	all := model.NewAutocompleteData(pipelineGetAllTrigger, pipelineGetAllHint, pipelineGetAllHelpText)
-	all.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineGetAllHint, "")
+	all.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	recent := model.NewAutocompleteData(pipelineGetRecentTrigger, pipelineGetRecentHint, pipelineGetRecentHelpText)
-	recent.AddTextArgument("< vcs-slug/org-name >", pipelineGetRecentHint, "")
+	recent.AddTextArgument("VCS is either bb or gh.", pipelineGetRecentHint, "")
+
 	mine := model.NewAutocompleteData(pipelineGetMineTrigger, pipelineGetMineHint, pipelineGetMineHelpText)
-	mine.AddTextArgument("< vcs-slug/org-name/repo-name >", pipelineGetMineHint, "")
+	mine.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	wf := model.NewAutocompleteData(pipelineWorkflowTrigger, pipelineWorkflowHint, pipelineWorkflowHelpText)
-	wf.AddTextArgument("< pipeline id >", pipelineWorkflowHint, "")
+	wf.AddTextArgument("<pipelineID>", pipelineWorkflowHint, "")
+
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
-	trigger.AddTextArgument("< vcs-slug/org-name/repo-name >", "The repo to trigger the pipeline on. Ex: gh/mattermost/mattermost-server", "")
-	trigger.AddTextArgument("<branch>", "The branch to trigger the pipeline on", "")
+	trigger.AddTextArgument("<branch>", "The branch to trigger the pipeline on. Leave empty for master", "")
+	trigger.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
 	get.AddTextArgument("< pipeline id >", pipelineGetSingleHint, "")
+
 	pipeline.AddCommand(all)
 	pipeline.AddCommand(recent)
 	pipeline.AddCommand(mine)
 	pipeline.AddCommand(wf)
 	pipeline.AddCommand(trigger)
 	pipeline.AddCommand(get)
+
 	return pipeline
 }
 
@@ -70,22 +78,20 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		subcommand = split[0]
 	}
 
-	var project string
+	var argument string
 	if len(split) > 1 {
-		project = split[1]
-	} else {
-		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
+		argument = split[1]
 	}
 
 	switch subcommand {
 	case pipelineGetAllTrigger:
 		return p.executePipelineGetAllForProject(args, circleciToken, config)
 	case pipelineGetRecentTrigger:
-		return p.executePipelineGetRecent(args, circleciToken, config)
+		return p.executePipelineGetRecent(args, circleciToken, argument)
 	case pipelineGetMineTrigger:
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, config)
 	case pipelineWorkflowTrigger:
-		return p.executePipelineGetWorkflowByID(args, circleciToken, project)
+		return p.executePipelineGetWorkflowByID(args, circleciToken, argument)
 	case pipelineTriggerTrigger:
 		branch := ""
 		if len(split) > 2 {
@@ -93,16 +99,16 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		}
 		return p.executeTriggerPipeline(args, circleciToken, config, branch)
 	case pipelineGetSingleTrigger:
-		return p.executePipelineGetSingle(args, circleciToken, project)
+		return p.executePipelineGetSingle(args, circleciToken, argument)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}
 }
 
-func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetRecentlyBuiltPipelines(token, config.ToSlug(), false)
+func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string, orgSlug string) (*model.CommandResponse, *model.AppError) {
+	pipelines, err := circle.GetRecentlyBuiltPipelines(token, orgSlug, false)
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToSlug(), "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "org", orgSlug, "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
@@ -117,7 +123,7 @@ func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Recently built pipelines in your org",
+		"Recently built pipelines in your organizaition",
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
@@ -147,7 +153,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 
 	_ = p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Recently built pipelines for project %s.", config.Project),
+		fmt.Sprintf("Recently built pipelines for project %s.", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Projects list",
@@ -162,7 +168,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
 	pipelines, err := circle.GetAllMyPipelinesForProject(token, config.ToSlug())
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToSlug(), "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToMarkdown(), "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
@@ -177,7 +183,7 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 
 	_ = p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Recently built pipelines by you for project %s", config.Project),
+		fmt.Sprintf("Pipelines recently ran by you for project %s", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Projects list",
@@ -190,12 +196,16 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 }
 
 func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs, token string, pipelineID string) (*model.CommandResponse, *model.AppError) {
+	if pipelineID == "" {
+		return p.sendEphemeralResponse(args, "Please precise the pipelineID"), nil
+	}
+
 	wfs, err := circle.GetWorkflowsByPipeline(token, pipelineID)
 	if err != nil {
-		return p.sendEphemeralResponse(args, "Failed to fetch workflows for given pipeline"),
-			&model.AppError{
-				Message: fmt.Sprintf("Failed to fetch wokflows for given pipeline %s. Error: %s", pipelineID, err.Error()),
-			}
+		p.API.LogError("Failed to fetch wokflows for given pipeline", "pipelineID", pipelineID, "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to fetch workflows for pipeline `%s`", pipelineID),
+		), nil
 	}
 
 	workflowListString := "| Name | Started By | Status | ID |\n| :---- | :----- | \n"
@@ -212,7 +222,7 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs, token s
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Workflows for given pipeline ID: "+pipelineID,
+		fmt.Sprintf("Workflows for given pipeline ID: `%s`", pipelineID),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Workflow List",
@@ -241,8 +251,8 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string, c
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for branch: %s", config.ToSlug(), branch),
-				Pretext:  fmt.Sprintf("Triggered pipeline for project `%s` branch `%s`", config.ToSlug(), branch),
+				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for branch: %s", config.ToMarkdown(), branch),
+				Pretext:  fmt.Sprintf("Triggered pipeline for project %s branch `%s`", config.ToMarkdown(), branch),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Id",
@@ -280,7 +290,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipeline Info",
-				Pretext:  "Information about pipeline: " + pipelineID,
+				Pretext:  fmt.Sprintf("Informations about pipeline `%s`", pipelineID),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Id",

@@ -15,32 +15,37 @@ const (
 	workflowHelpText = "Manage the connection to your CircleCI acccount"
 
 	workflowGetTrigger  = "get"
-	workflowGetHint     = "< workflow_id >"
+	workflowGetHint     = "<workflowID>"
 	workflowGetHelpText = "Get informations about workflow"
 
 	workflowGetJobsTrigger         = "jobs"
-	workflowGetJobsHint            = "< workflow_id >"
+	workflowGetJobsHint            = "<workflowID>"
 	workflowGetJobsTriggerHelpText = "Get jobs list of workflow"
 
 	workflowRerunTrigger  = "rerun"
-	workflowRerunHint     = "< workflow ID >"
+	workflowRerunHint     = "<workflowID>"
 	workflowRerunHelpText = "Rerun a workflow"
 
 	workflowCancelTrigger  = "cancel"
-	workflowCancelHint     = "< workflow ID >"
+	workflowCancelHint     = "<workflowID>"
 	workflowCancelHelpText = "Cancel a workflow"
 )
 
 func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	workflow := model.NewAutocompleteData(workflowTrigger, workflowHint, workflowHelpText)
+
 	workflowGet := model.NewAutocompleteData(workflowGetTrigger, workflowGetHint, workflowGetHelpText)
-	workflowGet.AddTextArgument("workflow id", workflowGetHint, "")
+	workflowGet.AddTextArgument("<workflowID>", workflowGetHint, "")
+
 	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsTriggerHelpText)
-	workflowGetJobs.AddTextArgument("workflow id", workflowGetJobsHint, "")
+	workflowGetJobs.AddTextArgument("<workflowID>", workflowGetJobsHint, "")
+
 	rerun := model.NewAutocompleteData(workflowRerunTrigger, workflowRerunHint, workflowRerunHelpText)
-	rerun.AddTextArgument("workflow id", workflowRerunHint, "")
+	rerun.AddTextArgument("<workflowID>", workflowRerunHint, "")
+
 	cancel := model.NewAutocompleteData(workflowCancelTrigger, workflowCancelHint, workflowCancelHelpText)
-	cancel.AddTextArgument("workflow id", workflowCancelHint, "")
+	cancel.AddTextArgument("<workflowID>", workflowCancelHint, "")
+
 	workflow.AddCommand(workflowGet)
 	workflow.AddCommand(workflowGetJobs)
 	workflow.AddCommand(rerun)
@@ -78,16 +83,20 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	wf, err := circle.GetWorkflow(token, workflowID)
 	if err != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to fetch info for workflow", workflowID, err.Error())}
+		p.API.LogError("Failed to fetch info for workflow", "workflowID", workflowID, "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to fetch info for workflow `%s`", workflowID),
+		), nil
 	}
+
+	p.API.LogDebug("Trying to send the post")
 	_ = p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
 			{
 				Fallback: fmt.Sprintf("Informations for workflow %s", wf.Name),
-				Pretext:  fmt.Sprintf("Information for worflow `%s`", wf.Id),
+				Pretext:  fmt.Sprintf("Informations for worflow `%s`", wf.Id),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Name",
