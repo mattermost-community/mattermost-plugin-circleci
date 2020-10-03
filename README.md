@@ -24,8 +24,8 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 #### Subscribe to notifications projects
 
 -   `/circleci subscription list` — List the CircleCI subscriptions for the current channel
--   `/circleci subscription subscribe <owner> <repository> [--flags]` — Subscribe the current channel to CircleCI notifications for a repository
--   `/circleci subscription unsubscribe <owner> <repository> [--flags]` — Unsubscribe the current channel to CircleCI notifications for a repository
+-   `/circleci subscription add <owner> <repository> [--flags]` — Subscribe the current channel to CircleCI notifications for a repository
+-   `/circleci subscription remove <owner> <repository> [--flags]` — Unsubscribe the current channel to CircleCI notifications for a repository
 -   `/circleci subscription list-channels <owner> <repository>` — List all channels subscribed to this repository in the current team
 
 #### Config
