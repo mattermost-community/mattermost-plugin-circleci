@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
@@ -25,7 +26,7 @@ func getInsightAutoCompeleteData() *model.AutocompleteData {
 	insight := model.NewAutocompleteData(insightTrigger, insightHint, insightHelpText)
 	wf := model.NewAutocompleteData(insightMetricsWorkflowTrigger, insightMetricsWorkflowHint, insightMetricsWorkflowHelpText)
 	wf.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project to get workflows metrics summary of. ex: gh/mattermost/mattermost-server", "")
-	jb := model.NewAutocompleteData(insightMetricsWorkflowTrigger, insightMetricsWorkflowHint, insightMetricsWorkflowHelpText)
+	jb := model.NewAutocompleteData(insightMetricsWorkflowJobsTrigger, insightMetricsWorkflowJobsHint, insightMetricsWorkflowJobsHelpText)
 	jb.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project to get metrics summary of. ex: gh/mattermost/mattermost-server", "")
 	jb.AddTextArgument("<workflow name", "Name of workflow to get metrics. ex: worfkflow-test", "")
 	insight.AddCommand(wf)
@@ -60,7 +61,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get workflow metrics for project %s", split[0])),
 			&model.AppError{Message: "Failed to get workflow metrics for project " + split[0]}
 	}
-	wfMetricsString := "| Name | Sucess Rate | Failed Runs | Successful Runs | Throughput" +
+	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
 		"| MTTR | Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
 	for _, wf := range wfm {
 		mean := float32(wf.Metrics.DurationMetrics.Mean / 3600)
@@ -102,8 +103,8 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
 				split[0], split[1])), &model.AppError{Message: "Failed to get jobs metrics for project " +
 				split[0] + " workflow " + split[1]}
 	}
-	wfMetricsString := "| Name | Sucess Rate | Failed Runs | Successful Runs | Throughput" +
-		"| MTTR | Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
+	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
+		"| Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
 	for _, wf := range wfm {
 		mean := float32(wf.Metrics.DurationMetrics.Mean / 3600)
 		median := float32(wf.Metrics.DurationMetrics.Median / 3600)
