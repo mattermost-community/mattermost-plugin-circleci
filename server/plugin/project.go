@@ -228,7 +228,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectAddEnvVars(args *model.CommandArgs,
+func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
 	token string, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 3 {
 		return p.sendEphemeralResponse(args, "Please provide project slug, varibale name and value"),
@@ -246,7 +246,7 @@ func (p *Plugin) executeProjectAddEnvVars(args *model.CommandArgs,
 		split[1], split[2], split[0])), nil
 }
 
-func (p *Plugin) executeProjectDelEnvVars(args *model.CommandArgs,
+func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
 	token string, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 2 {
 		return p.sendEphemeralResponse(args, "Please provide project slug and varibale name"),
