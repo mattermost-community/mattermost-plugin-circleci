@@ -9,6 +9,7 @@ import (
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -21,7 +22,7 @@ const (
 	projectListHelpText = "List followed projects"
 
 	projectRecentBuildsTrigger = "recent-build"
-	// TODO rename in all files (code and UI strings) 'username' to 'owner' for repository
+	// TODO rename in all files (code and UI strings) 'username' to 'organization' or 'org' for repository
 	projectRecentBuildsHint     = "<username> <repository> <branch>"
 	projectRecentBuildsHelpText = "List the 10 last builds for a project"
 
@@ -43,6 +44,7 @@ const (
 )
 
 func getProjectAutoComplete() *model.AutocompleteData {
+	// TODO : update autocomplete
 	project := model.NewAutocompleteData(projectTrigger, projectHint, projectHelpText)
 
 	projectList := model.NewAutocompleteData(projectListTrigger, projectListHint, projectListHelpText)
@@ -73,7 +75,7 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	return project
 }
 
-func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -84,7 +86,7 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		return p.executeProjectList(args, circleciToken)
 
 	case projectRecentBuildsTrigger:
-		return p.executeProjectRecentBuilds(args, circleciToken, split[1:])
+		return p.executeProjectRecentBuilds(args, circleciToken, config, split[1:])
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, projectTrigger)
@@ -96,11 +98,11 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 		}
 		switch subsubcmd {
 		case projectEnvVarListTrigger:
-			return p.executeProjectListEnvVars(args, circleciToken, split[2:])
+			return p.executeProjectListEnvVars(args, circleciToken, config)
 		case projectEnvVarAddTrigger:
-			return p.executeProjectAddEnvVar(args, circleciToken, split[2:])
+			return p.executeProjectAddEnvVar(args, circleciToken, config, split[2:])
 		case projectEnvVarDelTrigger:
-			return p.executeProjectDelEnvVar(args, circleciToken, split[2:])
+			return p.executeProjectDelEnvVar(args, circleciToken, config, split[2:])
 		default:
 			return p.sendIncorrectSubcommandResponse(args, projectEnvVarTrigger)
 		}
@@ -143,15 +145,17 @@ func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken strin
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
 	client := &circleci.Client{Token: circleciToken}
 
-	if len(split) < 3 {
-		return p.sendEphemeralResponse(args, "Please provide the project username, repository and branch name)"), nil
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Please precise the branch name. Selected project: %s", config.ToMarkdown()),
+		), nil
 	}
 
-	account, repo, branch := split[0], split[1], split[2]
-	builds, err := client.ListRecentBuildsForProject(account, repo, branch, "", 10, 0)
+	branch := split[0]
+	builds, err := client.ListRecentBuildsForProject(config.Org, config.Project, branch, "", 10, 0)
 	if err != nil {
 		p.API.LogError("Unable to get recent build from CircleCI", "CircleCI error", err)
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
@@ -183,7 +187,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Recent builds for "+account+"/"+repo+" "+branch,
+		fmt.Sprintf("Recent builds for %s branch `%s`", config.ToMarkdown(), branch),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Recent builds list",
@@ -195,20 +199,19 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 1 {
-		return p.sendEphemeralResponse(args, "Project Slug cannot be empty for list command"),
-			&model.AppError{Message: "received empty project slug"}
-	}
-	envvars, err := circle.GetEnvVarsList(token, split[0])
+func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+	envvars, err := circle.GetEnvVarsList(token, config.ToSlug())
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment variables for ptoject %s", split[0])),
-			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
+		p.API.LogError("Could not list env vars", "error", err.Error(), "project", config.ToSlug())
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Could not list environment variables for project %s", config.ToMarkdown()),
+		), nil
 	}
 
 	if len(envvars) == 0 {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having any environment variables", split[0])), nil
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Project %s does not have any environment variables", config.ToMarkdown()),
+		), nil
 	}
 
 	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
@@ -222,7 +225,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Environment variables for project "+split[0],
+		fmt.Sprintf("Environment variables for project %s", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Environment Variable List",
@@ -234,36 +237,43 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 3 {
-		return p.sendEphemeralResponse(args, "Please provide project slug, variable name and value"),
-			&model.AppError{Message: "received empty project slug or variable name or value"}
-	}
-	err := circle.AddEnvVar(token, split[0], split[1], split[2])
-	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment variable `%s: %s` for project %s",
-				split[1], split[2], split[0])), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
-				split[1] + split[2] + split[0] + "err: " + err.Error()}
+func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 2 {
+		return p.sendEphemeralResponse(args, "Please provide the variable name and value"), nil
 	}
 
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s",
-		split[1], split[2], split[0])), nil
+	varName := split[0]
+	varValue := split[1]
+
+	err := circle.AddEnvVar(token, config.ToSlug(), varName, varValue)
+	if err != nil {
+		p.API.LogError("Unable to set CircleCI envVar", "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Could not add environment variable `%s: %s` for project %s", varName, varValue, config.ToMarkdown()),
+		), nil
+	}
+
+	return p.sendEphemeralResponse(args,
+		fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s", varName, varValue, config.ToMarkdown()),
+	), nil
 }
 
-func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(args, "Please provide project slug and variable name"),
-			&model.AppError{Message: "received empty project slug or variable name"}
-	}
-	err := circle.DelEnvVar(token, split[0], split[1])
-	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment variable `%s` for project %s",
-				split[1], split[0])), &model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
-				split[0] + "err: " + err.Error()}
+func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Please provide the variable name"), nil
 	}
 
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully removed environment variable `%s` for project %s",
-		split[1], split[0])), nil
+	varName := split[0]
+
+	err := circle.DelEnvVar(token, config.ToSlug(), varName)
+	if err != nil {
+		p.API.LogError("Could not remove env var for project", "error", err, "env var", varName)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Could not remove environment variable `%s` for project %s", varName, config.ToMarkdown()),
+		), nil
+	}
+
+	return p.sendEphemeralResponse(args,
+		fmt.Sprintf("Successfully removed environment variable `%s` for project %s", varName, config.ToMarkdown()),
+	), nil
 }

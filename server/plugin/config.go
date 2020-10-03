@@ -50,7 +50,7 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 	}
 
 	defaultConfig := &store.Config{
-		VcsType: slug[0],
+		VCSType: slug[0],
 		Org:     slug[1],
 		Project: slug[2],
 	}
@@ -72,5 +72,5 @@ func setConfig(userID string, config store.Config, db store.Store) string {
 		fmt.Println("error occurred while saving")
 	}
 
-	return fmt.Sprintf(":white_check_mark: Successfully saved config. Vcs %s Org %s, Project %s as your default", config.VcsType, config.Org, config.Project)
+	return fmt.Sprintf(":white_check_mark: Successfully saved config. Vcs %s Org %s, Project %s as your default", config.VCSType, config.Org, config.Project)
 }

@@ -75,8 +75,7 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 	}
 }
 
-func (p *Plugin) executeWorflowGet(args *model.CommandArgs,
-	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	wf, err := circle.GetWorkflow(token, workflowID)
 	if err != nil {
 		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
@@ -87,8 +86,8 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: "Workflow Name: " + wf.Name,
-				Pretext:  "Information for worflow Id " + wf.Id,
+				Fallback: fmt.Sprintf("Informations for workflow %s", wf.Name),
+				Pretext:  fmt.Sprintf("Information for worflow `%s`", wf.Id),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Name",
@@ -142,17 +141,21 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
-	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	_, err := circle.GetWorkflow(token, workflowID)
 	if err != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to fetch info for workflow", workflowID, err.Error())}
+		p.API.LogError("Failed to fetch info for workflow", "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to fetch informations for workflow %s", workflowID),
+		), nil
 	}
+
 	jobs, errr := circle.GetWorkflowJobs(token, workflowID)
 	if errr != nil {
-		return nil, &model.AppError{Message: fmt.Sprintf("%s%s. err %s",
-			"Failed to fetch jobs info for workflow", workflowID, errr.Error())}
+		p.API.LogError("Failed to fetch jobs informations for workflow", "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to fetch jobs informations for workflow %s", workflowID),
+		), nil
 	}
 
 	workflowJobsListString := "| Name | Type | Status | Project | ID |\n| :----- | :----- | :----- | :----- | :----- | \n"
@@ -169,7 +172,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Jobs for given workflow ID: "+workflowID,
+		fmt.Sprintf("Jobs for given workflow ID `%s`", workflowID),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Workflow Jobs List",
@@ -181,13 +184,15 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs,
-	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	_, err := circle.RerunWorkflow(token, workflowID)
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not re-run workflow. workflow ID: %s", workflowID)),
-			&model.AppError{Message: fmt.Sprintf("%s%s. err %s", "Failed to re run workflow", workflowID, err.Error())}
+		p.API.LogError("Failed to re run workflow", "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to re run workflow %s", workflowID),
+		), nil
 	}
+
 	wf, err := circle.GetWorkflow(token, workflowID)
 	var errstr string
 	if err != nil {
@@ -198,19 +203,21 @@ func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs,
 	return p.sendEphemeralResponse(args, errstr), nil
 }
 
-func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs,
-	token string, workflowID string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
 	_, err := circle.CancelWorkflow(token, workflowID)
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not cancel workflow. workflow ID: %s", workflowID)),
-			&model.AppError{Message: fmt.Sprintf("%s%s. err %s", "Failed to cancel workflow", workflowID, err.Error())}
+		p.API.LogError("Failed to cancel workflow", "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Failed to cancel workflow %s", workflowID),
+		), nil
 	}
+
 	wf, err := circle.GetWorkflow(token, workflowID)
-	var errstr string
+	var msg string
 	if err != nil {
-		errstr = "Canceled workflow. workflow ID: " + workflowID
+		msg = fmt.Sprintf("Canceled workflow. Workflow ID: %s", workflowID)
 	} else {
-		errstr = fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)
+		msg = fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)
 	}
-	return p.sendEphemeralResponse(args, errstr), nil
+	return p.sendEphemeralResponse(args, msg), nil
 }

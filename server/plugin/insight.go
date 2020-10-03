@@ -6,6 +6,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -23,6 +24,7 @@ const (
 )
 
 func getInsightAutoCompeleteData() *model.AutocompleteData {
+	// TODO Update autocomplete
 	insight := model.NewAutocompleteData(insightTrigger, insightHint, insightHelpText)
 	wf := model.NewAutocompleteData(insightMetricsWorkflowTrigger, insightMetricsWorkflowHint, insightMetricsWorkflowHelpText)
 	wf.AddTextArgument("<vcs-slug/org-name/repo-name>", "Project to get workflows metrics summary of. ex: gh/mattermost/mattermost-server", "")
@@ -34,8 +36,7 @@ func getInsightAutoCompeleteData() *model.AutocompleteData {
 	return insight
 }
 
-func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken string,
-	split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -43,24 +44,23 @@ func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken st
 
 	switch subcommand {
 	case insightMetricsWorkflowTrigger:
-		return p.executeInsightWorkflowMetrics(args, circleciToken, split[1:])
+		return p.executeInsightWorkflowMetrics(args, circleciToken, config)
 	case insightMetricsWorkflowJobsTrigger:
-		return p.executeInsightJobMetrics(args, circleciToken, split[1:])
+		return p.executeInsightJobMetrics(args, circleciToken, config, split[1:])
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}
 }
 
-func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 1 {
-		return p.sendEphemeralResponse(args, "Please provide project slug to get workflow metrics"), nil
-	}
-	wfm, err := circle.GetWorkflowMetrics(token, split[0])
+func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+	wfm, err := circle.GetWorkflowMetrics(token, config.ToSlug())
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get workflow metrics for project %s", split[0])),
-			&model.AppError{Message: "Failed to get workflow metrics for project " + split[0]}
+		p.API.LogError("Failed to get workflow metrics", "project", config.ToSlug(), "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Could not get workflow metrics for project %s", config.ToMarkdown()),
+		), nil
 	}
+
 	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
 		"| MTTR | Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
 	for _, wf := range wfm {
@@ -80,7 +80,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Workflow metrics for project: "+split[0],
+		fmt.Sprintf("Workflow metrics for project %s ", config.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Workflow Metrics",
@@ -92,17 +92,21 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(args, "Please provide project slug and workflow name to get jobs metrics"), nil
+func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Please provide the workflow name to get jobs metrics"), nil
 	}
-	wfm, err := circle.GetWorkflowJobsMetrics(token, split[0], split[1])
+
+	workflowName := split[0]
+
+	wfm, err := circle.GetWorkflowJobsMetrics(token, config.ToSlug(), workflowName)
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get job metrics for project %s, workflow %s",
-				split[0], split[1])), &model.AppError{Message: "Failed to get jobs metrics for project " +
-				split[0] + " workflow " + split[1]}
+		p.API.LogError("Failed to get jobs metrics", "project", config.ToSlug(), "workflow", workflowName, "error", err)
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("Could not get job metrics for project %s, workflow %s", config.ToMarkdown(), workflowName),
+		), nil
 	}
+
 	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
 		"| Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
 	for _, wf := range wfm {
@@ -121,7 +125,7 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Job metrics for project: "+split[0]+" workflow: "+split[1],
+		fmt.Sprintf("Job metrics for project: %s — workflow: %s ", config.ToMarkdown(), workflowName),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Job Metrics",

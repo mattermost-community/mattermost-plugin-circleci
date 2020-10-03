@@ -127,15 +127,26 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.sendEphemeralResponse(args, notConnectedText), nil
 	}
 
+	config, err := p.Store.GetConfig(args.UserId)
+	if err != nil {
+		p.API.LogError("Could not get user config", "error", err)
+	}
+
+	if config == nil {
+		// Trying to get the config from the commands, with the args `--project`
+		// TODO
+
+	}
+
 	switch command {
 	case accountTrigger:
 		return p.executeAccount(args, token, split[2:])
 
 	case projectTrigger:
-		return p.executeProject(args, token, split[2:])
+		return p.executeProject(args, token, config, split[2:])
 
 	case subscribeTrigger:
-		return p.executeSubscribe(args, token, split[2:])
+		return p.executeSubscribe(args, token, config, split[2:])
 
 	case configCommandTrigger:
 		return p.executeConfig(args)
@@ -144,10 +155,10 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeWorkflowTrigger(args, token, split[2:])
 
 	case pipelineTrigger:
-		return p.executePipelineTrigger(args, token, split[2:])
+		return p.executePipelineTrigger(args, token, config, split[2:])
 
 	case insightTrigger:
-		return p.executeInsightTrigger(args, token, split[2:])
+		return p.executeInsightTrigger(args, token, config, split[2:])
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, "")
