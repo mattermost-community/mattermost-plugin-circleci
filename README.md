@@ -20,9 +20,9 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 -   `/circleci project list-followed` - List followed projects
 -   `/circleci project recent-build <owner-name> <project-name> <branch>` - List the 10 last builds for a project
--   `/circleci project env list vcs/orgname/project` - List environment variables for a given project
--   `/circleci project env add vcs/orgname/project name value` - Add an environment variable with a given name and value for a given project
--   `/circleci project env add vcs/orgname/project name` - Remove an environment variable with a given name from a given project
+-   `/circleci project env list <vcs/orgname/project>` - List environment variables for a given project
+-   `/circleci project env add <vcs/orgname/project> <name> <value>` - Add an environment variable with a given name and value for a given project
+-   `/circleci project env add <vcs/orgname/project> <name>` - Remove an environment variable with a given name from a given project
 
 #### Subscribe to notifications projects
 
