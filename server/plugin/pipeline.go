@@ -33,7 +33,7 @@ const (
 
 	pipelineWorkflowTrigger  = "workflows"
 	pipelineWorkflowHint     = "<pipeline number>"
-	pipelineWorkflowHelpText = "Get list of workflows for given pipeline"
+	pipelineWorkflowHelpText = "Get list of workflows for given pipeline number and project"
 
 	pipelineGetSingleTrigger  = "get"
 	pipelineGetSingleHint     = "<pipeline number>"
@@ -47,7 +47,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	all.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
 	recent := model.NewAutocompleteData(pipelineGetRecentTrigger, pipelineGetRecentHint, pipelineGetRecentHelpText)
-	recent.AddTextArgument("VCS is either bb or gh.", pipelineGetRecentHint, "")
+	recent.AddTextArgument("VCS is either bb or gh. Leave blank for default org", pipelineGetRecentHint, "")
 
 	mine := model.NewAutocompleteData(pipelineGetMineTrigger, pipelineGetMineHint, pipelineGetMineHelpText)
 	mine.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
