@@ -12,7 +12,7 @@ const (
 
 	routeAutocomplete        = "/autocomplete"
 	subrouteFollowedProjects = "/followedProjects"
-	routeApporveJob                   = "/approve/workflow/${workflowID}/job/${jobID}"
+	routeApporveJob                   = "/job/approve/"
 )
 
 func (p *Plugin) initializeRouter() {

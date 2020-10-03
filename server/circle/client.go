@@ -162,3 +162,12 @@ func GetWorkflowJobsMetrics(apiToken string, projectSlug string, workflowName st
 	met, _, err := client.InsightsApi.GetProjectWorkflowJobMetrics(getContext(apiToken), projectSlug, workflowName, nil)
 	return met.Items, err
 }
+// ApproveJob approves the pending job in the workflow
+func ApproveJob(apiToken string, approvalRequestID string, workFlowID string) (string, error) {
+	response, _, err := client.WorkflowApi.ApprovePendingApprovalJobById(getContext(apiToken), approvalRequestID, workFlowID)
+	if err != nil {
+		return "", err
+	}
+
+	return response.Message, nil
+}

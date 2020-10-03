@@ -93,7 +93,10 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Name: "Approve Job",
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("/plugins/approve/workflow/%s", wi.WorkflowID),
+				URL: "/plugins/job/approve/",
+					Context: map[string]interface{}{
+						"WorkflowID": wi.WorkflowID,
+					},
 				},
 			},
 		}
