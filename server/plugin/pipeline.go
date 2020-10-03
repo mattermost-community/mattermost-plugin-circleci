@@ -291,6 +291,10 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 
 func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	config *store.Config, num string) (*model.CommandResponse, *model.AppError) {
+	if config.ToSlug() == "" {
+		return p.sendEphemeralResponse(args,
+			"Please provide project slug via --project flag. i.e. --project vcs/org/repo or configure default project"), nil
+	}
 	pl, err := circle.GetPipelineByNum(token, config.ToSlug(), num)
 	if err != nil {
 		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
