@@ -36,7 +36,7 @@ This guide assumes you have:
 
 -   A project, hosted on Github or Bitbucket,
 -   A CircleCI account, which can access to the project,
--   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url).
+-   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url). v5.24 or higher is recommended to have the autocomplete feature.
 
 ## Configuration
 
@@ -71,6 +71,45 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 > We've set up the Mattermost CircleCI plugin, so you can get notifications from CircleCI in Mattermost. To get started, run the `/circleci account connect` slash command from any channel within Mattermost to connect your Mattermost account with CircleCI. Then, take a look at the [slash commands](#slash-commands) section for details about how to use the plugin.
 
 ## Slash Commands
+
+### Overview
+
+By default, the commands use the project set by `/circleci config`, unless a specific project is specified by the argument `--project <vcs/org-name/project-name>` (possible on all commands)
+
+```
+Connect to your CircleCI account
+    - /circleci account view                — Get informations about yourself
+    - /circleci account connect <API token> — Connect your Mattermost account to CircleCI
+    - /circleci account disconnect          — Disconnect your Mattermost account from CircleCI
+
+Set your default project
+    - /circleci config <vcs/org-name/project-name> — View the config. Pass in the project (vcs/org/projectname) to set the default config
+
+Subscribe your channel to notifications
+    - /circleci subscription list               — List the CircleCI subscriptions for the current channel
+    - /circleci subscription add [--flags]      — Subscribe the current channel to CircleCI notifications for a project
+    - /circleci subscription remove [--flags]   — Unsubscribe the current channel to CircleCI notifications for a project
+    - /circleci subscription list-channels      — List all channels in the current team subscribed to a project
+
+Manage pipelines
+    - /circleci pipeline trigger <branch>           — Trigger pipeline for a project
+    - /circleci pipeline workflows <pipelineID>     — Get list of workflows for given pipeline
+    - /circleci pipeline recent <vcs-slug/org-name> — Get list of all recently ran pipelines
+    - /circleci pipeline all                        — Get list of all pipelines for a project
+    - /circleci pipeline mine                       — Get list of all pipelines triggered by you for a project
+    - /circleci pipeline get <pipelineID>           — Get informations about a single pipeline
+
+Manage worflows
+    - /circleci workflow get <workflowID>       — Get informations about workflow
+    - /circleci workflow jobs <workflowID>      — Get jobs list of workflow
+    - /circleci workflow rerun <workflowID>     — Rerun a workflow
+    - /circleci workflow cancel <workflowID>    — Cancel a workflow
+
+Manage CircleCI projects
+    - /circleci project list-followed           — List followed projects
+    - /circleci project recent-build <branch>   — List the 10 last builds for a project
+    - /circleci project env <list|add|add>      — get, add or remove environment variables for a project
+```
 
 ### Subscribe to webhooks notifications
 
