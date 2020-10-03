@@ -58,7 +58,7 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 	if len(split) > 1 {
 		workflow = split[1]
 	} else {
-		p.sendIncorrectSubcommandResponse(args, workflowTrigger)
+		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
 	}
 
 	switch subcommand {
@@ -189,6 +189,9 @@ func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs,
 			"Failed to re run workflow", workflowID, err.Error())}
 	}
 	wf, err := circle.GetWorkflow(token, workflowID)
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Re running workflow. workflow ID: %s", workflowID)), nil
+	}
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)), nil
 }
 
@@ -200,5 +203,8 @@ func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs,
 			"Failed to cancel workflow", workflowID, err.Error())}
 	}
 	wf, err := circle.GetWorkflow(token, workflowID)
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Canceled workflow. workflow ID: %s", workflowID)), nil
+	}
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)), nil
 }
