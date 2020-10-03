@@ -245,3 +245,21 @@ func (p *Plugin) executeProjectAddEnvVars(args *model.CommandArgs,
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully added environment variable `%s:%s` for project %s",
 		split[1], split[2], split[0])), nil
 }
+
+func (p *Plugin) executeProjectDelEnvVars(args *model.CommandArgs,
+	token string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 2 {
+		return p.sendEphemeralResponse(args, "Please provide project slug and varibale name"),
+			&model.AppError{Message: "received empty project slug or variable name"}
+	}
+	err := circle.DelEnvVar(token, split[0], split[1])
+	if err != nil {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment varibale",
+				"`%s` for ptoject %s", split[1], split[0])),
+			&model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
+				split[0] + "err: " + err.Error()}
+	}
+
+	return p.sendEphemeralResponse(args, fmt.Sprintf("Succesfully removed environment variable `%s` for project %s",
+		split[1], split[2], split[0])), nil
+}

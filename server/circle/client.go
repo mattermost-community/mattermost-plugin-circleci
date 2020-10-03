@@ -143,3 +143,9 @@ func AddEnvVar(apiToken string, projectSlug string, name string, value string) e
 	_, _, err := client.ProjectApi.CreateEnvVar(getContext(apiToken), projectSlug, opts)
 	return err
 }
+
+// DelEnvVar returns list of environment variables for given projects
+func DelEnvVar(apiToken string, projectSlug string, name string) error {
+	_, _, err := client.ProjectApi.DeleteEnvVar(getContext(apiToken), projectSlug, name)
+	return err
+}
