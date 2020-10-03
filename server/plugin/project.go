@@ -206,6 +206,11 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment varibales for ptoject %s", split[0])),
 			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
 	}
+
+	if len(envvars) == 0 {
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having nay environment variables", split[0])), nil
+	}
+
 	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
 	for _, env := range envvars {
 		envVarListString += fmt.Sprintf(
