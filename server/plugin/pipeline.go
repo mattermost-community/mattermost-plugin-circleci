@@ -73,7 +73,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 }
 
 func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
-	subcommand := "help"
+	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
 	}
@@ -100,6 +100,9 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		return p.executeTriggerPipeline(args, circleciToken, config, branch)
 	case pipelineGetSingleTrigger:
 		return p.executePipelineGetSingle(args, circleciToken, argument)
+
+	case commandHelpTrigger:
+		return p.sendHelpResponse(args, pipelineTrigger)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}

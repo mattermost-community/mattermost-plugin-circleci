@@ -18,9 +18,9 @@ const (
 	workflowGetHint     = "<workflowID>"
 	workflowGetHelpText = "Get informations about workflow"
 
-	workflowGetJobsTrigger         = "jobs"
-	workflowGetJobsHint            = "<workflowID>"
-	workflowGetJobsTriggerHelpText = "Get jobs list of workflow"
+	workflowGetJobsTrigger  = "jobs"
+	workflowGetJobsHint     = "<workflowID>"
+	workflowGetJobsHelpText = "Get jobs list of workflow"
 
 	workflowRerunTrigger  = "rerun"
 	workflowRerunHint     = "<workflowID>"
@@ -37,7 +37,7 @@ func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	workflowGet := model.NewAutocompleteData(workflowGetTrigger, workflowGetHint, workflowGetHelpText)
 	workflowGet.AddTextArgument("<workflowID>", workflowGetHint, "")
 
-	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsTriggerHelpText)
+	workflowGetJobs := model.NewAutocompleteData(workflowGetJobsTrigger, workflowGetJobsHint, workflowGetJobsHelpText)
 	workflowGetJobs.AddTextArgument("<workflowID>", workflowGetJobsHint, "")
 
 	rerun := model.NewAutocompleteData(workflowRerunTrigger, workflowRerunHint, workflowRerunHelpText)
@@ -53,8 +53,8 @@ func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	return workflow
 }
 
-func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
-	subcommand := "help"
+func (p *Plugin) executeWorkflow(args *model.CommandArgs, circleciToken string, split []string) (*model.CommandResponse, *model.AppError) {
+	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
 	}
@@ -62,8 +62,8 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 	var workflow string
 	if len(split) > 1 {
 		workflow = split[1]
-	} else {
-		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
+	} else if subcommand != commandHelpTrigger {
+		return p.sendEphemeralResponse(args, "Please precise the ID of the workflow."), nil
 	}
 
 	switch subcommand {
@@ -75,6 +75,9 @@ func (p *Plugin) executeWorkflowTrigger(args *model.CommandArgs, circleciToken s
 		return p.executeRerunWorkflow(args, circleciToken, workflow)
 	case workflowCancelTrigger:
 		return p.executeCancelWorkflow(args, circleciToken, workflow)
+
+	case commandHelpTrigger:
+		return p.sendHelpResponse(args, workflowTrigger)
 	default:
 		return p.sendIncorrectSubcommandResponse(args, workflowTrigger)
 	}
