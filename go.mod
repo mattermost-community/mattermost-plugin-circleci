@@ -3,7 +3,7 @@ module github.com/nathanaelhoun/mattermost-plugin-circleci
 go 1.14
 
 require (
-	github.com/antihax/optional v1.0.0 // indirect
+	github.com/antihax/optional v1.0.0
 	github.com/darkLord19/circleci-v2 v1.0.0
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/gorilla/mux v1.7.4

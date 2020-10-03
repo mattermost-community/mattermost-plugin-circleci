@@ -3,6 +3,7 @@ package circle
 import (
 	"context"
 
+	"github.com/antihax/optional"
 	"github.com/darkLord19/circleci-v2/circleci"
 )
 
@@ -99,4 +100,21 @@ func GetNameByID(apiToken string, id string) (string, error) {
 	}
 
 	return user.Name, nil
+}
+
+// TriggerPipeline get all workflows by pipeline ID
+func TriggerPipeline(apiToken string, projectSlug string, branch string) (circleci.PipelineCreation, error) {
+	var opts *circleci.PipelineApiTriggerPipelineOpts
+	if branch != "" {
+		opts = new(circleci.PipelineApiTriggerPipelineOpts)
+		opts.Body = optional.NewInterface(circleci.TriggerPipelineParameters{Branch: branch})
+	}
+	pl, _, err := client.PipelineApi.TriggerPipeline(getContext(apiToken), projectSlug, opts)
+	return pl, err
+}
+
+// GetPipelineByID get info about single pipeline
+func GetPipelineByID(apiToken string, pipelineID string) (circleci.Pipeline, error) {
+	pl, _, err := client.PipelineApi.GetPipelineById(getContext(apiToken), pipelineID)
+	return pl, err
 }
