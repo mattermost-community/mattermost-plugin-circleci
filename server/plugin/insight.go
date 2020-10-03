@@ -41,25 +41,33 @@ func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken st
 		subcommand = split[0]
 	}
 
+	var project string
+	if len(split) > 1 {
+		project = split[1]
+	} else {
+		conf, err := p.Store.GetConfig(args.UserId)
+		if err != nil {
+			return p.sendIncorrectSubcommandResponse(args, insightTrigger)
+		}
+		project = fmt.Sprintf("%s/%s/%s", conf.VcsType, conf.Org, conf.Project)
+	}
+
 	switch subcommand {
 	case insightMetricsWorkflowTrigger:
-		return p.executeInsightWorkflowMetrics(args, circleciToken, split[1:])
+		return p.executeInsightWorkflowMetrics(args, circleciToken, project)
 	case insightMetricsWorkflowJobsTrigger:
-		return p.executeInsightJobMetrics(args, circleciToken, split[1:])
+		return p.executeInsightJobMetrics(args, circleciToken, project, split[2:])
 	default:
 		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
 	}
 }
 
 func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 1 {
-		return p.sendEphemeralResponse(args, "Please provide project slug to get workflow metrics"), nil
-	}
-	wfm, err := circle.GetWorkflowMetrics(token, split[0])
+	token string, project string) (*model.CommandResponse, *model.AppError) {
+	wfm, err := circle.GetWorkflowMetrics(token, project)
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get workflow metrics for project %s", split[0])),
-			&model.AppError{Message: "Failed to get workflow metrics for project " + split[0]}
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get workflow metrics for project %s", project)),
+			&model.AppError{Message: "Failed to get workflow metrics for project " + project}
 	}
 	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
 		"| MTTR | Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
@@ -80,7 +88,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Workflow metrics for project: "+split[0],
+		"Workflow metrics for project: "+project,
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Workflow Metrics",
@@ -93,15 +101,15 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(args, "Please provide project slug and workflow name to get jobs metrics"), nil
+	token string, project string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Please provide workflow name to get jobs metrics"), nil
 	}
-	wfm, err := circle.GetWorkflowJobsMetrics(token, split[0], split[1])
+	wfm, err := circle.GetWorkflowJobsMetrics(token, project, split[0])
 	if err != nil {
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not get job metrics for project %s, workflow %s",
-				split[0], split[1])), &model.AppError{Message: "Failed to get jobs metrics for project " +
-				split[0] + " workflow " + split[1]}
+				project, split[0])), &model.AppError{Message: "Failed to get jobs metrics for project " +
+				project + " workflow " + split[0]}
 	}
 	wfMetricsString := "| Name | Success Rate | Failed Runs | Successful Runs | Throughput" +
 		"| Credits Used | Mean | Median | Min | Max | Time Widnow |\n| :---- | :----- | :---- |\n"
@@ -121,7 +129,7 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Job metrics for project: "+split[0]+" workflow: "+split[1],
+		"Job metrics for project: "+project+" workflow: "+split[0],
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Job Metrics",

@@ -91,16 +91,24 @@ func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, s
 
 	case projectEnvVarTrigger:
 		subsubcmd := "list"
+		project := ""
 		if len(split) > 1 {
 			subsubcmd = split[1]
+			project = split[2]
+		} else {
+			config, err := p.Store.GetConfig(args.UserId)
+			if err != nil {
+				return p.sendIncorrectSubcommandResponse(args, projectEnvVarTrigger)
+			}
+			project = fmt.Sprintf("%s/%s/%s", config.VcsType, config.Org, config.Project)
 		}
 		switch subsubcmd {
 		case projectEnvVarListTrigger:
-			return p.executeProjectListEnvVars(args, circleciToken, split[2:])
+			return p.executeProjectListEnvVars(args, circleciToken, project)
 		case projectEnvVarAddTrigger:
-			return p.executeProjectAddEnvVar(args, circleciToken, split[2:])
+			return p.executeProjectAddEnvVar(args, circleciToken, project, split[3:])
 		case projectEnvVarDelTrigger:
-			return p.executeProjectDelEnvVar(args, circleciToken, split[2:])
+			return p.executeProjectDelEnvVar(args, circleciToken, project, split[3:])
 		default:
 			return p.sendIncorrectSubcommandResponse(args, projectEnvVarTrigger)
 		}
@@ -196,19 +204,15 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 }
 
 func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 1 {
-		return p.sendEphemeralResponse(args, "Project Slug cannot be empty for list command"),
-			&model.AppError{Message: "received empty project slug"}
-	}
-	envvars, err := circle.GetEnvVarsList(token, split[0])
+	token string, project string) (*model.CommandResponse, *model.AppError) {
+	envvars, err := circle.GetEnvVarsList(token, project)
 	if err != nil {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment variables for ptoject %s", split[0])),
-			&model.AppError{Message: "Could not list env vars for project" + split[0] + "err: " + err.Error()}
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not list environment variables for ptoject %s", project)),
+			&model.AppError{Message: "Could not list env vars for project" + project + "err: " + err.Error()}
 	}
 
 	if len(envvars) == 0 {
-		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having any environment variables", split[0])), nil
+		return p.sendEphemeralResponse(args, fmt.Sprintf("Project %s is not having any environment variables", project)), nil
 	}
 
 	envVarListString := "| Name | Value |\n| :---- | :----- | \n"
@@ -222,7 +226,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 
 	_ = p.sendEphemeralPost(
 		args,
-		"Environment variables for project "+split[0],
+		"Environment variables for project "+project,
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Environment Variable List",
@@ -235,35 +239,35 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 3 {
-		return p.sendEphemeralResponse(args, "Please provide project slug, variable name and value"),
-			&model.AppError{Message: "received empty project slug or variable name or value"}
+	token string, project string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 2 {
+		return p.sendEphemeralResponse(args, "Please provide environment variable name and value"),
+			&model.AppError{Message: "received empty environment variable name or value"}
 	}
-	err := circle.AddEnvVar(token, split[0], split[1], split[2])
+	err := circle.AddEnvVar(token, project, split[0], split[1])
 	if err != nil {
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not add environment variable `%s: %s` for project %s",
-				split[1], split[2], split[0])), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
-				split[1] + split[2] + split[0] + "err: " + err.Error()}
+				split[0], split[1], project)), &model.AppError{Message: "Could not add env var %s:%s for project %s" +
+				split[0] + split[1] + project + "err: " + err.Error()}
 	}
 
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s",
-		split[1], split[2], split[0])), nil
+		split[0], split[1], project)), nil
 }
 
 func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs,
-	token string, split []string) (*model.CommandResponse, *model.AppError) {
-	if len(split) < 2 {
-		return p.sendEphemeralResponse(args, "Please provide project slug and variable name"),
-			&model.AppError{Message: "received empty project slug or variable name"}
+	token string, project string, split []string) (*model.CommandResponse, *model.AppError) {
+	if len(split) < 1 {
+		return p.sendEphemeralResponse(args, "Please provide environment variable name"),
+			&model.AppError{Message: "received empty environment variable name"}
 	}
-	err := circle.DelEnvVar(token, split[0], split[1])
+	err := circle.DelEnvVar(token, project, split[0])
 	if err != nil {
 		return p.sendEphemeralResponse(args, fmt.Sprintf("Could not remove environment variable `%s` for project %s",
-				split[1], split[0])), &model.AppError{Message: "Could not remove env var %s for project %s" + split[1] +
-				split[0] + "err: " + err.Error()}
+				split[0], project)), &model.AppError{Message: "Could not remove env var %s for project %s" + split[0] +
+				project + "err: " + err.Error()}
 	}
 
 	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully removed environment variable `%s` for project %s",
-		split[1], split[0])), nil
+		split[0], project)), nil
 }

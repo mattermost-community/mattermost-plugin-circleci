@@ -7,6 +7,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -71,16 +72,23 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	}
 
 	var project string
+	var config *store.Config
+	var err error
 	if len(split) > 1 {
 		project = split[1]
 	} else {
-		return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
+		config, err = p.Store.GetConfig(args.UserId)
+		if err != nil {
+			return p.sendIncorrectSubcommandResponse(args, pipelineTrigger)
+		}
+		project = fmt.Sprintf("%s/%s/%s", config.VcsType, config.Org, config.Project)
 	}
 
 	switch subcommand {
 	case pipelineGetAllTrigger:
 		return p.executePipelineGetAllForProject(args, circleciToken, project)
 	case pipelineGetRecentTrigger:
+		project = fmt.Sprintf("%s/%s", config.VcsType, config.Org)
 		return p.executePipelineGetRecent(args, circleciToken, project)
 	case pipelineGetMineTrigger:
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, project)
