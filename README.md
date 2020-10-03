@@ -45,11 +45,11 @@ _Coming_
 
 ## How to use this plugin
 
-See [`HOW_TO.md`](./blob/master/HOW_TO.md)
+See [`HOW_TO.md`](HOW_TO.md)
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](./blob/master/CONTRIBUTING.md)
+See [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ## License
 
