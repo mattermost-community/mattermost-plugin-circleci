@@ -134,10 +134,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		p.API.LogError("Could not get user config", "error", err)
 	}
 
-	if config == nil {
+	var splitWithoutProject []string
+	if config != nil {
+		splitWithoutProject = split
+	} else {
 		// Trying to get the config from the commands, with the args `--project`
 		slug := ""
 		nextIsValue := false
+		splitWithoutProject = []string{}
 
 	scan:
 		for _, arg := range split {
@@ -150,7 +154,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				nextIsValue = true
 
 			default:
-				continue
+				splitWithoutProject = append(splitWithoutProject, arg)
 			}
 		}
 
@@ -173,25 +177,25 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	switch command {
 	case accountTrigger:
-		return p.executeAccount(args, token, split[2:])
+		return p.executeAccount(args, token, splitWithoutProject[2:])
 
 	case projectTrigger:
-		return p.executeProject(args, token, config, split[2:])
+		return p.executeProject(args, token, config, splitWithoutProject[2:])
 
 	case subscribeTrigger:
-		return p.executeSubscribe(args, token, config, split[2:])
+		return p.executeSubscribe(args, token, config, splitWithoutProject[2:])
 
 	case configCommandTrigger:
 		return p.executeConfig(args)
 
 	case workflowTrigger:
-		return p.executeWorkflowTrigger(args, token, split[2:])
+		return p.executeWorkflowTrigger(args, token, splitWithoutProject[2:])
 
 	case pipelineTrigger:
-		return p.executePipelineTrigger(args, token, config, split[2:])
+		return p.executePipelineTrigger(args, token, config, splitWithoutProject[2:])
 
 	case insightTrigger:
-		return p.executeInsightTrigger(args, token, config, split[2:])
+		return p.executeInsightTrigger(args, token, config, splitWithoutProject[2:])
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, "")
