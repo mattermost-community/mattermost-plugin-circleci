@@ -145,7 +145,9 @@ Subscribe a channel to notifications from a CircleCI project.
 
 #### Steps
 
-1.  In the channel you want to subscribe to notifications, type `/circleci subscription add <org-name> <project-name>`.
+1.  In the channel you want to subscribe to notifications, type `/circleci subscription add`.
+    -   You can add the optional flag `--only-failed` to only received notifications about failed jobs
+    -   You can temporarily use a project different that the one set with `/circleci config`, using the optional flag `--project <vcs/org-name/project-name>`
 2.  Install the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for CircleCI in your project. You usually do this by modifing the `.circleci/config.yml`.
 
     -   You can add the command [status](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#usage-status) in your existing jobs to get a notification when this job is finished
@@ -154,7 +156,7 @@ Subscribe a channel to notifications from a CircleCI project.
 3.  Add the webhook URL given by `/circleci subscription add` to your CircleCI project.
 
     -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret
-    -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add projectSlug MM_WEBHOOK <webhook-url>`
+    -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`
 
 ## Frequently Asked Questions
 
