@@ -98,14 +98,12 @@ func GetNameByID(apiToken string, id string) (string, error) {
 	return user.Name, err
 }
 
-// TriggerPipeline get all workflows by pipeline ID
-func TriggerPipeline(apiToken string, projectSlug string, branch string) (circleci.PipelineCreation, error) {
-	var opts *circleci.PipelineApiTriggerPipelineOpts
-	if branch != "" {
-		opts = new(circleci.PipelineApiTriggerPipelineOpts)
-		opts.Body = optional.NewInterface(circleci.TriggerPipelineParameters{Branch: branch})
-	}
-	pl, _, err := client.PipelineApi.TriggerPipeline(getContext(apiToken), projectSlug, opts)
+// TriggerPipeline triggers pipeline for given project and given branch/tag
+func TriggerPipeline(apiToken string, projectSlug string,
+	params circleci.TriggerPipelineParameters) (circleci.PipelineCreation, error) {
+	var opts = circleci.PipelineApiTriggerPipelineOpts{}
+	opts.Body = optional.NewInterface(params)
+	pl, _, err := client.PipelineApi.TriggerPipeline(getContext(apiToken), projectSlug, &opts)
 	return pl, err
 }
 

@@ -30,8 +30,16 @@ const (
 	pipelineGetMineHelpText = "Get list of all pipelines triggered by you for a project"
 
 	pipelineTriggerTrigger  = "trigger"
-	pipelineTriggerHint     = "<branch>"
+	pipelineTriggerHint     = "<" + branchTrigger + "|" + tagTrigger + ">"
 	pipelineTriggerHelpText = "Trigger pipeline for a project"
+
+	branchTrigger         = "branch"
+	branchTriggerHint     = "<branch name>"
+	branchTriggerHelpText = "Provide branch name for which you want to trigger the pipeline"
+
+	tagTrigger         = "tag"
+	tagTriggerHint     = "<tag value>"
+	tagTriggerHelpText = "Provide tag value for which you want to trigger the pipeline"
 
 	pipelineWorkflowTrigger  = "workflows"
 	pipelineWorkflowHint     = "<pipeline number>"
@@ -58,8 +66,14 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	wf.AddTextArgument("<pipelineID>", pipelineWorkflowHint, "")
 
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
-	trigger.AddTextArgument("<branch>", "The branch to trigger the pipeline on. Leave empty for master", "")
-	trigger.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	branch := model.NewAutocompleteData(branchTrigger, branchTriggerHint, branchTriggerHelpText)
+	branch.AddTextArgument("<branch>", "The branch for which pipeline will be trigeered. Leave empty for master", "")
+	branch.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	tag := model.NewAutocompleteData(tagTrigger, tagTriggerHint, tagTriggerHelpText)
+	tag.AddTextArgument("<tag>", "The tag for which pipeline will be trigeered.", "")
+	tag.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	trigger.AddCommand(branch)
+	trigger.AddCommand(tag)
 
 	get := model.NewAutocompleteData(pipelineGetSingleTrigger, pipelineGetSingleHint, pipelineGetSingleHelpText)
 	get.AddTextArgument("< pipeline number > or < pipelineID >", pipelineGetSingleHint, "")
@@ -95,11 +109,7 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	case pipelineWorkflowTrigger:
 		return p.executePipelineGetWorkflowByID(args, circleciToken, argument)
 	case pipelineTriggerTrigger:
-		branch := ""
-		if len(split) > 2 {
-			branch = split[2]
-		}
-		return p.executeTriggerPipeline(args, circleciToken, project, branch)
+		return p.executeTriggerPipeline(args, circleciToken, project, split[1:])
 	case pipelineGetSingleTrigger:
 		return p.executePipelineGetSingle(args, circleciToken, project, argument)
 
@@ -251,15 +261,30 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
-	project *store.ProjectIdentifier, branch string) (*model.CommandResponse, *model.AppError) {
-	pl, err := circle.TriggerPipeline(token, project.ToSlug(), branch)
-	if branch == "" {
-		branch = "master"
+	project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
+	var params circleci.TriggerPipelineParameters
+	subcmd := split[0]
+	input := ""
+	switch subcmd {
+	case branchTrigger:
+		branch := "master"
+		if len(split) > 1 {
+			branch = split[1]
+		}
+		params = circleci.TriggerPipelineParameters{Branch: branch}
+		input = branch
+	case tagTrigger:
+		if len(split) < 2 {
+			return p.sendEphemeralResponse(args, ":red_circle: Please provide a tag value."), nil
+		}
+		params = circleci.TriggerPipelineParameters{Tag: split[1]}
+		input = split[1]
 	}
+	pl, err := circle.TriggerPipeline(token, project.ToSlug(), params)
 	if err != nil {
 		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not trigger pipeline for project %s on `%s` branch", project.ToSlug(), branch),
+			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToSlug(), subcmd, input),
 		), nil
 	}
 
@@ -268,8 +293,8 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for branch: %s", project.ToMarkdown(), branch),
-				Pretext:  fmt.Sprintf("Triggered pipeline for project %s branch `%s`", project.ToMarkdown(), branch),
+				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for %s: %s", project.ToMarkdown(), subcmd, input),
+				Pretext:  fmt.Sprintf(":white_check_mark: Triggered pipeline for project %s, %s: `%s`", project.ToMarkdown(), subcmd, input),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Id",
