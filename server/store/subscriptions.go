@@ -14,23 +14,27 @@ const (
 )
 
 type Subscription struct {
-	ChannelID  string            `json:"ChannelID"`
-	CreatorID  string            `json:"CreatorID"`
-	Flags      SubscriptionFlags `json:"Flags"`
-	Owner      string            `json:"Owner"`
-	Repository string            `json:"Repository"`
+	ChannelID string            `json:"ChannelID"`
+	CreatorID string            `json:"CreatorID"`
+	Flags     SubscriptionFlags `json:"Flags"`
+	// TODO Add bitbucket
+	// TODO rename Owner to Organization
+	Owner string `json:"Owner"`
+	// TODO rename Repository to Project
+	Repository string `json:"Repository"`
 }
 
 type Subscriptions struct {
 	Repositories map[string][]*Subscription
 }
 
+// Transform the subscription to a well-formatted short slack attachment field
 func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttachmentField {
 	return &model.SlackAttachmentField{
-		Title: v1.GetFullNameFromOwnerAndRepo(s.Owner, s.Repository),
+		Title: fmt.Sprintf("gh/%s/%s", s.Owner, s.Repository), // TODO add support for bitbucket
 		Short: true,
 		Value: fmt.Sprintf(
-			"Subscribed by: @%s\nFlags: ` %s`",
+			"Subscribed by: @%s\nFlags: `%s`",
 			username,
 			s.Flags.String(),
 		),
