@@ -49,9 +49,9 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
 	listAllSubscribedChannels.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
-	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(subscribeChannel)
 	subscribe.AddCommand(unsubscribeChannel)
+	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(listAllSubscribedChannels)
 
 	return subscribe

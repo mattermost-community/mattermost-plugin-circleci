@@ -67,9 +67,9 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	envvar.AddCommand(envvarAdd)
 	envvar.AddCommand(envvarDel)
 
+	project.AddCommand(envvar)
 	project.AddCommand(projectRecentBuild)
 	project.AddCommand(projectList)
-	project.AddCommand(envvar)
 
 	return project
 }

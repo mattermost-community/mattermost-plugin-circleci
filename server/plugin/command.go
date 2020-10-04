@@ -82,10 +82,10 @@ func getAutocompleteData() *model.AutocompleteData {
 
 	// Add all subcommands
 	mainCommand.AddCommand(getAccountAutoCompleteData())
-	mainCommand.AddCommand(getProjectAutoComplete())
-	mainCommand.AddCommand(getSubscribeAutoCompleteData())
 	mainCommand.AddCommand(getSetDefaultAutoCompleteData())
 	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
+	mainCommand.AddCommand(getSubscribeAutoCompleteData())
+	mainCommand.AddCommand(getProjectAutoComplete())
 	mainCommand.AddCommand(getPipelineAutoCompeleteData())
 	mainCommand.AddCommand(getInsightAutoCompeleteData())
 

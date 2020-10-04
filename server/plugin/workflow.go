@@ -46,10 +46,10 @@ func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	cancel := model.NewAutocompleteData(workflowCancelTrigger, workflowCancelHint, workflowCancelHelpText)
 	cancel.AddTextArgument("<workflowID>", workflowCancelHint, "")
 
-	workflow.AddCommand(workflowGet)
-	workflow.AddCommand(workflowGetJobs)
 	workflow.AddCommand(rerun)
 	workflow.AddCommand(cancel)
+	workflow.AddCommand(workflowGet)
+	workflow.AddCommand(workflowGetJobs)
 	return workflow
 }
 
