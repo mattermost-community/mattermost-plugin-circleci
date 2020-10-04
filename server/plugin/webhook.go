@@ -52,7 +52,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 		TitleLink: wi.CircleBuildURL,
 		Fields: []*model.SlackAttachmentField{
 			{
-				Title: "Repo",
+				Title: "Project",
 				Short: true,
 				Value: repo.ToMarkdown(),
 			},
