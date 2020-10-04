@@ -102,7 +102,8 @@ Connect to your CircleCI account:
     - /circleci account disconnect          — Disconnect your Mattermost account from CircleCI
 
 Set your default project:
-    - /circleci default [vcs/org-name/project-name] — View your current default project or pass in a new project (<cs/org-name/project-name>
+    - /circleci default  — View your currently configured default project
+    - /circleci default [vcs/org-name/project-name] — Set new default project by passing value in the form <vcs/org-name/project-name>
 
 Subscribe your channel to notifications:
     - /circleci subscription list               — List the CircleCI subscriptions for the current channel
