@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
-
 	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 // WebhookInfo from the webhook
@@ -29,24 +31,30 @@ type WebhookInfo struct {
 	Message                string `json:"Message"`
 }
 
+func (wi *WebhookInfo) toProjectIdentifier() *store.ProjectIdentifier {
+	repoType := "gh"
+	if strings.Contains(wi.RepositoryURL, "git@bitbucket.org") {
+		repoType = "bb"
+	}
+	repoConf, _ := store.CreateProjectIdentifierFromSlug(fmt.Sprintf("%s/%s/%s", repoType, wi.Organization, wi.Repository))
+	return repoConf
+}
+
 // Convert the build info into a Post
 func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	if wi.AssociatedPullRequests == "" {
 		wi.AssociatedPullRequests = ":grey_question: No PR"
 	}
 
+	repo := wi.toProjectIdentifier()
+
 	attachment := &model.SlackAttachment{
 		TitleLink: wi.CircleBuildURL,
 		Fields: []*model.SlackAttachmentField{
 			{
-				Title: "Repo",
+				Title: "Project",
 				Short: true,
-				Value: fmt.Sprintf(
-					"[%s/%s](%s)",
-					wi.Organization,
-					wi.Repository,
-					wi.RepositoryURL,
-				),
+				Value: repo.ToMarkdown(),
 			},
 			{
 				Title: "Branch",
@@ -64,7 +72,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Value: fmt.Sprintf("%d", wi.CircleBuildNumber),
 			},
 			{
-				Title: "Build informations",
+				Title: "Job informations",
 				Short: false,
 				Value: fmt.Sprintf(
 					"- Build triggered by: %s\n- Associated PRs: %s\n",
@@ -138,7 +146,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetFilteredChannelsForBuild(wi.Organization, wi.Repository, wi.IsFailed)
+	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toProjectIdentifier(), wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
 	}

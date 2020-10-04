@@ -7,8 +7,6 @@ A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [Ci
 
 This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](https://github.com/nathanaelhoun)**: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
 
-// TODO add screenshot here
-
 ## Table of Contents
 
 -   [Audience](#audience)
@@ -49,8 +47,8 @@ Once connected, you'll have access to the following features:
 
 This guide assumes you have:
 
--   A project, hosted on Github or Bitbucket,
--   A CircleCI account, which has access to the projects/org you want to interact with,
+-   A project, hosted on github.com or bitbucket.org,
+-   A CircleCI SaaS account, which has access to the projects/org you want to interact with,
 -   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url). v5.24 or higher is recommended to have the autocomplete feature.
 
 ## Installation instructions
@@ -104,7 +102,8 @@ Connect to your CircleCI account:
     - /circleci account disconnect          — Disconnect your Mattermost account from CircleCI
 
 Set your default project:
-    - /circleci config <vcs/org-name/project-name> — Set default vcs/org/project for all other commands to use by default
+    - /circleci default                             — View your currently configured default project
+    - /circleci default [vcs/org-name/project-name] — Set new default project by passing value in the form <vcs/org-name/project-name>
 
 Subscribe your channel to notifications:
     - /circleci subscription list               — List the CircleCI subscriptions for the current channel
@@ -113,13 +112,13 @@ Subscribe your channel to notifications:
     - /circleci subscription list-channels      — List all channels in the current team subscribed to a project
 
 Manage pipelines:
-    - /circleci pipeline trigger <branch>           — Trigger pipeline for a project for a given branch
-    - /circleci pipeline workflows <pipelineID>     — Get list of workflows for given pipeline
-    - /circleci pipeline recent                     — Get list of all recently ran pipelines
-    - /circleci pipeline all                        — Get list of all pipelines for a project
-    - /circleci pipeline mine                       — Get list of all pipelines triggered by you for a project
-    - /circleci pipeline get <pipelineID>           — Get informations about a single pipeline given pipeline ID
-    - /circleci pipeline get <pipelineNumber>       — Get informations about a single pipeline for a given project by passing unique pipeline number
+    - /circleci pipeline trigger <branch>       — Trigger pipeline for a project for a given branch
+    - /circleci pipeline workflows <pipelineID> — Get list of workflows for given pipeline
+    - /circleci pipeline recent                 — Get list of all recently ran pipelines
+    - /circleci pipeline all                    — Get list of all pipelines for a project
+    - /circleci pipeline mine                   — Get list of all pipelines triggered by you for a project
+    - /circleci pipeline get <pipelineID>       — Get informations about a single pipeline given pipeline ID
+    - /circleci pipeline get <pipelineNumber>   — Get informations about a single pipeline for a given project by passing unique pipeline number
 NOTE: To get pipelineID, user can list all the pipelines(using all, recent, mine subcommands) and get the pipelineID for a particular pipeline.
 
 Manage worflows:

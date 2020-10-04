@@ -57,7 +57,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	return subscribe
 }
 
-func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -75,14 +75,14 @@ func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken stri
 		if len(split) > 1 {
 			rawFlags = split[1:]
 		}
-		return executeSubscribeChannel(p, context, config, rawFlags)
+		return executeSubscribeChannel(p, context, project, rawFlags)
 
 	case subscribeUnsubscribeChannelTrigger:
 
-		return executeUnsubscribeChannel(p, context, config)
+		return executeUnsubscribeChannel(p, context, project)
 
 	case subscribeListAllChannelsTrigger:
-		return executeSubscribeListAllChannels(p, context, config)
+		return executeSubscribeListAllChannels(p, context, project)
 
 	default:
 		return p.sendIncorrectSubcommandResponse(context, subscribeTrigger)
@@ -131,7 +131,9 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	return &model.CommandResponse{}, nil
 }
 
-func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, rawFlags []string) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *store.ProjectIdentifier, rawFlags []string) (*model.CommandResponse, *model.AppError) {
+	// ? TODO check that project exists
+
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
@@ -139,11 +141,10 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	}
 
 	newSub := &store.Subscription{
-		ChannelID:  context.ChannelId,
-		CreatorID:  context.UserId,
-		Owner:      config.Org,
-		Repository: config.Project,
-		Flags:      store.SubscriptionFlags{},
+		ChannelID:          context.ChannelId,
+		CreatorID:          context.UserId,
+		Flags:              store.SubscriptionFlags{},
+		ProjectInformation: *project,
 	}
 
 	for _, arg := range rawFlags {
@@ -163,44 +164,57 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	}
 
 	p.API.LogDebug("Adding a new subscription", "subscription", newSub)
-	subs.AddSubscription(newSub)
+	wasUpdated := subs.AddSubscription(newSub)
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
 		return p.sendEphemeralResponse(context, "Internal error when storing new subscription."), nil
 	}
 
-	msg := fmt.Sprintf(
-		"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
-			"#### How to finish setup:\n"+
-			"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
-			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
-			"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
-			"**Webhook URL: `%s`**",
-		config.ToMarkdown(),
-		newSub.Flags,
-		manifest.HomepageURL,
-		commandTrigger,
-		projectTrigger,
-		projectEnvVarTrigger,
-		projectEnvVarAddTrigger,
-		p.getWebhookURL(),
-		p.getWebhookURL(),
-	)
+	var msg string
+	if wasUpdated {
+		msg = fmt.Sprintf(
+			"This channel was already subscribed to notifications from %s. It has been updated with flags `%s`\n"+
+				"The [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) should already be configured, but you can check it to be sure. See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications)\n"+
+				"**Webhook URL: `%s`**",
+			project.ToMarkdown(),
+			newSub.Flags.String(),
+			manifest.HomepageURL,
+			p.getWebhookURL(),
+		)
+	} else {
+		msg = fmt.Sprintf(
+			"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
+				"#### How to finish setup:\n"+
+				"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
+				"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
+				"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
+				"**Webhook URL: `%s`**",
+			project.ToMarkdown(),
+			newSub.Flags,
+			manifest.HomepageURL,
+			commandTrigger,
+			projectTrigger,
+			projectEnvVarTrigger,
+			projectEnvVarAddTrigger,
+			p.getWebhookURL(),
+			p.getWebhookURL(),
+		)
+	}
 
 	return p.sendEphemeralResponse(context, msg), nil
 }
 
-func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
 		return p.sendEphemeralResponse(args, "Internal error when getting subscriptions"), nil
 	}
 
-	if removed := subs.RemoveSubscription(args.ChannelId, config.Org, config.Project); !removed {
+	if removed := subs.RemoveSubscription(args.ChannelId, project); !removed {
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("This channel was not subscribed to %s", config.ToMarkdown()),
+			fmt.Sprintf("This channel was not subscribed to %s", project.ToMarkdown()),
 		), nil
 	}
 
@@ -210,24 +224,24 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store
 	}
 
 	return p.sendEphemeralResponse(args,
-		fmt.Sprintf("Successfully unsubscribed this channel from %s", config.ToMarkdown()),
+		fmt.Sprintf("Successfully unsubscribed this channel from %s", project.ToMarkdown()),
 	), nil
 }
 
-func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
 		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
 	}
 
-	channelIDs := allSubs.GetSubscribedChannelsForRepository(config.Org, config.Project)
+	channelIDs := allSubs.GetSubscribedChannelsForProject(project)
 	if channelIDs == nil {
 		return p.sendEphemeralResponse(
 			context,
 			fmt.Sprintf(
 				"No channel is subscribed to the project %s. Try `/%s %s %s`",
-				config.ToMarkdown(),
+				project.ToMarkdown(),
 				commandTrigger,
 				subscribeTrigger,
 				subscribeChannelTrigger,
@@ -235,7 +249,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, conf
 		), nil
 	}
 
-	message := fmt.Sprintf("Channels of this team subscribed to %s\n", config.ToMarkdown())
+	message := fmt.Sprintf("Channels of this team subscribed to %s\n", project.ToMarkdown())
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {
