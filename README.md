@@ -3,6 +3,7 @@
 [![CircleCI branch](https://img.shields.io/circleci/project/github/nathanaelhoun/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/nathanaelhoun/mattermost-plugin-circleci)
 [![Release](https://img.shields.io/github/v/release/nathanaelhoun/mattermost-plugin-circleci)](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelhoun/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/nathanaelhoun/mattermost-plugin-circleci)
+[![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
 A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [CircleCI](https://circleci.com) to interact with jobs, builds or workflows and receive notifications in Mattermost channels.
 
