@@ -25,7 +25,7 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   [Thanks to](#thanks-to)
 -   [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
 
-// TODO Add a screenshot here
+![Mattermost plugin CircleCI in action](./docs/trigger-pipeline-and-get-notifications.gif)
 
 ## Audience
 
@@ -140,7 +140,7 @@ Manage CircleCI projects:
 
 Subscribe a channel to notifications from a CircleCI project.
 
-![Success notification received in Mattermost](./docs/successful-notification.jpg)
+![Mattermost plugin CircleCI in action](./docs/subscribe-to-notifications.gif)
 
 #### Steps
 
