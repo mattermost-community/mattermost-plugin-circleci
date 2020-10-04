@@ -139,11 +139,10 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	}
 
 	newSub := &store.Subscription{
-		ChannelID:  context.ChannelId,
-		CreatorID:  context.UserId,
-		Owner:      config.Org,
-		Repository: config.Project,
-		Flags:      store.SubscriptionFlags{},
+		ChannelID:          context.ChannelId,
+		CreatorID:          context.UserId,
+		Flags:              store.SubscriptionFlags{},
+		ProjectInformation: *config,
 	}
 
 	for _, arg := range rawFlags {
@@ -163,30 +162,43 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	}
 
 	p.API.LogDebug("Adding a new subscription", "subscription", newSub)
-	subs.AddSubscription(newSub)
+	wasUpdated := subs.AddSubscription(newSub)
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
 		return p.sendEphemeralResponse(context, "Internal error when storing new subscription."), nil
 	}
 
-	msg := fmt.Sprintf(
-		"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
-			"#### How to finish setup:\n"+
-			"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
-			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
-			"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
-			"**Webhook URL: `%s`**",
-		config.ToMarkdown(),
-		newSub.Flags,
-		manifest.HomepageURL,
-		commandTrigger,
-		projectTrigger,
-		projectEnvVarTrigger,
-		projectEnvVarAddTrigger,
-		p.getWebhookURL(),
-		p.getWebhookURL(),
-	)
+	var msg string
+	if wasUpdated {
+		msg = fmt.Sprintf(
+			"This channel was already subscribed to notifications from %s. It has been updated with flags `%s`\n"+
+				"The [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) should already be configured, but you can check it to be sure. See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications)\n"+
+				"**Webhook URL: `%s`**",
+			config.ToMarkdown(),
+			newSub.Flags.String(),
+			manifest.HomepageURL,
+			p.getWebhookURL(),
+		)
+	} else {
+		msg = fmt.Sprintf(
+			"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
+				"#### How to finish setup:\n"+
+				"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
+				"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
+				"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
+				"**Webhook URL: `%s`**",
+			config.ToMarkdown(),
+			newSub.Flags,
+			manifest.HomepageURL,
+			commandTrigger,
+			projectTrigger,
+			projectEnvVarTrigger,
+			projectEnvVarAddTrigger,
+			p.getWebhookURL(),
+			p.getWebhookURL(),
+		)
+	}
 
 	return p.sendEphemeralResponse(context, msg), nil
 }
@@ -198,7 +210,7 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store
 		return p.sendEphemeralResponse(args, "Internal error when getting subscriptions"), nil
 	}
 
-	if removed := subs.RemoveSubscription(args.ChannelId, config.Org, config.Project); !removed {
+	if removed := subs.RemoveSubscription(args.ChannelId, config); !removed {
 		return p.sendEphemeralResponse(args,
 			fmt.Sprintf("This channel was not subscribed to %s", config.ToMarkdown()),
 		), nil
@@ -221,7 +233,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, conf
 		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
 	}
 
-	channelIDs := allSubs.GetSubscribedChannelsForRepository(config.Org, config.Project)
+	channelIDs := allSubs.GetSubscribedChannelsForProject(config)
 	if channelIDs == nil {
 		return p.sendEphemeralResponse(
 			context,

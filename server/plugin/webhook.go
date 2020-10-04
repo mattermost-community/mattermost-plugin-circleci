@@ -146,7 +146,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetFilteredChannelsForBuild(wi.Organization, wi.Repository, wi.IsFailed)
+	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toStoreConfig(), wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
 	}
