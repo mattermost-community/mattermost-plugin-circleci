@@ -71,9 +71,14 @@ func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken stri
 		return executeSubscribeList(p, context)
 
 	case subscribeChannelTrigger:
-		return executeSubscribeChannel(p, context, config, split[1:])
+		var rawFlags []string
+		if len(split) > 1 {
+			rawFlags = split[1:]
+		}
+		return executeSubscribeChannel(p, context, config, rawFlags)
 
 	case subscribeUnsubscribeChannelTrigger:
+
 		return executeUnsubscribeChannel(p, context, config)
 
 	case subscribeListAllChannelsTrigger:
@@ -126,7 +131,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	return &model.CommandResponse{}, nil
 }
 
-func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, rawFlags []string) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
@@ -141,7 +146,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 		Flags:      store.SubscriptionFlags{},
 	}
 
-	for _, arg := range split[2:] {
+	for _, arg := range rawFlags {
 		if strings.HasPrefix(arg, "--") {
 			flag := arg[2:]
 			err := newSub.Flags.AddFlag(flag)
@@ -166,7 +171,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	}
 
 	msg := fmt.Sprintf(
-		"This channel has been subscribed to notifications from %s with flags: %s\n"+
+		"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
 			"#### How to finish setup:\n"+
 			"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
 			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
