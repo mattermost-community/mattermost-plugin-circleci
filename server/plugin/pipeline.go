@@ -89,7 +89,7 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 	case pipelineGetAllTrigger:
 		return p.executePipelineGetAllForProject(args, circleciToken, project)
 	case pipelineGetRecentTrigger:
-		return p.executePipelineGetRecent(args, circleciToken, project)
+		return p.executePipelineGetRecent(args, circleciToken, argument)
 	case pipelineGetMineTrigger:
 		return p.executePipelineGetAllForProjectByMe(args, circleciToken, project)
 	case pipelineWorkflowTrigger:
@@ -111,10 +111,13 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 }
 
 func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
-	project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetRecentlyBuiltPipelines(token, fmt.Sprintf("%s/%s", project.VCSType, project.Org), false)
+	orgSlug string) (*model.CommandResponse, *model.AppError) {
+	if orgSlug == "" {
+		return p.sendEphemeralResponse(args, "Please provide org slug in the form of vcs/orgname."), nil
+	}
+	pipelines, err := circle.GetRecentlyBuiltPipelines(token, orgSlug, false)
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "org", project.ToSlug(), "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "org", orgSlug, "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
