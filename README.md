@@ -7,8 +7,6 @@ A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [Ci
 
 This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](https://github.com/nathanaelhoun)**: [check it out here](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify).
 
-// TODO add screenshot here
-
 ## Table of Contents
 
 -   [Audience](#audience)
@@ -49,8 +47,8 @@ Once connected, you'll have access to the following features:
 
 This guide assumes you have:
 
--   A project, hosted on Github or Bitbucket,
--   A CircleCI account, which has access to the projects/org you want to interact with,
+-   A project, hosted on github.com or bitbucket.org,
+-   A CircleCI SaaS account, which has access to the projects/org you want to interact with,
 -   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url). v5.24 or higher is recommended to have the autocomplete feature.
 
 ## Installation instructions
@@ -104,7 +102,7 @@ Connect to your CircleCI account:
     - /circleci account disconnect          — Disconnect your Mattermost account from CircleCI
 
 Set your default project:
-    - /circleci config <vcs/org-name/project-name> — Set default vcs/org/project for all other commands to use by default
+    - /circleci set-default <vcs/org-name/project-name> — View your current default project or pass in a new project (<cs/org-name/project-name>
 
 Subscribe your channel to notifications:
     - /circleci subscription list               — List the CircleCI subscriptions for the current channel
