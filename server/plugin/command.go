@@ -59,11 +59,11 @@ const (
 		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetMineTrigger + " " + pipelineGetMineHint + "` — " + pipelineGetMineHelpText + "\n" +
 		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetSingleTrigger + " " + pipelineGetSingleHint + "` — " + pipelineGetSingleHelpText + "\n"
 
-	configHelp = "#### Set your default project\n" +
+	setDefaultHelp = "#### Set your default project\n" +
 
-		"* `/" + commandTrigger + " " + configCommandTrigger + " " + configCommandHint + "` — " + configCommandHelpText + "\n"
+		"* `/" + commandTrigger + " " + setDefaultCommandTrigger + " " + setDefaultCommandHint + "` — " + setDefaultCommandHelpText + "\n"
 
-	help = "## CircleCI plugin Help\n" + accountHelp + configHelp + subscriptionHelp + pipelineHelp + workflowHelp + projectHelp
+	help = "## CircleCI plugin Help\n" + accountHelp + setDefaultHelp + subscriptionHelp + pipelineHelp + workflowHelp + projectHelp
 )
 
 func (p *Plugin) getCommand() *model.Command {
@@ -84,7 +84,7 @@ func getAutocompleteData() *model.AutocompleteData {
 	mainCommand.AddCommand(getAccountAutoCompleteData())
 	mainCommand.AddCommand(getProjectAutoComplete())
 	mainCommand.AddCommand(getSubscribeAutoCompleteData())
-	mainCommand.AddCommand(getConfigAutoCompleteData())
+	mainCommand.AddCommand(getSetDefaultAutoCompleteData())
 	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
 	mainCommand.AddCommand(getPipelineAutoCompeleteData())
 	mainCommand.AddCommand(getInsightAutoCompeleteData())
@@ -121,8 +121,8 @@ func (p *Plugin) sendHelpResponse(args *model.CommandArgs, currentCommand string
 	case subscribeTrigger:
 		message += subscriptionHelp
 
-	case configCommandTrigger:
-		message += configHelp
+	case setDefaultCommandTrigger:
+		message += setDefaultHelp
 
 	case workflowTrigger:
 		message += workflowHelp
@@ -162,24 +162,22 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.sendEphemeralResponse(args, notConnectedText), nil
 	}
 
-	config, err := p.Store.GetDefaultProjectConfig(args.UserId)
+	defaultProject, err := p.Store.GetDefaultProject(args.UserId)
 	if err != nil {
-		p.API.LogError("Could not get user config", "error", err)
+		p.API.LogError("Could not get user default project", "error", err)
 	}
 
 	var splitWithoutProject []string
-	if (config != nil && !strings.Contains(args.Command, "--project")) || command == accountTrigger || command == configCommandTrigger {
+	if (defaultProject != nil && !strings.Contains(args.Command, "--project")) || command == accountTrigger || command == setDefaultCommandTrigger {
 		splitWithoutProject = split
 	} else {
-		// Trying to get the config from the commands, with the args `--project`
+		// Trying to get the default project from the commands, with the args `--project`
 		slug := ""
 		nextIsValue := false
 		splitWithoutProject = []string{}
 
 	scan:
 		for _, arg := range split {
-			p.API.LogDebug("parsing command", "argument", arg)
-
 			switch {
 			case nextIsValue:
 				slug = arg
@@ -196,7 +194,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		if slug == "" {
 			// The argument has not been found
 			return p.sendEphemeralResponse(args,
-				fmt.Sprintf("No CircleCI project set. Try `%s %s %s` to set a project to use", commandTrigger, configCommandTrigger, configCommandHint),
+				fmt.Sprintf("No CircleCI project set. Try `%s %s %s` to set a project to use", commandTrigger, setDefaultCommandTrigger, setDefaultCommandHint),
 			), nil
 		}
 
@@ -207,7 +205,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			), nil
 		}
 
-		config = confFromArg
+		defaultProject = confFromArg
 	}
 
 	switch command {
@@ -215,22 +213,22 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeAccount(args, token, splitWithoutProject[2:])
 
 	case projectTrigger:
-		return p.executeProject(args, token, config, splitWithoutProject[2:])
+		return p.executeProject(args, token, defaultProject, splitWithoutProject[2:])
 
 	case subscribeTrigger:
-		return p.executeSubscribe(args, token, config, splitWithoutProject[2:])
+		return p.executeSubscribe(args, token, defaultProject, splitWithoutProject[2:])
 
-	case configCommandTrigger:
-		return p.executeConfig(args)
+	case setDefaultCommandTrigger:
+		return p.executeSetDefault(args)
 
 	case workflowTrigger:
 		return p.executeWorkflow(args, token, splitWithoutProject[2:])
 
 	case pipelineTrigger:
-		return p.executePipelineTrigger(args, token, config, splitWithoutProject[2:])
+		return p.executePipelineTrigger(args, token, defaultProject, splitWithoutProject[2:])
 
 	case insightTrigger:
-		return p.executeInsightTrigger(args, token, config, splitWithoutProject[2:])
+		return p.executeInsightTrigger(args, token, defaultProject, splitWithoutProject[2:])
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, "")

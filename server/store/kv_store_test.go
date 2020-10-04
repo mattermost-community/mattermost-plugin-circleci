@@ -11,12 +11,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestDefaultConfig(t *testing.T) {
+func TestDefaultProject(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Config")
+	RunSpecs(t, "Project")
 }
 
-var _ = Describe("Config", func() {
+var _ = Describe("Project", func() {
 	var (
 		pluginAPIMock *plugintest.API
 		store         Store
@@ -28,35 +28,35 @@ var _ = Describe("Config", func() {
 		pluginAPIMock.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("*model.AppError")).Return(nil)
 	})
 
-	It("should save project identifier", func() {
+	It("should save default project", func() {
 
-		config := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		pluginAPIMock.On("KVSet", "123_circleci_config", mock.AnythingOfType("[]uint8")).Return(nil)
+		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
+		pluginAPIMock.On("KVSet", "123__default_project", mock.AnythingOfType("[]uint8")).Return(nil)
 
-		err := store.StoreDefaultProjectConfig("123", *config)
+		err := store.StoreDefaultProject("123", *project)
 
 		Expect(err).To(BeNil())
 	})
 
 	It("should return the error in case something goes wrong", func() {
 
-		config := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		pluginAPIMock.On("KVSet", "123_circleci_config", mock.AnythingOfType("[]uint8")).Return(&model.AppError{})
+		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
+		pluginAPIMock.On("KVSet", "123_default_project", mock.AnythingOfType("[]uint8")).Return(&model.AppError{})
 
-		err := store.StoreDefaultProjectConfig("123", *config)
+		err := store.StoreDefaultProject("123", *project)
 
 		Expect(err).NotTo(BeNil())
 	})
 
-	It("should retrieve the saved config", func() {
+	It("should retrieve the saved default project", func() {
 
-		config := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		configBytes, _ := json.Marshal(config)
-		pluginAPIMock.On("KVGet", "123_circleci_config").Return(configBytes, nil)
+		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
+		projectBytes, _ := json.Marshal(project)
+		pluginAPIMock.On("KVGet", "123_default_project").Return(projectBytes, nil)
 
-		savedConfig, err := store.GetDefaultProjectConfig("123")
+		savedProject, err := store.GetDefaultProject("123")
 
 		Expect(err).To(BeNil())
-		Expect(savedConfig).Should(Equal(config))
+		Expect(savedProject).Should(Equal(project))
 	})
 })

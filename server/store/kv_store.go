@@ -96,37 +96,37 @@ func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 	return nil
 }
 
-// GetDefaultProjectConfig retrieves the saved config for the user. Returns nil incase no config exists for the user
-func (s *Store) GetDefaultProjectConfig(userID string) (*ProjectIdentifier, error) {
+// GetDefaultProject retrieves the saved default project for the user. Returns nil incase no default project exists for the user
+func (s *Store) GetDefaultProject(userID string) (*ProjectIdentifier, error) {
 	var pi *ProjectIdentifier
 
-	savedConfig, err := s.api.KVGet(userID + defaultProjectStoreSuffix)
+	savedDefaultProject, err := s.api.KVGet(userID + defaultProjectStoreSuffix)
 	if err != nil {
-		s.api.LogError("Unable to get config", err)
-		return nil, errors.Wrap(err, "Unable to get config")
+		s.api.LogError("Unable to get default project", err)
+		return nil, errors.Wrap(err, "Unable to get default project")
 	}
 
-	if savedConfig == nil {
+	if savedDefaultProject == nil {
 		return nil, nil
 	}
-	appError := json.NewDecoder(bytes.NewReader(savedConfig)).Decode(&pi)
+	appError := json.NewDecoder(bytes.NewReader(savedDefaultProject)).Decode(&pi)
 	if appError != nil {
-		return nil, errors.Wrap(appError, "could not properly decode saved config")
+		return nil, errors.Wrap(appError, "could not properly decode saved default project")
 	}
 
 	return pi, nil
 }
 
-// StoreDefaultProjectConfig saves the passed in config
-func (s *Store) StoreDefaultProjectConfig(userID string, config ProjectIdentifier) error {
-	configBytes, err := json.Marshal(config)
+// StoreDefaultProject saves the passed in default project
+func (s *Store) StoreDefaultProject(userID string, project ProjectIdentifier) error {
+	projectBytes, err := json.Marshal(project)
 	if err != nil {
-		return errors.Wrap(err, "error while converting config to json")
+		return errors.Wrap(err, "error while converting project to json")
 	}
 
-	if err := s.api.KVSet(userID+defaultProjectStoreSuffix, configBytes); err != nil {
-		s.api.LogError("Unable to save config", err)
-		return errors.Wrap(err, "Unable to save config")
+	if err := s.api.KVSet(userID+defaultProjectStoreSuffix, projectBytes); err != nil {
+		s.api.LogError("Unable to save default project", err)
+		return errors.Wrap(err, "Unable to save default project")
 	}
 	return nil
 }

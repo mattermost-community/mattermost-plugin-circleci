@@ -74,7 +74,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	return pipeline
 }
 
-func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken string, project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -87,11 +87,11 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 
 	switch subcommand {
 	case pipelineGetAllTrigger:
-		return p.executePipelineGetAllForProject(args, circleciToken, config)
+		return p.executePipelineGetAllForProject(args, circleciToken, project)
 	case pipelineGetRecentTrigger:
-		return p.executePipelineGetRecent(args, circleciToken, config)
+		return p.executePipelineGetRecent(args, circleciToken, project)
 	case pipelineGetMineTrigger:
-		return p.executePipelineGetAllForProjectByMe(args, circleciToken, config)
+		return p.executePipelineGetAllForProjectByMe(args, circleciToken, project)
 	case pipelineWorkflowTrigger:
 		return p.executePipelineGetWorkflowByID(args, circleciToken, argument)
 	case pipelineTriggerTrigger:
@@ -99,9 +99,9 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 		if len(split) > 2 {
 			branch = split[2]
 		}
-		return p.executeTriggerPipeline(args, circleciToken, config, branch)
+		return p.executeTriggerPipeline(args, circleciToken, project, branch)
 	case pipelineGetSingleTrigger:
-		return p.executePipelineGetSingle(args, circleciToken, config, argument)
+		return p.executePipelineGetSingle(args, circleciToken, project, argument)
 
 	case commandHelpTrigger:
 		return p.sendHelpResponse(args, pipelineTrigger)
@@ -111,10 +111,10 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 }
 
 func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
-	config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetRecentlyBuiltPipelines(token, fmt.Sprintf("%s/%s", config.VCSType, config.Org), false)
+	project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
+	pipelines, err := circle.GetRecentlyBuiltPipelines(token, fmt.Sprintf("%s/%s", project.VCSType, project.Org), false)
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "org", config.ToSlug(), "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "org", project.ToSlug(), "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
@@ -142,10 +142,10 @@ func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetAllPipelinesForProject(token, config.ToSlug())
+func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token string, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
+	pipelines, err := circle.GetAllPipelinesForProject(token, project.ToSlug())
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToSlug(), "error", err)
+		p.API.LogError("Failed to fetch info for pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
@@ -161,7 +161,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 
 	_ = p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Recently built pipelines for project %s.", config.ToMarkdown()),
+		fmt.Sprintf("Recently built pipelines for project %s.", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
@@ -173,10 +173,10 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
-	pipelines, err := circle.GetAllMyPipelinesForProject(token, config.ToSlug())
+func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, token string, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
+	pipelines, err := circle.GetAllMyPipelinesForProject(token, project.ToSlug())
 	if err != nil {
-		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToMarkdown(), "error", err.Error())
+		p.API.LogError("Failed to fetch info for pipeline", "project", project.ToMarkdown(), "error", err.Error())
 		return p.sendEphemeralResponse(args, "Failed to fetch info for pipeline"), nil
 	}
 
@@ -192,7 +192,7 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 
 	_ = p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Pipelines recently ran by you for project %s", config.ToMarkdown()),
+		fmt.Sprintf("Pipelines recently ran by you for project %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
@@ -248,15 +248,15 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
-	config *store.ProjectIdentifier, branch string) (*model.CommandResponse, *model.AppError) {
-	pl, err := circle.TriggerPipeline(token, config.ToSlug(), branch)
+	project *store.ProjectIdentifier, branch string) (*model.CommandResponse, *model.AppError) {
+	pl, err := circle.TriggerPipeline(token, project.ToSlug(), branch)
 	if branch == "" {
 		branch = "master"
 	}
 	if err != nil {
-		p.API.LogError("Could not trigger pipeline", "project", config.ToSlug(), "error", err)
+		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not trigger pipeline for project %s on `%s` branch", config.ToSlug(), branch),
+			fmt.Sprintf("Could not trigger pipeline for project %s on `%s` branch", project.ToSlug(), branch),
 		), nil
 	}
 
@@ -265,8 +265,8 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for branch: %s", config.ToMarkdown(), branch),
-				Pretext:  fmt.Sprintf("Triggered pipeline for project %s branch `%s`", config.ToMarkdown(), branch),
+				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for branch: %s", project.ToMarkdown(), branch),
+				Pretext:  fmt.Sprintf("Triggered pipeline for project %s branch `%s`", project.ToMarkdown(), branch),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Id",
@@ -292,7 +292,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 }
 
 func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
-	config *store.ProjectIdentifier, num string) (*model.CommandResponse, *model.AppError) {
+	project *store.ProjectIdentifier, num string) (*model.CommandResponse, *model.AppError) {
 	var isUUID bool
 	var err error
 	var pl circleci.Pipeline
@@ -300,7 +300,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	if err != nil {
 		isUUID = true
 	}
-	if !isUUID && config.ToSlug() == "" {
+	if !isUUID && project.ToSlug() == "" {
 		return p.sendEphemeralResponse(args,
 			"Please provide project slug via `--project` flag. i.e. `--project <vcs/org-name/project-name` or configure default project"), nil
 	}
@@ -308,7 +308,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 	if isUUID {
 		pl, err = circle.GetPipelineByID(token, num)
 	} else {
-		pl, err = circle.GetPipelineByNum(token, config.ToSlug(), num)
+		pl, err = circle.GetPipelineByNum(token, project.ToSlug(), num)
 	}
 
 	if err != nil {

@@ -31,7 +31,7 @@ type WebhookInfo struct {
 	Message                string `json:"Message"`
 }
 
-func (wi *WebhookInfo) toStoreConfig() *store.ProjectIdentifier {
+func (wi *WebhookInfo) toProjectIdentifier() *store.ProjectIdentifier {
 	repoType := "gh"
 	if strings.Contains(wi.RepositoryURL, "git@bitbucket.org") {
 		repoType = "bb"
@@ -46,7 +46,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 		wi.AssociatedPullRequests = ":grey_question: No PR"
 	}
 
-	repo := wi.toStoreConfig()
+	repo := wi.toProjectIdentifier()
 
 	attachment := &model.SlackAttachment{
 		TitleLink: wi.CircleBuildURL,
@@ -146,7 +146,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toStoreConfig(), wi.IsFailed)
+	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toProjectIdentifier(), wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
 	}

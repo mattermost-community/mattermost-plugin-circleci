@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// ProjectIdentifier configuration for the plugin
+// ProjectIdentifier structure to differentiate projects from differents VCS
 type ProjectIdentifier struct {
 	VCSType string // Currently supported : "gh" and "bb"
 	Org     string
