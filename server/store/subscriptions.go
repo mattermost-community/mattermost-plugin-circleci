@@ -98,6 +98,7 @@ func (s *Subscriptions) RemoveSubscription(channelID, owner, repository string) 
 	return false
 }
 
+// Return all the subscriptions of this channel
 func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscription {
 	var filteredSubs []*Subscription
 
