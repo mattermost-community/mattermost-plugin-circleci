@@ -31,7 +31,7 @@ var _ = Describe("Project", func() {
 	It("should save default project", func() {
 
 		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		pluginAPIMock.On("KVSet", "123__default_project", mock.AnythingOfType("[]uint8")).Return(nil)
+		pluginAPIMock.On("KVSet", "123_default_project", mock.AnythingOfType("[]uint8")).Return(nil)
 
 		err := store.StoreDefaultProject("123", *project)
 
