@@ -122,7 +122,9 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 			return p.sendEphemeralResponse(args, ":red_circle: Internal error when reaching CircleCI"), nil
 		}
 
-		return p.sendEphemeralResponse(args, "You are already connected as "+v1.CircleciUserToString(user)), nil
+		return p.sendEphemeralResponse(args,
+			fmt.Sprintf("You are already connected as %s. Please disconnect first.", v1.CircleciUserToString(user)),
+		), nil
 	}
 
 	circleciToken := split[0]
