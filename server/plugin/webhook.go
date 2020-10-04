@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
-
 	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 // WebhookInfo from the webhook
@@ -29,11 +31,22 @@ type WebhookInfo struct {
 	Message                string `json:"Message"`
 }
 
+func (wi *WebhookInfo) toStoreConfig() *store.Config {
+	repoType := "gh"
+	if strings.Contains(wi.RepositoryURL, "git@bitbucket.org") {
+		repoType = "bb"
+	}
+	repoConf, _ := store.CreateConfigFromSlug(fmt.Sprintf("%s/%s/%s", repoType, wi.Organization, wi.Repository))
+	return repoConf
+}
+
 // Convert the build info into a Post
 func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	if wi.AssociatedPullRequests == "" {
 		wi.AssociatedPullRequests = ":grey_question: No PR"
 	}
+
+	repo := wi.toStoreConfig()
 
 	attachment := &model.SlackAttachment{
 		TitleLink: wi.CircleBuildURL,
@@ -41,12 +54,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 			{
 				Title: "Repo",
 				Short: true,
-				Value: fmt.Sprintf(
-					"[%s/%s](%s)",
-					wi.Organization,
-					wi.Repository,
-					wi.RepositoryURL,
-				),
+				Value: repo.ToMarkdown(),
 			},
 			{
 				Title: "Branch",
@@ -64,7 +72,7 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 				Value: fmt.Sprintf("%d", wi.CircleBuildNumber),
 			},
 			{
-				Title: "Build informations",
+				Title: "Job informations",
 				Short: false,
 				Value: fmt.Sprintf(
 					"- Build triggered by: %s\n- Associated PRs: %s\n",
