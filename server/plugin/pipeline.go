@@ -74,7 +74,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	return pipeline
 }
 
-func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -111,7 +111,7 @@ func (p *Plugin) executePipelineTrigger(args *model.CommandArgs, circleciToken s
 }
 
 func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
-	config *store.Config) (*model.CommandResponse, *model.AppError) {
+	config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	pipelines, err := circle.GetRecentlyBuiltPipelines(token, fmt.Sprintf("%s/%s", config.VCSType, config.Org), false)
 	if err != nil {
 		p.API.LogError("Failed to fetch info for pipeline", "org", config.ToSlug(), "error", err.Error())
@@ -142,7 +142,7 @@ func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	pipelines, err := circle.GetAllPipelinesForProject(token, config.ToSlug())
 	if err != nil {
 		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToSlug(), "error", err)
@@ -173,7 +173,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	pipelines, err := circle.GetAllMyPipelinesForProject(token, config.ToSlug())
 	if err != nil {
 		p.API.LogError("Failed to fetch info for pipeline", "project", config.ToMarkdown(), "error", err.Error())
@@ -248,7 +248,7 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 }
 
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
-	config *store.Config, branch string) (*model.CommandResponse, *model.AppError) {
+	config *store.ProjectIdentifier, branch string) (*model.CommandResponse, *model.AppError) {
 	pl, err := circle.TriggerPipeline(token, config.ToSlug(), branch)
 	if branch == "" {
 		branch = "master"
@@ -292,7 +292,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 }
 
 func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
-	config *store.Config, num string) (*model.CommandResponse, *model.AppError) {
+	config *store.ProjectIdentifier, num string) (*model.CommandResponse, *model.AppError) {
 	var isUUID bool
 	var err error
 	var pl circleci.Pipeline

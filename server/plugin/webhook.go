@@ -31,12 +31,12 @@ type WebhookInfo struct {
 	Message                string `json:"Message"`
 }
 
-func (wi *WebhookInfo) toStoreConfig() *store.Config {
+func (wi *WebhookInfo) toStoreConfig() *store.ProjectIdentifier {
 	repoType := "gh"
 	if strings.Contains(wi.RepositoryURL, "git@bitbucket.org") {
 		repoType = "bb"
 	}
-	repoConf, _ := store.CreateConfigFromSlug(fmt.Sprintf("%s/%s/%s", repoType, wi.Organization, wi.Repository))
+	repoConf, _ := store.CreateProjectIdentifierFromSlug(fmt.Sprintf("%s/%s/%s", repoType, wi.Organization, wi.Repository))
 	return repoConf
 }
 

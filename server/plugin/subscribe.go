@@ -57,7 +57,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	return subscribe
 }
 
-func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -131,7 +131,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	return &model.CommandResponse{}, nil
 }
 
-func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, rawFlags []string) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.ProjectIdentifier, rawFlags []string) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
@@ -203,7 +203,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	return p.sendEphemeralResponse(context, msg), nil
 }
 
-func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
@@ -226,7 +226,7 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, config *store
 	), nil
 }
 
-func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)

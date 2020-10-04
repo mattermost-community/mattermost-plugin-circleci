@@ -3,19 +3,55 @@ package store
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/pkg/errors"
 )
 
 const (
-	subscriptionsKVKey = "subscriptions"
+	FlagOnlyFailedBuilds = "only-failed"
 )
+
+// Contain the options for subscriptions
+type SubscriptionFlags struct {
+	OnlyFailedBuilds bool `json:"OnlyFailedBuilds"`
+}
+
+// Add a flag to the structure
+func (s *SubscriptionFlags) AddFlag(flag string) error {
+	switch flag { // nolint:gocritic // It's expected that more flags get added.
+	case FlagOnlyFailedBuilds:
+		s.OnlyFailedBuilds = true
+
+	default:
+		return errors.New("Unknown flag " + flag)
+	}
+
+	return nil
+}
+
+// Output the flags in a well-formatted string
+func (s SubscriptionFlags) String() string {
+	flags := []string{}
+
+	if s.OnlyFailedBuilds {
+		flag := "--" + FlagOnlyFailedBuilds
+		flags = append(flags, flag)
+	}
+
+	if len(flags) == 0 {
+		return "No flags set"
+	}
+
+	return strings.Join(flags, ",")
+}
 
 type Subscription struct {
 	ChannelID          string            `json:"ChannelID"`
 	CreatorID          string            `json:"CreatorID"`
 	Flags              SubscriptionFlags `json:"Flags"`
-	ProjectInformation Config            `json:"ProjectInformation"`
+	ProjectInformation ProjectIdentifier `json:"ProjectInformation"`
 }
 
 // Store the subscriptions.
@@ -73,7 +109,7 @@ func (s *Subscriptions) AddSubscription(newSub *Subscription) bool {
 
 // RemoveSubscription removes a subscription from the struct
 // Return true if the subscription has been found and removed
-func (s *Subscriptions) RemoveSubscription(channelID string, conf *Config) bool {
+func (s *Subscriptions) RemoveSubscription(channelID string, conf *ProjectIdentifier) bool {
 	key := conf.ToSlug()
 
 	repoSubs := s.Repositories[key]
@@ -123,13 +159,13 @@ func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscript
 }
 
 // Get all the subscriptions for a given project
-func (s *Subscriptions) GetSubscriptionsForProject(conf *Config) []*Subscription {
+func (s *Subscriptions) GetSubscriptionsForProject(conf *ProjectIdentifier) []*Subscription {
 	key := conf.ToSlug()
 	return s.Repositories[key]
 }
 
 // Return a list of subscribed channel IDs for a project
-func (s *Subscriptions) GetSubscribedChannelsForProject(conf *Config) []string {
+func (s *Subscriptions) GetSubscribedChannelsForProject(conf *ProjectIdentifier) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
 		return nil
@@ -144,7 +180,7 @@ func (s *Subscriptions) GetSubscribedChannelsForProject(conf *Config) []string {
 }
 
 // Get all the channels concerned by a job for a project, filtered with subscription flags.
-func (s *Subscriptions) GetFilteredChannelsForJob(conf *Config, isFailed bool) []string {
+func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFailed bool) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
 		return nil

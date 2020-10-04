@@ -73,7 +73,7 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	return project
 }
 
-func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProject(args *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -143,7 +143,7 @@ func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken strin
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	client := &circleci.Client{Token: circleciToken}
 
 	if len(split) < 1 {
@@ -197,7 +197,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	envvars, err := circle.GetEnvVarsList(token, config.ToSlug())
 	if err != nil {
 		p.API.LogError("Could not list env vars", "error", err.Error(), "project", config.ToSlug())
@@ -235,7 +235,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 2 {
 		return p.sendEphemeralResponse(args, "Please provide the variable name and value"), nil
 	}
@@ -256,7 +256,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	), nil
 }
 
-func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs, token string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 1 {
 		return p.sendEphemeralResponse(args, "Please provide the variable name"), nil
 	}

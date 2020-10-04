@@ -162,7 +162,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.sendEphemeralResponse(args, notConnectedText), nil
 	}
 
-	config, err := p.Store.GetConfig(args.UserId)
+	config, err := p.Store.GetDefaultProjectConfig(args.UserId)
 	if err != nil {
 		p.API.LogError("Could not get user config", "error", err)
 	}
@@ -200,7 +200,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			), nil
 		}
 
-		confFromArg, userErr := store.CreateConfigFromSlug(slug)
+		confFromArg, userErr := store.CreateProjectIdentifierFromSlug(slug)
 		if userErr != "" {
 			return p.sendEphemeralResponse(args,
 				fmt.Sprintf("Incorrect value for argument `--project`: `%s`. %s", slug, userErr),

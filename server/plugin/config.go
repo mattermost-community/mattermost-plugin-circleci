@@ -33,7 +33,7 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 		return p.sendEphemeralResponse(args, getConfig(args.UserId, p.Store)), nil
 	}
 
-	defaultConfig, userErr := store.CreateConfigFromSlug(projectSlug)
+	defaultConfig, userErr := store.CreateProjectIdentifierFromSlug(projectSlug)
 	if userErr != "" {
 		return p.sendEphemeralResponse(args, userErr), nil
 	}
@@ -43,7 +43,7 @@ func (p *Plugin) executeConfig(args *model.CommandArgs) (*model.CommandResponse,
 }
 
 func getConfig(userID string, db store.Store) string {
-	savedConfig, _ := db.GetConfig(userID)
+	savedConfig, _ := db.GetDefaultProjectConfig(userID)
 	if savedConfig != nil {
 		return fmt.Sprintf(":information_source: Current default project: %s", savedConfig.ToMarkdown())
 	}
@@ -51,8 +51,8 @@ func getConfig(userID string, db store.Store) string {
 	return ":red_circle: No config exists. use `/circleci config <vcs/org-name/project-name>` to set the default project"
 }
 
-func setConfig(userID string, config store.Config, db store.Store) string {
-	if err := db.SaveConfig(userID, config); err != nil {
+func setConfig(userID string, config store.ProjectIdentifier, db store.Store) string {
+	if err := db.StoreDefaultProjectConfig(userID, config); err != nil {
 		fmt.Println(":red_circle: An error has occurred while saving your configuration")
 	}
 

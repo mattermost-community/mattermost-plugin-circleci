@@ -8,12 +8,14 @@ import (
 )
 
 const (
-	KVStoreSuffix = "_circleci_token"
+	storeTokenSuffix          = "_circleci_token"  // Full key format is userID_circleci_token
+	defaultProjectStoreSuffix = "_default_project" // Full key format is userID_default_project
+	subscriptionsKVKey        = "subscriptions"
 )
 
 // Return false if no token is saved for this user
 func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, bool) {
-	raw, appErr := s.api.KVGet(userID + KVStoreSuffix)
+	raw, appErr := s.api.KVGet(userID + storeTokenSuffix)
 	if appErr != nil {
 		s.api.LogError("Unable to reach KVStore", "KVStore error", appErr)
 		return "", false
@@ -40,7 +42,7 @@ func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) b
 		return false
 	}
 
-	appErr := s.api.KVSet(userID+KVStoreSuffix, []byte(encryptedToken))
+	appErr := s.api.KVSet(userID+storeTokenSuffix, []byte(encryptedToken))
 	if appErr != nil {
 		s.api.LogError("Unable to write in KVStore", "KVStore error", appErr)
 		return false
@@ -51,7 +53,7 @@ func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) b
 
 // Return false if the token has not been deleted
 func (s *Store) DeleteTokenForUser(userID string) bool {
-	if appErr := s.api.KVDelete(userID + KVStoreSuffix); appErr != nil {
+	if appErr := s.api.KVDelete(userID + storeTokenSuffix); appErr != nil {
 		s.api.LogError("Unable to delete from KVStore", "KVStore error", appErr)
 		return false
 	}
@@ -59,6 +61,7 @@ func (s *Store) DeleteTokenForUser(userID string) bool {
 	return true
 }
 
+// Return all the subscriptions from the KVStore
 func (s *Store) GetSubscriptions() (*Subscriptions, error) {
 	var subscriptions *Subscriptions
 
@@ -79,6 +82,7 @@ func (s *Store) GetSubscriptions() (*Subscriptions, error) {
 	return subscriptions, nil
 }
 
+// Store the subscriptions in the KVStore
 func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 	b, err := json.Marshal(subs)
 	if err != nil {
@@ -89,5 +93,40 @@ func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 		return errors.Wrap(appErr, "could not store subscriptions in KV store")
 	}
 
+	return nil
+}
+
+// GetDefaultProjectConfig retrieves the saved config for the user. Returns nil incase no config exists for the user
+func (s *Store) GetDefaultProjectConfig(userID string) (*ProjectIdentifier, error) {
+	var pi *ProjectIdentifier
+
+	savedConfig, err := s.api.KVGet(userID + defaultProjectStoreSuffix)
+	if err != nil {
+		s.api.LogError("Unable to get config", err)
+		return nil, errors.Wrap(err, "Unable to get config")
+	}
+
+	if savedConfig == nil {
+		return nil, nil
+	}
+	appError := json.NewDecoder(bytes.NewReader(savedConfig)).Decode(&pi)
+	if appError != nil {
+		return nil, errors.Wrap(appError, "could not properly decode saved config")
+	}
+
+	return pi, nil
+}
+
+// StoreDefaultProjectConfig saves the passed in config
+func (s *Store) StoreDefaultProjectConfig(userID string, config ProjectIdentifier) error {
+	configBytes, err := json.Marshal(config)
+	if err != nil {
+		return errors.Wrap(err, "error while converting config to json")
+	}
+
+	if err := s.api.KVSet(userID+defaultProjectStoreSuffix, configBytes); err != nil {
+		s.api.LogError("Unable to save config", err)
+		return errors.Wrap(err, "Unable to save config")
+	}
 	return nil
 }

@@ -39,7 +39,7 @@ func getInsightAutoCompeleteData() *model.AutocompleteData {
 	return insight
 }
 
-func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := "help"
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -55,7 +55,7 @@ func (p *Plugin) executeInsightTrigger(args *model.CommandArgs, circleciToken st
 	}
 }
 
-func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token string, config *store.Config) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token string, config *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
 	wfm, err := circle.GetWorkflowMetrics(token, config.ToSlug())
 	if err != nil {
 		p.API.LogError("Failed to get workflow metrics", "project", config.ToSlug(), "error", err)
@@ -95,7 +95,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token st
 	return &model.CommandResponse{}, nil
 }
 
-func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string, config *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	if len(split) < 1 {
 		return p.sendEphemeralResponse(args, "Please provide the workflow name to get jobs metrics"), nil
 	}
