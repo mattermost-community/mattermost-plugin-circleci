@@ -112,13 +112,14 @@ Subscribe your channel to notifications:
     - /circleci subscription list-channels      — List all channels in the current team subscribed to a project
 
 Manage pipelines:
-    - /circleci pipeline trigger <branch>       — Trigger pipeline for a project for a given branch
-    - /circleci pipeline workflows <pipelineID> — Get list of workflows for given pipeline
-    - /circleci pipeline recent                 — Get list of all recently ran pipelines
-    - /circleci pipeline all                    — Get list of all pipelines for a project
-    - /circleci pipeline mine                   — Get list of all pipelines triggered by you for a project
-    - /circleci pipeline get <pipelineID>       — Get informations about a single pipeline given pipeline ID
-    - /circleci pipeline get <pipelineNumber>   — Get informations about a single pipeline for a given project by passing unique pipeline number
+    - /circleci pipeline trigger branch <branch>    — Trigger pipeline for a project for a given branch
+    - /circleci pipeline trigger tag <tag>          — Trigger pipeline for a project for a given tag
+    - /circleci pipeline workflows <pipelineID>     — Get list of workflows for given pipeline
+    - /circleci pipeline recent                     — Get list of all recently ran pipelines
+    - /circleci pipeline all                        — Get list of all pipelines for a project
+    - /circleci pipeline mine                       — Get list of all pipelines triggered by you for a project
+    - /circleci pipeline get <pipelineID>           — Get informations about a single pipeline given pipeline ID
+    - /circleci pipeline get <pipelineNumber>       — Get informations about a single pipeline for a given project by passing unique pipeline number
 NOTE: To get pipelineID, user can list all the pipelines(using all, recent, mine subcommands) and get the pipelineID for a particular pipeline.
 
 Manage worflows:
