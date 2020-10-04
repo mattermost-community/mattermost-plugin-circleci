@@ -89,11 +89,11 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 		attachment.Color = "#8267E4" // purple
 		attachment.Actions = []*model.PostAction{
 			{
-				Id:   "approve-circleci-job",
+				Id:   "approvecirclecijob",
 				Name: "Approve Job",
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
-				URL: "/plugins/job/approve/",
+					URL: fmt.Sprintf("/plugins/%s/job/approve", manifest.Id),
 					Context: map[string]interface{}{
 						"WorkflowID": wi.WorkflowID,
 					},

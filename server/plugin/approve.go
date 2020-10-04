@@ -15,7 +15,6 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	if !exists {
 		http.NotFound(w, r)
 	}
-
 	requestData := model.PostActionIntegrationRequestFromJson(r.Body)
 	if requestData == nil {
 		p.API.LogError("Empty request data")
@@ -39,7 +38,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 			approvalRequestID = fmt.Sprintf("%v", job.ApprovalRequestId)
 		}
 	}
-	_, err = circle.ApproveJob(token, approvalRequestID, workFlowID)
+	_, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID)
 
 	if err != nil {
 		p.API.LogError("Error occurred while approving", err)
