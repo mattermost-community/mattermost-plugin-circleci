@@ -17,7 +17,7 @@ const manifestStr = `
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
   "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci",
   "support_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues",
-  "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-broomer/releases",
+  "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases",
   "icon_path": "public/circleci.png",
   "version": "0.1.0",
   "min_server_version": "5.12.0",
@@ -30,7 +30,7 @@ const manifestStr = `
     "executable": ""
   },
   "settings_schema": {
-    "header": "This plugin is under development. To contribute or submit a request, visit the [repository on Github](https://github.com/nathanaelhoun/mattermost-plugin-circleci)",
+    "header": "Link your Mattermost instance with your CircleCI projects. Check the [plugin documentation](https://github.com/nathanaelhoun/mattermost-plugin-circleci#mattermost-plugin-circleci) to learn how to configure it.",
     "footer": "",
     "settings": [
       {
@@ -46,7 +46,7 @@ const manifestStr = `
         "key": "EncryptionKey",
         "display_name": "At Rest Encryption Key",
         "type": "generated",
-        "help_text": "The AES encryption key used to encrypt stored access tokens.",
+        "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will make every user logged out of their CircleCI account",
         "placeholder": "",
         "default": null
       }
