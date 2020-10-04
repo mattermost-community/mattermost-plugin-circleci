@@ -346,7 +346,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 
 	if err != nil {
 		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
-		return p.sendEphemeralResponse(args, "Could not get info about pipeline"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Could not get info about pipeline"), nil
 	}
 
 	_ = p.sendEphemeralPost(

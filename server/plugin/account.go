@@ -118,7 +118,8 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	if token, exists := p.Store.GetTokenForUser(args.UserId, p.getConfiguration().EncryptionKey); exists {
 		user, err := v1.GetCircleUserInfo(token)
 		if err != nil {
-			return p.sendEphemeralResponse(args, "Internal error when reaching CircleCI"), nil
+			p.API.LogWarn("Internal error when reaching CircleCI", "error", err)
+			return p.sendEphemeralResponse(args, ":red_circle: Internal error when reaching CircleCI"), nil
 		}
 
 		return p.sendEphemeralResponse(args, "You are already connected as "+v1.CircleciUserToString(user)), nil
@@ -129,14 +130,14 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	user, err := circle.GetCurrentUser(circleciToken)
 	if err != nil {
 		p.API.LogError("Error when reaching CircleCI", "CircleCI error:", err)
-		return p.sendEphemeralResponse(args, "Can't connect to CircleCI. Please check that your user API token is valid"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Can't connect to CircleCI. Please check that your user API token is valid"), nil
 	}
 
 	if ok := p.Store.StoreTokenForUser(args.UserId, circleciToken, p.getConfiguration().EncryptionKey); !ok {
-		return p.sendEphemeralResponse(args, "Internal error when storing your token"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing your token"), nil
 	}
 
-	return p.sendEphemeralResponse(args, fmt.Sprintf("Successfully connected to CircleCI as %s (%s)", user.Name, user.Login)), nil
+	return p.sendEphemeralResponse(args, fmt.Sprintf(":white_check_mark: Successfully connected to CircleCI as %s (%s)", user.Name, user.Login)), nil
 }
 
 func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
@@ -144,5 +145,5 @@ func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.Comma
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
-	return p.sendEphemeralResponse(args, "Your CircleCI account has been successfully disconnected from Mattermost"), nil
+	return p.sendEphemeralResponse(args, ":white_check_mark: Your CircleCI account has been successfully disconnected from Mattermost"), nil
 }

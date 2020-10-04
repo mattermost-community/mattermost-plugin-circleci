@@ -60,7 +60,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token st
 	if err != nil {
 		p.API.LogError("Failed to get workflow metrics", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not get workflow metrics for project %s", project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: Could not get workflow metrics for project %s", project.ToMarkdown()),
 		), nil
 	}
 
@@ -106,7 +106,7 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string,
 	if err != nil {
 		p.API.LogError("Failed to get jobs metrics", "project", project.ToSlug(), "workflow", workflowName, "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not get job metrics for project %s, workflow `%s`", project.ToMarkdown(), workflowName),
+			fmt.Sprintf(":red_circle: Could not get job metrics for project %s, workflow `%s`", project.ToMarkdown(), workflowName),
 		), nil
 	}
 
