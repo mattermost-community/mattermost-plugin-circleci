@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	setDefaultCommandTrigger  = "set-default"
-	setDefaultCommandHint     = "<vcs/org-name/project-name>"
-	setDefaultCommandHelpText = "View your current default project or pass in a new project (<cs/org-name/project-name>"
+	setDefaultCommandTrigger  = "default"
+	setDefaultCommandHint     = "[vcs/org-name/project-name]"
+	setDefaultCommandHelpText = "View your current default project or pass in a new project (vcs/org-name/project-name)"
 )
 
 func getSetDefaultAutoCompleteData() *model.AutocompleteData {
