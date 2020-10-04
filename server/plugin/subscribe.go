@@ -127,8 +127,6 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 }
 
 func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *store.Config, split []string) (*model.CommandResponse, *model.AppError) {
-	// ? TODO check that project exists
-
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
