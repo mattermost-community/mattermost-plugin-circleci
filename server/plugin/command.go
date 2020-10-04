@@ -157,6 +157,10 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		command = split[1]
 	}
 
+	if command == commandHelpTrigger {
+		return p.sendHelpResponse(args, "")
+	}
+
 	token, shouldBeConnected := getTokenIfConnected(p, split, args.UserId)
 	if shouldBeConnected {
 		return p.sendEphemeralResponse(args, notConnectedText), nil
@@ -229,9 +233,6 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	case insightTrigger:
 		return p.executeInsightTrigger(args, token, defaultProject, splitWithoutProject[2:])
-
-	case commandHelpTrigger:
-		return p.sendHelpResponse(args, "")
 
 	default:
 		return p.sendIncorrectSubcommandResponse(args, "")
