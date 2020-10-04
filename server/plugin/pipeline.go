@@ -297,6 +297,11 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 				Pretext:  fmt.Sprintf(":white_check_mark: Triggered pipeline for project %s, %s: `%s`", project.ToMarkdown(), subcmd, input),
 				Fields: []*model.SlackAttachmentField{
 					{
+						Title: "Number",
+						Value: strconv.FormatInt(pl.Number, 10),
+						Short: true,
+					},
+					{
 						Title: "Id",
 						Value: pl.Id,
 						Short: true,
