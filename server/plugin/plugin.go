@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/gorilla/mux"
@@ -41,18 +42,19 @@ type Plugin struct {
 	router *mux.Router
 }
 
+// OnActivate is ran when the plugin is activated
 func (p *Plugin) OnActivate() error {
-	URLPluginStaticBase := "/plugins/" + manifest.Id + "/public/" // TODO add siteURL ?
-	badgeFailedURL = URLPluginStaticBase + "circleci-failed.svg"
-	badgePassedURL = URLPluginStaticBase + "circleci-passed.svg"
-	buildFailedIconURL = URLPluginStaticBase + "circleci-build-fail.png"
-	buildGreenIconURL = URLPluginStaticBase + "circleci-build-green.png"
+	URLPluginStaticBase := fmt.Sprintf("%s/plugins/%s/public", *p.API.GetConfig().ServiceSettings.SiteURL, manifest.Id)
+	badgeFailedURL = URLPluginStaticBase + "/circleci-failed.svg"
+	badgePassedURL = URLPluginStaticBase + "/circleci-passed.svg"
+	buildFailedIconURL = URLPluginStaticBase + "/circleci-build-fail.png"
+	buildGreenIconURL = URLPluginStaticBase + "/circleci-build-green.png"
 
-	kvStore, err := store.NewStore(p.API)
+	st, err := store.NewStore(p.API)
 	if err != nil {
 		return errors.Wrap(err, "failed to create plugin store")
 	}
-	p.Store = kvStore
+	p.Store = st
 
 	// Create bot user
 	botUserID, err := p.Helpers.EnsureBot(
