@@ -11,28 +11,21 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 ## Table of Contents
 
-- [Mattermost Plugin CircleCI](#mattermost-plugin-circleci)
-  - [Table of Contents](#table-of-contents)
-  - [Audience](#audience)
-  - [About the CircleCI Plugin](#about-the-circleci-plugin)
-  - [Prerequisites](#prerequisites)
-  - [Installation instructions](#installation-instructions)
-  - [Configuration](#configuration)
-    - [Step 1: Configure the Bot account in Mattermost](#step-1-configure-the-bot-account-in-mattermost)
-    - [Step 2: Configure the plugin in Mattermost](#step-2-configure-the-plugin-in-mattermost)
-  - [Onboarding Your Users](#onboarding-your-users)
-  - [Slash Commands](#slash-commands)
-    - [Overview](#overview)
-    - [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
-      - [Steps](#steps)
-  - [Frequently Asked Questions](#frequently-asked-questions)
-    - [How does the plugin save user data for each connected CircleCI user?](#how-does-the-plugin-save-user-data-for-each-connected-circleci-user)
-    - [How do I share feedback on this plugin?](#how-do-i-share-feedback-on-this-plugin)
-  - [Development](#development)
-  - [License](#license)
-  - [Contributing](#contributing)
-  - [Thanks to](#thanks-to)
-  - [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
+-   [Audience](#audience)
+-   [About the CircleCI Plugin](#about-the-circleci-plugin)
+-   [Prerequisites](#prerequisites)
+-   [Installation instructions](#installation-instructions)
+-   [Configuration](#configuration)
+-   [Onboarding Your Users](#onboarding-your-users)
+-   [Slash Commands](#slash-commands)
+    -   [Overview](#overview)
+    -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
+-   [Frequently Asked Questions](#frequently-asked-questions)
+-   [Development](#development)
+-   [License](#license)
+-   [Contributing](#contributing)
+-   [Thanks to](#thanks-to)
+-   [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
 
 // TODO Add a screenshot here
 
@@ -60,13 +53,11 @@ This guide assumes you have:
 -   A CircleCI account, which can access to the project,
 -   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url). v5.24 or higher is recommended to have the autocomplete feature.
 
-
 ## Installation instructions
 
 1. Go to the [releases page of this Github repository](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases) and download the latest release for your Mattermost server.
 2. Upload this file in the Mattermost System Console under **System Console > Plugins > Management** to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. Activate the plugin at **System Console > Plugins > Management**.
-
 
 ## Configuration
 
@@ -100,7 +91,6 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 >
 > We've set up the Mattermost CircleCI plugin, so you can get notifications from CircleCI in Mattermost. To get started, run the `/circleci account connect` slash command from any channel within Mattermost to connect your Mattermost account with CircleCI. Then, take a look at the [slash commands](#slash-commands) section for details about how to use the plugin.
 
-
 ## Slash Commands
 
 ### Overview
@@ -108,21 +98,21 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 By default, the commands use the project set by `/circleci config`, unless a specific project is specified by the argument `--project <vcs/org-name/project-name>` (possible on all commands)
 
 ```
-Connect to your CircleCI account
+Connect to your CircleCI account:
     - /circleci account view                — Get informations about yourself
     - /circleci account connect <API token> — Connect your Mattermost account to CircleCI
     - /circleci account disconnect          — Disconnect your Mattermost account from CircleCI
 
-Set your default project
+Set your default project:
     - /circleci config <vcs/org-name/project-name> — Set default vcs/org/project for all other commands to use by default
 
-Subscribe your channel to notifications
+Subscribe your channel to notifications:
     - /circleci subscription list               — List the CircleCI subscriptions for the current channel
     - /circleci subscription add [--flags]      — Subscribe the current channel to CircleCI notifications for a project
     - /circleci subscription remove [--flags]   — Unsubscribe the current channel to CircleCI notifications for a project
     - /circleci subscription list-channels      — List all channels in the current team subscribed to a project
 
-Manage pipelines
+Manage pipelines:
     - /circleci pipeline trigger <branch>           — Trigger pipeline for a project for a given branch
     - /circleci pipeline workflows <pipelineID>     — Get list of workflows for given pipeline
     - /circleci pipeline recent                     — Get list of all recently ran pipelines
@@ -130,16 +120,16 @@ Manage pipelines
     - /circleci pipeline mine                       — Get list of all pipelines triggered by you for a project
     - /circleci pipeline get <pipelineID>           — Get informations about a single pipeline given pipeline ID
     - /circleci pipeline get <pipelineNumber>       — Get informations about a single pipeline for a given project by passing unique pipeline number
-NOTE: To get pipelineID, user can list all the pipelines(usign all, recent, mine subcommands) and get the pipelineID for a particular pipeline.
+NOTE: To get pipelineID, user can list all the pipelines(using all, recent, mine subcommands) and get the pipelineID for a particular pipeline.
 
-Manage worflows
+Manage worflows:
     - /circleci workflow get <workflowID>       — Get information about a workflow
     - /circleci workflow jobs <workflowID>      — Get jobs list for a given workflow
     - /circleci workflow rerun <workflowID>     — Rerun a given workflow
     - /circleci workflow cancel <workflowID>    — Cancel a given workflow
 NOTE: One can get the workflowID using `/circleci pipeline workflows` command
 
-Manage CircleCI projects
+Manage CircleCI projects:
     - /circleci project list-followed           — List followed projects
     - /circleci project recent-build <branch>   — List the 10 last builds for a project
     - /circleci project env list                — List a masked environment variables for a project
@@ -151,7 +141,7 @@ Manage CircleCI projects
 
 Subscribe a channel to notifications from a CircleCI project.
 
-![Success notifications received in Mattermost](./successful-notification.jpg)
+![Success notification received in Mattermost](./docs/successful-notification.jpg)
 
 #### Steps
 
@@ -180,7 +170,6 @@ Feel free to create a [Github Issue](https://github.com/nathanaelhoun/mattermost
 
 This plugin only contains a server portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
 
-
 ## License
 
 This repository is licensed under the [Apache 2.0 License](LICENSE).
@@ -193,8 +182,8 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 -   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
 -   **[@TomTucka](https://github.com/TomTucka)** and **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
--   [Mattermost](https://mattermost.org) for providing a good software and having a great community
+-   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community
 
 ## Security Vulnerability Disclosure
 
-Please report any security vulnerability to @darkLord19 or @nathanaelhoun on Community Mattermost.
+Please report any security vulnerability to @darkLord19 or @nathanaelhoun on [Community Mattermost](https://community.mattermost.com).
