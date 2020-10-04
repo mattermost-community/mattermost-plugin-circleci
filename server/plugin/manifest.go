@@ -15,7 +15,7 @@ const manifestStr = `
   "id": "com.github.nathanaelhoun.plugin-circleci",
   "name": "CircleCI",
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
-  "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci",
+  "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/blob/master/README.md",
   "support_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues",
   "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases",
   "icon_path": "public/circleci.png",
