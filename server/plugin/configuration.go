@@ -69,7 +69,7 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	}
 
 	configuration.WebhooksSecret = strings.TrimSpace(configuration.WebhooksSecret)
-	configuration.WebhooksSecret = strings.TrimSpace(configuration.EncryptionKey)
+	configuration.EncryptionKey = strings.TrimSpace(configuration.EncryptionKey)
 	p.configuration = configuration
 }
 
