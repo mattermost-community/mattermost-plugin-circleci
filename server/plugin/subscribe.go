@@ -168,9 +168,9 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 	msg := fmt.Sprintf(
 		"This channel has been subscribed to notifications from %s with flags: %s\n"+
 			"#### How to finish setup:\n"+
-			"(See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications))\n"+
+			"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
 			"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
-			"2. Add the `MM_WEBHOOK` environment variable to your project using `/%s %s %s %s` or the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project)\n"+
+			"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
 			"**Webhook URL: `%s`**",
 		config.ToMarkdown(),
 		newSub.Flags,
@@ -179,6 +179,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, config *stor
 		projectTrigger,
 		projectEnvVarTrigger,
 		projectEnvVarAddTrigger,
+		p.getWebhookURL(),
 		p.getWebhookURL(),
 	)
 
