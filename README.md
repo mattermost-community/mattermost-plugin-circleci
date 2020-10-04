@@ -50,7 +50,7 @@ Once connected, you'll have access to the following features:
 This guide assumes you have:
 
 -   A project, hosted on Github or Bitbucket,
--   A CircleCI account, which can access to the project,
+-   A CircleCI account, which has access to the projects/org you want to interact with,
 -   A Mattermost server running v5.12 or higher, with a configured [Site URL](https://docs.mattermost.com/administration/config-settings.html?highlight=site%20url#site-url). v5.24 or higher is recommended to have the autocomplete feature.
 
 ## Installation instructions
