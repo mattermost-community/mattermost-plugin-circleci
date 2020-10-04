@@ -2,11 +2,13 @@ package plugin
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -74,8 +76,16 @@ func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*mod
 	projects, _ := v1.GetCircleciUserProjects(token)
 	projectsListString := ""
 	for _, project := range projects {
-		// TODO : add circleCI url
-		projectsListString += fmt.Sprintf("- [%s](%s) owned by %s\n", project.Reponame, project.VCSURL, project.Username)
+		projectIdentifier := &store.ProjectIdentifier{
+			VCSType: "gh",
+			Org:     project.Username,
+			Project: project.Reponame,
+		}
+		if strings.Contains(project.VCSURL, "https://bitbucket.org") {
+			projectIdentifier.VCSType = "bb"
+		}
+
+		projectsListString += fmt.Sprintf("%s - [CircleCI page](%s)\n", projectIdentifier.ToMarkdown(), projectIdentifier.ToCircleURL())
 	}
 
 	_ = p.sendEphemeralPost(

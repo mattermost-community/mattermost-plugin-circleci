@@ -247,7 +247,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, proj
 		), nil
 	}
 
-	message := fmt.Sprintf("Channels of this team subscribed to %s\n", project.ToMarkdown())
+	message := fmt.Sprintf(":information_source: Channels of this team subscribed to %s\n", project.ToMarkdown())
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {

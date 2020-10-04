@@ -172,14 +172,19 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 			buildTime = strconv.Itoa(*build.BuildTimeMillis/1000) + "s"
 		}
 
+		buildSubject := "/"
+		if build.Subject != "" {
+			buildSubject = build.Subject
+		}
+
 		statusImageMarkdown := v1.BuildStatusToMarkdown(build, badgePassedURL, badgeFailedURL)
 
-		text += fmt.Sprintf("| % s | % s | [%d](%s) | `%s` | %s | %s | %s | %s |\n",
+		text += fmt.Sprintf("| % s | % s | [%d](%s) | %s | %s | %s | %s | %s |\n",
 			build.Workflows.WorkflowName,
 			build.Workflows.JobName,
 			build.BuildNum,
 			build.BuildURL,
-			build.Subject,
+			buildSubject,
 			buildStartTime,
 			statusImageMarkdown,
 			buildTime,

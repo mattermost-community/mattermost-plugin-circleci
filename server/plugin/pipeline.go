@@ -284,7 +284,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 	if err != nil {
 		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToSlug(), subcmd, input),
+			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToMarkdown(), subcmd, input),
 		), nil
 	}
 
