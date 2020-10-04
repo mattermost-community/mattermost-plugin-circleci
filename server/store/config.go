@@ -23,9 +23,15 @@ func (c *Config) ToSlug() string {
 
 // Return a link to the repo formatted in Markdown
 func (c *Config) ToMarkdown() string {
-	return fmt.Sprintf("[`%s/%s/%s`](https://github.com)", c.VCSType, c.Org, c.Project) // TODO Add link
+	VCSBaseURL := "https://github.com"
+	if c.VCSType == "bb" {
+		VCSBaseURL = "https://bitbucket.org"
+	}
+
+	return fmt.Sprintf("[`%s/%s/%s`](%s/%s/%s)", c.VCSType, c.Org, c.Project, VCSBaseURL, c.Org, c.Project)
 }
 
+// Create a Config struct from a string in format (gh|bb)/org-name/project-name
 func CreateConfigFromSlug(fullSlug string) (*Config, string) {
 	split := strings.Split(fullSlug, "/")
 
