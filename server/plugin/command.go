@@ -59,11 +59,14 @@ const (
 		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetMineTrigger + " " + pipelineGetMineHint + "` — " + pipelineGetMineHelpText + "\n" +
 		"* `/" + commandTrigger + " " + pipelineTrigger + " " + pipelineGetSingleTrigger + " " + pipelineGetSingleHint + "` — " + pipelineGetSingleHelpText + "\n"
 
-	setDefaultHelp = "#### Set your default project\n" +
+	insightHelp = "#### Get Metrics Summary\n" +
+		"* `/" + commandTrigger + " " + insightTrigger + " " + insightMetricsWorkflowTrigger + " " + insightMetricsWorkflowHint + "` — " + insightMetricsWorkflowHelpText + "\n" +
+		"* `/" + commandTrigger + " " + insightTrigger + " " + insightMetricsWorkflowJobsTrigger + " " + insightMetricsWorkflowJobsHint + "` — " + insightMetricsWorkflowJobsHelpText + "\n"
 
+	setDefaultHelp = "#### Set your default project\n" +
 		"* `/" + commandTrigger + " " + setDefaultCommandTrigger + " " + setDefaultCommandHint + "` — " + setDefaultCommandHelpText + "\n"
 
-	help = "## CircleCI plugin Help\n" + accountHelp + setDefaultHelp + subscriptionHelp + pipelineHelp + workflowHelp + projectHelp
+	help = "## CircleCI plugin Help\n" + accountHelp + setDefaultHelp + subscriptionHelp + pipelineHelp + workflowHelp + projectHelp + insightHelp
 )
 
 func (p *Plugin) getCommand() *model.Command {
@@ -129,6 +132,9 @@ func (p *Plugin) sendHelpResponse(args *model.CommandArgs, currentCommand string
 
 	case pipelineTrigger:
 		message += pipelineHelp
+
+	case insightTrigger:
+		message += insightHelp
 
 	default:
 		message += help
