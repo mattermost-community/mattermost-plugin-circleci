@@ -37,7 +37,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	workFlowID := fmt.Sprintf("%v", requestData.Context["WorkflowID"])
-	jobs, err := circle.GetWorkflowJobs(circleciToken, fmt.Sprintf("%v", requestData.Context["WorkflowID"]))
+	jobs, err := circle.GetWorkflowJobs(circleciToken, workFlowID)
 
 	if err != nil {
 		p.API.LogError("Error occurred while getting workflow jobs", err)
