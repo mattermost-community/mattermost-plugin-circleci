@@ -76,7 +76,7 @@ To prevent this, either:
 
 Open **System Console > Plugins > CircleCI**:
 
--   Generate a new value for **Webhooks Secret**
+-   Generate a new value for **Webhooks Secret**(NOTE: Please re-generate webhook secret if it contains "/".)
 -   Generate a new value for **At Rest Encryption Key**.
 -   Hit **Save**.
 -   Go to **System Console > Plugins > Management** and click **Enable** to enable the CircleCI plugin.
