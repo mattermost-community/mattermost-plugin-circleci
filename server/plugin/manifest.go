@@ -19,7 +19,7 @@ const manifestStr = `
   "support_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues",
   "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases",
   "icon_path": "public/circleci.png",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "min_server_version": "5.12.0",
   "server": {
     "executables": {
