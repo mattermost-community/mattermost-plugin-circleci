@@ -49,9 +49,9 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	listAllSubscribedChannels := model.NewAutocompleteData(subscribeListAllChannelsTrigger, subscribeListAllChannelsHint, subscribeListAllChannelsHelpText)
 	listAllSubscribedChannels.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
 
-	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(subscribeChannel)
 	subscribe.AddCommand(unsubscribeChannel)
+	subscribe.AddCommand(subscribeList)
 	subscribe.AddCommand(listAllSubscribedChannels)
 
 	return subscribe
@@ -93,7 +93,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(context, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
 	subs := allSubs.GetSubscriptionsByChannel(context.ChannelId)
@@ -101,7 +101,7 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 		return p.sendEphemeralResponse(
 			context,
 			fmt.Sprintf(
-				"This channel is not subscribed to any repository. Try `/%s %s %s`",
+				":information_source: This channel is not subscribed to any repository. Try `/%s %s %s`",
 				commandTrigger,
 				subscribeTrigger,
 				subscribeChannelTrigger,
@@ -115,8 +115,6 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 	}
 
 	for _, sub := range subs {
-		p.API.LogDebug("Parsing CircleCI subscription", "sub", sub)
-
 		username := "Unknown user"
 		if user, appErr := p.API.GetUser(sub.CreatorID); appErr != nil {
 			p.API.LogError("Unable to get username", "userID", sub.CreatorID)
@@ -137,7 +135,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(context, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
 	newSub := &store.Subscription{
@@ -168,7 +166,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
-		return p.sendEphemeralResponse(context, "Internal error when storing new subscription."), nil
+		return p.sendEphemeralResponse(context, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
 	var msg string
@@ -209,22 +207,22 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *stor
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(args, "Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
 	if removed := subs.RemoveSubscription(args.ChannelId, project); !removed {
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("This channel was not subscribed to %s", project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: This channel was not subscribed to %s", project.ToMarkdown()),
 		), nil
 	}
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
-		return p.sendEphemeralResponse(args, "Internal error when storing new subscription."), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
 	return p.sendEphemeralResponse(args,
-		fmt.Sprintf("Successfully unsubscribed this channel from %s", project.ToMarkdown()),
+		fmt.Sprintf(":white_check_mark: Successfully unsubscribed this channel from %s", project.ToMarkdown()),
 	), nil
 }
 
@@ -232,7 +230,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, proj
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, "Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(context, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
 	channelIDs := allSubs.GetSubscribedChannelsForProject(project)
@@ -240,7 +238,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, proj
 		return p.sendEphemeralResponse(
 			context,
 			fmt.Sprintf(
-				"No channel is subscribed to the project %s. Try `/%s %s %s`",
+				":information_source: No channel is subscribed to the project %s. Try `/%s %s %s`",
 				project.ToMarkdown(),
 				commandTrigger,
 				subscribeTrigger,
@@ -249,7 +247,7 @@ func executeSubscribeListAllChannels(p *Plugin, context *model.CommandArgs, proj
 		), nil
 	}
 
-	message := fmt.Sprintf("Channels of this team subscribed to %s\n", project.ToMarkdown())
+	message := fmt.Sprintf(":information_source: Channels of this team subscribed to %s\n", project.ToMarkdown())
 	for _, channelID := range channelIDs {
 		channel, appErr := p.API.GetChannel(channelID)
 		if appErr != nil {

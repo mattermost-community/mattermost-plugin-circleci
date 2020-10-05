@@ -27,6 +27,16 @@ func (pi *ProjectIdentifier) ToMarkdown() string {
 	return fmt.Sprintf("[`%s/%s/%s`](%s/%s/%s)", pi.VCSType, pi.Org, pi.Project, VCSBaseURL, pi.Org, pi.Project)
 }
 
+// Return the link to CircleCI project page
+func (pi *ProjectIdentifier) ToCircleURL() string {
+	vcs := "github"
+	if pi.VCSType == "bb" {
+		vcs = "bitbucket"
+	}
+
+	return fmt.Sprintf("https://app.circleci.com/pipelines/%s/%s/%s", vcs, pi.Org, pi.Project)
+}
+
 // Create a ProjectIdentifier struct from a slug in format (gh|bb)/org-name/project-name)
 // Return a string explaining the error is the format is not good
 func CreateProjectIdentifierFromSlug(fullSlug string) (*ProjectIdentifier, string) {
