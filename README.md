@@ -20,6 +20,7 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   [Slash Commands](#slash-commands)
     -   [Overview](#overview)
     -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
+    -   [Approve a workflow from Mattermost](#approve-a-workflow-from-mattermost)
 -   [Frequently Asked Questions](#frequently-asked-questions)
 -   [Development](#development)
 -   [License](#license)
@@ -122,7 +123,7 @@ Manage CircleCI projects:
     - /circleci project recent-build <branch>   — List the 10 last builds for a project
     - /circleci project env list                — List a masked environment variables for a project
     - /circleci project env add name value      — Add an environment variable for a project
-    - /circleci project env remove name         — Remove an environment variable from a project    
+    - /circleci project env remove name         — Remove an environment variable from a project
 
 Manage pipelines:
     - /circleci pipeline trigger branch <branch>    — Trigger pipeline for a project for a given branch
@@ -163,6 +164,14 @@ Subscribe a channel to notifications from a CircleCI project.
 
     -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret
     -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`
+
+### Approve a workflow from Mattermost
+
+You receive add notifications for [holded workflows](https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval) and approved them directly from your Mattermost channel.
+
+Learn how to set up a holded workflow notification in [our Orb documentation](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#jobs-approval-notification).
+
+![Approve a CircleCI workflow from Mattermost](./docs/approve-workflow.gif)
 
 ## Frequently Asked Questions
 
