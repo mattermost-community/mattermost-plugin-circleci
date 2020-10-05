@@ -20,6 +20,7 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   [Slash Commands](#slash-commands)
     -   [Overview](#overview)
     -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
+    -   [Approve a workflow from Mattermost](#approve-a-workflow-from-mattermost)
     -   [Manage environment variables](#manage-environment-variables)
     -   [Get insights of your projects](#get-insights-of-your-projects)
 -   [Frequently Asked Questions](#frequently-asked-questions)
@@ -165,6 +166,14 @@ Subscribe a channel to notifications from a CircleCI project.
 
     -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret
     -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`
+
+### Approve a workflow from Mattermost
+
+You can receive add notifications for [held workflows](https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval) and approve them directly from your Mattermost channel.
+
+Learn how to set up a held workflow notification in [our Orb documentation](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#jobs-approval-notification).
+
+![Approve a CircleCI workflow from Mattermost](./docs/approve-workflow.gif)
 
 ### Manage environment variables
 
