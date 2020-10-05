@@ -94,15 +94,24 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 		UserId:    p.botUserID,
 	}
 
+	action := fmt.Sprintf("%s", requestData.Context["Action"])
 	projectSlug := fmt.Sprintf("%v", requestData.Context["ProjectSlug"])
 	name := fmt.Sprintf("%v", requestData.Context["EnvName"])
 	val := fmt.Sprintf("%v", requestData.Context["EnvVal"])
-	err := circle.AddEnvVar(circleciToken, projectSlug, name, val)
-	if err != nil {
-		p.API.LogError("Error occurred while adding environment variable", err)
-		responsePost.Message = fmt.Sprintf(":red_circle: Cannot overwrite env var %s:%s from mattermost.", name, val)
+
+	if action == "deny" {
+		responsePost.Message = fmt.Sprintf("Did not overwrite env variable %s for project %s", name, projectSlug)
+		p.API.SendEphemeralPost(userID, responsePost)
+	} else if action == "approve" {
+		err := circle.AddEnvVar(circleciToken, projectSlug, name, val)
+		if err != nil {
+			p.API.LogError("Error occurred while adding environment variable", err)
+			responsePost.Message = fmt.Sprintf(":red_circle: Cannot overwrite env var %s:%s from mattermost.", name, val)
+		} else {
+			responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable %s:%s for project %s", name, val, projectSlug)
+		}
+		p.API.SendEphemeralPost(userID, responsePost)
 	} else {
-		responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable %s:%s for project %s", name, val, projectSlug)
+		p.API.LogError("action %s is not valid", action)
 	}
-	p.API.SendEphemeralPost(userID, responsePost)
 }

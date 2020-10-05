@@ -261,7 +261,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 		attach.Actions = []*model.PostAction{
 			{
 				Id:   "envoverwrite",
-				Name: "Approve Overwriting Env Var " + val.Name + " with masked value " + val.Value,
+				Name: "Approve",
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
 					URL: fmt.Sprintf("/plugins/%s/env/overwrite", manifest.Id),
@@ -269,11 +269,26 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 						"EnvName":     varName,
 						"EnvVal":      varValue,
 						"ProjectSlug": project.ToSlug(),
+						"Action":      "approve",
+					},
+				},
+			},
+			{
+				Id:   "envoverwritedeny",
+				Name: "Deny",
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/env/overwrite", manifest.Id),
+					Context: map[string]interface{}{
+						"EnvName":     varName,
+						"EnvVal":      varValue,
+						"ProjectSlug": project.ToSlug(),
+						"Action":      "deny",
 					},
 				},
 			},
 		}
-		attach.Fallback = "Do you want to overwrite environment variable " + varName + "?"
+		attach.Fallback = "Do you want to overwrite environment variable " + varName + " with masked value " + val.Value + "?"
 		attach.Title = attach.Fallback
 		attach.Color = "#8267E4" // purple
 		_ = p.sendEphemeralPost(args,
