@@ -12,7 +12,7 @@ import (
 const (
 	insightTrigger  = "insight"
 	insightHint     = "<" + insightMetricsWorkflowTrigger + "|" + insightMetricsWorkflowJobsTrigger + ">"
-	insightHelpText = "Get insights about"
+	insightHelpText = "Get insights about workflows or jobs"
 
 	insightMetricsWorkflowTrigger  = "workflows"
 	insightMetricsWorkflowHint     = ""
