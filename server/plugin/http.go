@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
+
 	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
 )
 
@@ -86,6 +87,5 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 
 	default:
 		p.API.LogError("action %s is not valid", action)
-
 	}
 }
