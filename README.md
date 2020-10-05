@@ -168,9 +168,13 @@ Subscribe a channel to notifications from a CircleCI project.
 
 ### Manage environment variables
 
+Set [CircleCI environment variables](https://circleci.com/docs/2.0/env-vars/) directly from Mattermost.
+
 ![Settings environnement variables with the plugin](./docs/manage-env-vars.gif)
 
 ### Get insights of your projects
+
+Get summary metrics for a project's workflows or for a project workflow's jobs. Metrics are refreshed daily, and thus may not include executions from the last 24 hours.
 
 ![Get insight from your projects with the plugin](./docs/get-insight.gif)
 
