@@ -263,8 +263,12 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 	project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	var params circleci.TriggerPipelineParameters
-	subcmd := split[0]
+	subcmd := "branch"
+	if len(split) > 0 {
+		subcmd = split[0]
+	}
 	input := ""
+
 	switch subcmd {
 	case branchTrigger:
 		branch := "master"
@@ -273,13 +277,15 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 		}
 		params = circleci.TriggerPipelineParameters{Branch: branch}
 		input = branch
+
 	case tagTrigger:
 		if len(split) < 2 {
 			return p.sendEphemeralResponse(args, ":red_circle: Please provide a tag value."), nil
 		}
-		params = circleci.TriggerPipelineParameters{Tag: split[1]}
 		input = split[1]
+		params = circleci.TriggerPipelineParameters{Tag: input}
 	}
+
 	pl, err := circle.TriggerPipeline(token, project.ToSlug(), params)
 	if err != nil {
 		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
