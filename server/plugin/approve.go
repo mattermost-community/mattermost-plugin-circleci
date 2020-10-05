@@ -1,0 +1,74 @@
+package plugin
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+)
+
+func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
+	userID := r.Header.Get("Mattermost-User-Id")
+	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+
+	if !exists {
+		http.NotFound(w, r)
+	}
+	requestData := model.PostActionIntegrationRequestFromJson(r.Body)
+	if requestData == nil {
+		p.API.LogError("Empty request data")
+		return
+	}
+
+	originalPost, appErr := p.API.GetPost(requestData.PostId)
+	if appErr != nil {
+		p.API.LogError("Unable to get post", "postID", requestData.PostId)
+	} else if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
+		// TODO : remove the button
+		p.API.LogError("Unable to update post", "postID", originalPost.Id)
+	}
+
+	responsePost := &model.Post{
+		ChannelId: requestData.ChannelId,
+		RootId:    requestData.PostId,
+		UserId:    p.botUserID,
+	}
+
+	workFlowID := fmt.Sprintf("%v", requestData.Context["WorkflowID"])
+	jobs, err := circle.GetWorkflowJobs(circleciToken, workFlowID)
+
+	if err != nil {
+		p.API.LogError("Error occurred while getting workflow jobs", err)
+		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
+		if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
+			p.API.LogError("Error when creating post", "appError", appErr)
+		}
+		return
+	}
+	var approvalRequestID string
+	for _, job := range *jobs {
+		if job.ApprovalRequestId != "" {
+			approvalRequestID = fmt.Sprintf("%v", job.ApprovalRequestId)
+		}
+	}
+	_, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID)
+
+	if err != nil {
+		p.API.LogError("Error occurred while approving", err)
+		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
+	} else {
+		user, appErr := p.API.GetUser(userID)
+		if appErr != nil {
+			p.API.LogError("Unable to get user", "userID", userID)
+			responsePost.Message = "Job successfully approved :+1:"
+		} else {
+			responsePost.Message = fmt.Sprintf("Job successfully approved by @%s :+1:", user.Username)
+		}
+	}
+
+	if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
+		p.API.LogError("Error when creating post", "appError", appErr)
+	}
+}

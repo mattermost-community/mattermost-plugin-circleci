@@ -87,19 +87,19 @@ func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *mod
 	case wi.IsWaitingApproval:
 		attachment.Title = "You have a CircleCI Workflow waiting for approval"
 		attachment.Color = "#8267E4" // purple
-		// TODO : add button to approve / refuse the job
-		// attachment.Actions = []*model.PostAction{
-		// 	{
-		// 		Id:   "approve-circleci-job",
-		// 		Name: "Approve Job",
-		// 		Integration: &model.PostActionIntegration{
-		// 			URL: "",
-		// 			Context: map[string]interface{}{
-		// 				"a": "b",
-		// 			},
-		// 		},
-		// 	},
-		// }
+		attachment.Actions = []*model.PostAction{
+			{
+				Id:   "approvecirclecijob",
+				Name: "Approve Job",
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/job/approve", manifest.Id),
+					Context: map[string]interface{}{
+						"WorkflowID": wi.WorkflowID,
+					},
+				},
+			},
+		}
 
 	case wi.IsFailed:
 		attachment.ThumbURL = buildFailedIconURL
