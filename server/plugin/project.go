@@ -252,6 +252,37 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	varName := split[0]
 	varValue := split[1]
 
+	val, exist, errr := circle.EnvVarExist(token, project.ToSlug(), varName)
+	if errr != nil {
+		p.API.LogError("err while getting env var details", errr.Error())
+	}
+	if exist {
+		attach := model.SlackAttachment{}
+		attach.Actions = []*model.PostAction{
+			{
+				Id:   "envoverwrite",
+				Name: "Approve Overwriting Env Var " + val.Name + " with masked value " + val.Value,
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/env/overwrite", manifest.Id),
+					Context: map[string]interface{}{
+						"EnvName":     varName,
+						"EnvVal":      varValue,
+						"ProjectSlug": project.ToSlug(),
+					},
+				},
+			},
+		}
+		attach.Fallback = "Do you want to overwrite environment variable " + varName + "?"
+		attach.Title = attach.Fallback
+		attach.Color = "#8267E4" // purple
+		_ = p.sendEphemeralPost(args,
+			"",
+			[]*model.SlackAttachment{
+				&attach,
+			})
+		return &model.CommandResponse{}, nil
+	}
 	err := circle.AddEnvVar(token, project.ToSlug(), varName, varValue)
 	if err != nil {
 		p.API.LogError("Unable to set CircleCI envVar", "error", err)

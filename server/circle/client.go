@@ -2,6 +2,8 @@ package circle
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/antihax/optional"
 	"github.com/darkLord19/circleci-v2/circleci"
@@ -171,4 +173,19 @@ func ApproveJob(apiToken string, approvalRequestID string, workFlowID string) (s
 	}
 
 	return response.Message, nil
+}
+
+// EnvVarExist check if given env var exist
+func EnvVarExist(apiToken string, projectSlug string, name string) (circleci.EnvironmentVariablePair, bool, error) {
+	val, resp, err := client.ProjectApi.GetEnvVar(getContext(apiToken), projectSlug, name)
+	if err != nil {
+		return val, false, err
+	}
+	if resp.StatusCode < 300 {
+		return val, true, nil
+	} else if resp.StatusCode == http.StatusNotFound {
+		return val, false, nil
+	} else {
+		return val, false, fmt.Errorf("Error while checking if env var %s exist", name)
+	}
 }
