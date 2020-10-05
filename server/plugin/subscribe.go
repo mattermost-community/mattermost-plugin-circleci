@@ -40,7 +40,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
 
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything here]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything to continue autocomplete]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
 	subscribeChannel.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
@@ -169,27 +169,43 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 		return p.sendEphemeralResponse(context, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
+	username := newSub.CreatorID
+	if user, appErr := p.API.GetUser(newSub.CreatorID); appErr != nil {
+		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", newSub.CreatorID)
+	} else {
+		username = user.Username
+	}
+
 	var msg string
+	var ephemeralMsg string
 	if wasUpdated {
-		msg = fmt.Sprintf(
-			"This channel was already subscribed to notifications from %s. It has been updated with flags `%s`\n"+
-				"The [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) should already be configured, but you can check it to be sure. See the full guide [here](%s/blob/master/docs/HOW_TO.md#subscribe-to-webhooks-notifications)\n"+
-				"**Webhook URL: `%s`**",
+		msg = fmt.Sprintf("The subscription for this channel to the project %s has been been updated with flags `%s` by @%s. [Learn more](%s#subscribe-to-webhooks-notifications)",
 			project.ToMarkdown(),
 			newSub.Flags.String(),
+			username,
+			manifest.HomepageURL,
+		)
+		ephemeralMsg = fmt.Sprintf(
+			":white_check_mark: Subscription successfully updated!\n"+
+				"The [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) should already be configured, but you can check it to be sure. See the full guide [here](%s#subscribe-to-webhooks-notifications)\n"+
+				"**Webhook URL: `%s`**",
 			manifest.HomepageURL,
 			p.getWebhookURL(),
 		)
 	} else {
-		msg = fmt.Sprintf(
-			"This channel has been subscribed to notifications from %s with flags: `%s`\n"+
+		msg = fmt.Sprintf("This channel has been subscribed to notifications from the project %s with flags: `%s` by @%s. [Learn more](%s#subscribe-to-webhooks-notifications)",
+			project.ToMarkdown(),
+			newSub.Flags.String(),
+			username,
+			manifest.HomepageURL,
+		)
+		ephemeralMsg = fmt.Sprintf(
+			":white_check_mark: Subscription saved! \n"+
 				"#### How to finish setup:\n"+
 				"(See the full guide [here](%s#subscribe-to-webhooks-notifications))\n"+
 				"1. Setup the [Mattermost Plugin Notify Orb](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) for your CircleCI project\n"+
 				"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
 				"**Webhook URL: `%s`**",
-			project.ToMarkdown(),
-			newSub.Flags,
 			manifest.HomepageURL,
 			commandTrigger,
 			projectTrigger,
@@ -200,7 +216,16 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 		)
 	}
 
-	return p.sendEphemeralResponse(context, msg), nil
+	channelPost := &model.Post{
+		ChannelId: newSub.ChannelID,
+		UserId:    p.botUserID,
+		Message:   msg,
+	}
+	if _, appErr := p.API.CreatePost(channelPost); appErr != nil {
+		p.API.LogError("Unable to create post", "appError", appErr)
+	}
+
+	return p.sendEphemeralResponse(context, ephemeralMsg), nil
 }
 
 func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
@@ -219,6 +244,27 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *stor
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
 		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing new subscription."), nil
+	}
+
+	username := args.UserId
+	if user, appErr := p.API.GetUser(args.UserId); appErr != nil {
+		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", args.UserId)
+	} else {
+		username = user.Username
+	}
+
+	channelPost := &model.Post{
+		ChannelId: args.ChannelId,
+		UserId:    p.botUserID,
+		Message: fmt.Sprintf(
+			"This channel has been unsubscribed to notifications from %s by @%s. [Learn more](%s#subscribe-to-webhooks-notifications)",
+			project.ToMarkdown(),
+			username,
+			manifest.HomepageURL,
+		),
+	}
+	if _, appErr := p.API.CreatePost(channelPost); appErr != nil {
+		p.API.LogError("Unable to create post", "appError", appErr)
 	}
 
 	return p.sendEphemeralResponse(args,
