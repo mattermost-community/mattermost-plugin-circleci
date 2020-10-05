@@ -27,11 +27,11 @@ func getInsightAutoCompeleteData() *model.AutocompleteData {
 	insight := model.NewAutocompleteData(insightTrigger, insightHint, insightHelpText)
 
 	wf := model.NewAutocompleteData(insightMetricsWorkflowTrigger, insightMetricsWorkflowHint, insightMetricsWorkflowHelpText)
-	wf.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	wf.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	jb := model.NewAutocompleteData(insightMetricsWorkflowJobsTrigger, insightMetricsWorkflowJobsHint, insightMetricsWorkflowJobsHelpText)
 	jb.AddTextArgument("<workflow name>", "Name of workflow to get metrics from", "")
-	jb.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	jb.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	insight.AddCommand(wf)
 	insight.AddCommand(jb)

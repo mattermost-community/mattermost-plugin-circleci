@@ -1,10 +1,11 @@
 package plugin
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/jszwedko/go-circleci"
-	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 )
@@ -17,11 +18,6 @@ func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Requ
 		http.NotFound(w, r)
 	}
 
-	if r.Method != http.MethodGet {
-		p.respondAndLogErr(w, http.StatusMethodNotAllowed, errors.New("method"+r.Method+"is not allowed, must be GET"))
-		return
-	}
-
 	circleciClient := &circleci.Client{Token: circleciToken}
 	projects, err := circleciClient.ListProjects()
 	if err != nil {
@@ -31,8 +27,8 @@ func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Requ
 
 	out := []model.AutocompleteListItem{
 		{
-			HelpText: "Manually type the project's VCS repository name",
-			Item:     "[repository]",
+			HelpText: "Manually type the project identifier",
+			Item:     "<vcs/org-name/project-name>",
 		},
 	}
 	if len(projects) == 0 {
@@ -41,9 +37,13 @@ func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Requ
 	}
 
 	for _, project := range projects {
+		vcs := "gh"
+		if strings.Contains(project.VCSURL, "https://bitbucket.org") {
+			vcs = "bb"
+		}
 		out = append(out, model.AutocompleteListItem{
 			HelpText: project.VCSURL,
-			Item:     project.Reponame,
+			Item:     fmt.Sprintf("%s/%s/%s", vcs, project.Username, project.Reponame),
 		})
 	}
 	p.respondJSON(w, out)

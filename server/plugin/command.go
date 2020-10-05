@@ -23,8 +23,6 @@ const (
 
 	namedArgProjectName     = "project"
 	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
-	namedArgProjectHint     = "[vcs/org-name/project-name]"
-	namedArgProjectPattern  = "" // TODO wait for https://github.com/mattermost/mattermost-server/pull/14781 to get merged
 
 	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding .go file
 	commandHelpTrigger = "help"

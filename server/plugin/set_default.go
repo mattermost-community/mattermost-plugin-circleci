@@ -17,7 +17,7 @@ const (
 
 func getSetDefaultAutoCompleteData() *model.AutocompleteData {
 	setDefaultCommand := model.NewAutocompleteData(setDefaultCommandTrigger, setDefaultCommandHint, setDefaultCommandHelpText)
-	setDefaultCommand.AddTextArgument("project identifier. (vcs/org-name/project-name)", "<project identifier>", namedArgProjectPattern)
+	setDefaultCommand.AddDynamicListArgument("project identifier. (vcs/org-name/project-name)", routeAutocomplete+subrouteFollowedProjects, true)
 	return setDefaultCommand
 }
 
