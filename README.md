@@ -20,6 +20,8 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   [Slash Commands](#slash-commands)
     -   [Overview](#overview)
     -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
+    -   [Manage environment variables](#manage-environment-variables)
+    -   [Get insights of your projects](#get-insights-of-your-projects)
 -   [Frequently Asked Questions](#frequently-asked-questions)
 -   [Development](#development)
 -   [License](#license)
@@ -122,7 +124,7 @@ Manage CircleCI projects:
     - /circleci project recent-build <branch>   — List the 10 last builds for a project
     - /circleci project env list                — List a masked environment variables for a project
     - /circleci project env add name value      — Add an environment variable for a project
-    - /circleci project env remove name         — Remove an environment variable from a project    
+    - /circleci project env remove name         — Remove an environment variable from a project
 
 Manage pipelines:
     - /circleci pipeline trigger branch <branch>    — Trigger pipeline for a project for a given branch
@@ -147,7 +149,7 @@ NOTE: One can get the workflowID using `/circleci pipeline workflows` command
 
 Subscribe a channel to notifications from a CircleCI project.
 
-![Mattermost plugin CircleCI in action](./docs/subscribe-to-notifications.gif)
+![Subscribe to notifications with the plugin](./docs/subscribe-to-notifications.gif)
 
 #### Steps
 
@@ -163,6 +165,18 @@ Subscribe a channel to notifications from a CircleCI project.
 
     -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret
     -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`
+
+### Manage environment variables
+
+Set [CircleCI environment variables](https://circleci.com/docs/2.0/env-vars/) directly from Mattermost.
+
+![Settings environnement variables with the plugin](./docs/manage-env-vars.gif)
+
+### Get insights of your projects
+
+Get summary metrics for a project's workflows or for a project workflow's jobs. Metrics are refreshed daily, and thus may not include executions from the last 24 hours.
+
+![Get insight from your projects with the plugin](./docs/get-insight.gif)
 
 ## Frequently Asked Questions
 
