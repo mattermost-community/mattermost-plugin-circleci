@@ -21,6 +21,8 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
     -   [Overview](#overview)
     -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
     -   [Approve a workflow from Mattermost](#approve-a-workflow-from-mattermost)
+    -   [Manage environment variables](#manage-environment-variables)
+    -   [Get insights of your projects](#get-insights-of-your-projects)
 -   [Frequently Asked Questions](#frequently-asked-questions)
 -   [Development](#development)
 -   [License](#license)
@@ -148,7 +150,7 @@ NOTE: One can get the workflowID using `/circleci pipeline workflows` command
 
 Subscribe a channel to notifications from a CircleCI project.
 
-![Mattermost plugin CircleCI in action](./docs/subscribe-to-notifications.gif)
+![Subscribe to notifications with the plugin](./docs/subscribe-to-notifications.gif)
 
 #### Steps
 
@@ -172,6 +174,18 @@ You receive add notifications for [holded workflows](https://circleci.com/docs/2
 Learn how to set up a holded workflow notification in [our Orb documentation](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#jobs-approval-notification).
 
 ![Approve a CircleCI workflow from Mattermost](./docs/approve-workflow.gif)
+
+### Manage environment variables
+
+Set [CircleCI environment variables](https://circleci.com/docs/2.0/env-vars/) directly from Mattermost.
+
+![Settings environnement variables with the plugin](./docs/manage-env-vars.gif)
+
+### Get insights of your projects
+
+Get summary metrics for a project's workflows or for a project workflow's jobs. Metrics are refreshed daily, and thus may not include executions from the last 24 hours.
+
+![Get insight from your projects with the plugin](./docs/get-insight.gif)
 
 ## Frequently Asked Questions
 
