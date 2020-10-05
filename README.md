@@ -1,7 +1,9 @@
 # Mattermost Plugin CircleCI
 
-[![CircleCI branch](https://img.shields.io/circleci/project/github/nathanaelhoun/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-circleci)
+[![CircleCI branch](https://img.shields.io/circleci/project/github/nathanaelhoun/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/nathanaelhoun/mattermost-plugin-circleci)
 [![Release](https://img.shields.io/github/v/release/nathanaelhoun/mattermost-plugin-circleci)](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelhoun/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/nathanaelhoun/mattermost-plugin-circleci)
+[![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
 A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [CircleCI](https://circleci.com) to interact with jobs, builds or workflows and receive notifications in Mattermost channels.
 
@@ -25,7 +27,7 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 -   [Thanks to](#thanks-to)
 -   [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
 
-// TODO Add a screenshot here
+![Mattermost plugin CircleCI in action](./docs/trigger-pipeline-and-get-notifications.gif)
 
 ## Audience
 
@@ -141,7 +143,7 @@ Manage CircleCI projects:
 
 Subscribe a channel to notifications from a CircleCI project.
 
-![Success notification received in Mattermost](./docs/successful-notification.jpg)
+![Mattermost plugin CircleCI in action](./docs/subscribe-to-notifications.gif)
 
 #### Steps
 
