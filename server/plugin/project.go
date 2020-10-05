@@ -264,7 +264,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 				Name: "Approve",
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("/plugins/%s/env/overwrite", manifest.Id),
+					URL: fmt.Sprintf("/plugins/%s/%s", manifest.Id, routeEnvOverwrite),
 					Context: map[string]interface{}{
 						"EnvName":     varName,
 						"EnvVal":      varValue,
@@ -278,7 +278,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 				Name: "Deny",
 				Type: model.POST_ACTION_TYPE_BUTTON,
 				Integration: &model.PostActionIntegration{
-					URL: fmt.Sprintf("/plugins/%s/env/overwrite", manifest.Id),
+					URL: fmt.Sprintf("/plugins/%s/%s", manifest.Id, routeEnvOverwrite),
 					Context: map[string]interface{}{
 						"EnvName":     varName,
 						"EnvVal":      varValue,
@@ -288,14 +288,16 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 				},
 			},
 		}
-		attach.Fallback = "Do you want to overwrite environment variable " + varName + " with masked value " + val.Value + "?"
-		attach.Title = attach.Fallback
+		attach.Title = fmt.Sprintf("Do you want to overwrite environment variable `%s` with masked value `%s`?", val.Name, val.Value)
+		attach.Fallback = attach.Title
 		attach.Color = "#8267E4" // purple
-		_ = p.sendEphemeralPost(args,
+
+		_ = p.sendEphemeralPost(
+			args,
 			"",
-			[]*model.SlackAttachment{
-				&attach,
-			})
+			[]*model.SlackAttachment{&attach},
+		)
+
 		return &model.CommandResponse{}, nil
 	}
 	err := circle.AddEnvVar(token, project.ToSlug(), varName, varValue)
