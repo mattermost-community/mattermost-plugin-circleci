@@ -25,9 +25,27 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
 	if appErr != nil {
 		p.API.LogError("Unable to get post", "postID", requestData.PostId)
-	} else if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
-		// TODO : remove the button
-		p.API.LogError("Unable to update post", "postID", originalPost.Id)
+	} else {
+		newAttachments := []*model.SlackAttachment{}
+		for _, attach := range originalPost.Attachments() {
+			filteredAttach := attach
+			attach.Actions = nil
+			for _, action := range attach.Actions {
+				if action.Id != "approvecirclecijob" {
+					filteredAttach.Actions = append(filteredAttach.Actions, action)
+				}
+			}
+
+			filteredAttach.Color = "#50F100" // green
+			filteredAttach.Title = "This CircleCI workflow have been approved"
+			newAttachments = append(newAttachments, filteredAttach)
+		}
+		originalPost.DelProp("attachments")
+		originalPost.AddProp("attachments", newAttachments)
+
+		if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
+			p.API.LogError("Unable to update post", "postID", originalPost.Id)
+		}
 	}
 
 	responsePost := &model.Post{
