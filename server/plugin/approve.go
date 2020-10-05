@@ -22,11 +22,11 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := userID
+	usernameText := ""
 	if user, appErr := p.API.GetUser(userID); appErr != nil {
 		p.API.LogError("Unable to get user", "userID", userID)
 	} else {
-		username = user.Username
+		usernameText = fmt.Sprintf(" by @%s", user.Username)
 	}
 
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
@@ -44,7 +44,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 			}
 
 			filteredAttach.Color = "#50F100" // green
-			filteredAttach.Title = fmt.Sprintf("This CircleCI workflow have been approved by @%s", username)
+			filteredAttach.Title = fmt.Sprintf("This CircleCI workflow have been approved%s", usernameText)
 			newAttachments = append(newAttachments, filteredAttach)
 		}
 		originalPost.DelProp("attachments")
@@ -84,7 +84,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		p.API.LogError("Error occurred while approving", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
 	} else {
-		responsePost.Message = fmt.Sprintf("Job successfully approved by @%s :+1:", username)
+		responsePost.Message = fmt.Sprintf("Job successfully approved%s :+1:", usernameText)
 	}
 
 	if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
