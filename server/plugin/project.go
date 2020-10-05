@@ -3,6 +3,7 @@ package plugin
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -66,9 +67,9 @@ func getProjectAutoComplete() *model.AutocompleteData {
 	envvar.AddCommand(envvarAdd)
 	envvar.AddCommand(envvarDel)
 
+	project.AddCommand(envvar)
 	project.AddCommand(projectRecentBuild)
 	project.AddCommand(projectList)
-	project.AddCommand(envvar)
 
 	return project
 }
@@ -117,14 +118,17 @@ func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken strin
 
 	projectsListString := "| Project | CircleCI URL | Is [OSS](https://circleci.com/open-source/) |\n| :---- | :----- | :---- | \n"
 	for _, project := range projects {
-		// TODO : add environment variables
+		VCSType := "gh"
+		if strings.Contains(project.VCSURL, "https://bitbucket.org") {
+			VCSType = "bb"
+		}
 
 		projectsListString += fmt.Sprintf(
 			"| [%s/%s](%s) | %s | %t |\n",
 			project.Username,
 			project.Reponame,
 			project.VCSURL,
-			fmt.Sprintf("https://circleci.com/gh/%s/%s", project.Username, project.Reponame), // TODO : handle bitbucket URL
+			fmt.Sprintf("https://circleci.com/%s/%s/%s", VCSType, project.Username, project.Reponame),
 			project.FeatureFlags.OSS,
 		)
 	}
@@ -168,14 +172,19 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 			buildTime = strconv.Itoa(*build.BuildTimeMillis/1000) + "s"
 		}
 
+		buildSubject := "/"
+		if build.Subject != "" {
+			buildSubject = build.Subject
+		}
+
 		statusImageMarkdown := v1.BuildStatusToMarkdown(build, badgePassedURL, badgeFailedURL)
 
-		text += fmt.Sprintf("| % s | % s | [%d](%s) | `%s` | %s | %s | %s | %s |\n",
+		text += fmt.Sprintf("| % s | % s | [%d](%s) | %s | %s | %s | %s | %s |\n",
 			build.Workflows.WorkflowName,
 			build.Workflows.JobName,
 			build.BuildNum,
 			build.BuildURL,
-			build.Subject,
+			buildSubject,
 			buildStartTime,
 			statusImageMarkdown,
 			buildTime,
@@ -202,13 +211,13 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string
 	if err != nil {
 		p.API.LogError("Could not list env vars", "error", err.Error(), "project", project.ToSlug())
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not list environment variables for project %s", project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: Could not list environment variables for project %s", project.ToMarkdown()),
 		), nil
 	}
 
 	if len(envvars) == 0 {
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Project %s does not have any environment variables", project.ToMarkdown()),
+			fmt.Sprintf(":information_source: Project %s does not have any environment variables", project.ToMarkdown()),
 		), nil
 	}
 
@@ -247,12 +256,12 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	if err != nil {
 		p.API.LogError("Unable to set CircleCI envVar", "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not add environment variable `%s: %s` for project %s", varName, varValue, project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: Could not add environment variable `%s: %s` for project %s", varName, varValue, project.ToMarkdown()),
 		), nil
 	}
 
 	return p.sendEphemeralResponse(args,
-		fmt.Sprintf("Successfully added environment variable `%s:%s` for project %s", varName, varValue, project.ToMarkdown()),
+		fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s:%s` for project %s", varName, varValue, project.ToMarkdown()),
 	), nil
 }
 
@@ -267,11 +276,11 @@ func (p *Plugin) executeProjectDelEnvVar(args *model.CommandArgs, token string, 
 	if err != nil {
 		p.API.LogError("Could not remove env var for project", "error", err, "env var", varName)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Could not remove environment variable `%s` for project %s", varName, project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: Could not remove environment variable `%s` for project %s", varName, project.ToMarkdown()),
 		), nil
 	}
 
 	return p.sendEphemeralResponse(args,
-		fmt.Sprintf("Successfully removed environment variable `%s` for project %s", varName, project.ToMarkdown()),
+		fmt.Sprintf(":white_check_mark: Successfully removed environment variable `%s` for project %s", varName, project.ToMarkdown()),
 	), nil
 }

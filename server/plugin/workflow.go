@@ -46,10 +46,10 @@ func getWorkflowAutoCompeleteData() *model.AutocompleteData {
 	cancel := model.NewAutocompleteData(workflowCancelTrigger, workflowCancelHint, workflowCancelHelpText)
 	cancel.AddTextArgument("<workflowID>", workflowCancelHint, "")
 
-	workflow.AddCommand(workflowGet)
-	workflow.AddCommand(workflowGetJobs)
 	workflow.AddCommand(rerun)
 	workflow.AddCommand(cancel)
+	workflow.AddCommand(workflowGet)
+	workflow.AddCommand(workflowGetJobs)
 	return workflow
 }
 
@@ -88,7 +88,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 	if err != nil {
 		p.API.LogError("Failed to fetch info for workflow", "workflowID", workflowID, "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Failed to fetch info for workflow `%s`", workflowID),
+			fmt.Sprintf(":red_circle: Failed to fetch info for workflow `%s`", workflowID),
 		), nil
 	}
 
@@ -97,7 +97,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 	if err == nil {
 		uname = tmp
 	}
-	p.API.LogDebug("Trying to send the post")
+
 	_ = p.sendEphemeralPost(
 		args,
 		"",
@@ -163,7 +163,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs, token string, wo
 	if err != nil {
 		p.API.LogError("Failed to fetch info for workflow", "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Failed to fetch informations for workflow %s", workflowID),
+			fmt.Sprintf(":red_circle: Failed to fetch informations for workflow %s", workflowID),
 		), nil
 	}
 
@@ -171,7 +171,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs, token string, wo
 	if errr != nil {
 		p.API.LogError("Failed to fetch jobs informations for workflow", "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Failed to fetch jobs informations for workflow %s", workflowID),
+			fmt.Sprintf(":red_circle: Failed to fetch jobs informations for workflow %s", workflowID),
 		), nil
 	}
 
@@ -206,18 +206,19 @@ func (p *Plugin) executeRerunWorkflow(args *model.CommandArgs, token string, wor
 	if err != nil {
 		p.API.LogError("Failed to re run workflow", "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Failed to re run workflow %s", workflowID),
+			fmt.Sprintf(":information_source: Failed to re run workflow %s", workflowID),
 		), nil
 	}
 
 	wf, err := circle.GetWorkflow(token, workflowID)
-	var errstr string
+	var msg string
 	if err != nil {
-		errstr = fmt.Sprintf("Re running workflow: workflow ID: %s", workflowID)
+		msg = fmt.Sprintf(":information_source: Re running workflow: workflow ID: %s", workflowID)
 	} else {
-		errstr = fmt.Sprintf("Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)
+		msg = fmt.Sprintf(":information_source: Re running workflow: %s, workflow ID: %s", wf.Name, wf.Id)
 	}
-	return p.sendEphemeralResponse(args, errstr), nil
+
+	return p.sendEphemeralResponse(args, msg), nil
 }
 
 func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs, token string, workflowID string) (*model.CommandResponse, *model.AppError) {
@@ -225,16 +226,17 @@ func (p *Plugin) executeCancelWorkflow(args *model.CommandArgs, token string, wo
 	if err != nil {
 		p.API.LogError("Failed to cancel workflow", "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Failed to cancel workflow %s", workflowID),
+			fmt.Sprintf(":information_source: Failed to cancel workflow %s", workflowID),
 		), nil
 	}
 
 	wf, err := circle.GetWorkflow(token, workflowID)
 	var msg string
 	if err != nil {
-		msg = fmt.Sprintf("Canceled workflow. Workflow ID: %s", workflowID)
+		msg = fmt.Sprintf(":information_source: Canceled workflow. Workflow ID: %s", workflowID)
 	} else {
-		msg = fmt.Sprintf("Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)
+		msg = fmt.Sprintf(":information_source: Canceled workflow: %s, workflow ID: %s", wf.Name, wf.Id)
 	}
+
 	return p.sendEphemeralResponse(args, msg), nil
 }

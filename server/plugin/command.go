@@ -19,7 +19,7 @@ const (
 	commandAutocompleteDesc = "Interact with CircleCI jobs and builds"
 
 	notConnectedText    = "You are not connected to CircleCI. Please try `/" + commandTrigger + " " + accountTrigger + " " + accountConnectTrigger + "`"
-	errorConnectionText = "Error when reaching to CircleCI. Please check that your token is still valid"
+	errorConnectionText = ":red_circle: Error when reaching to CircleCI. Please check that your token is still valid"
 
 	namedArgProjectName     = "project"
 	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
@@ -82,10 +82,10 @@ func getAutocompleteData() *model.AutocompleteData {
 
 	// Add all subcommands
 	mainCommand.AddCommand(getAccountAutoCompleteData())
-	mainCommand.AddCommand(getProjectAutoComplete())
-	mainCommand.AddCommand(getSubscribeAutoCompleteData())
 	mainCommand.AddCommand(getSetDefaultAutoCompleteData())
 	mainCommand.AddCommand(getWorkflowAutoCompeleteData())
+	mainCommand.AddCommand(getSubscribeAutoCompleteData())
+	mainCommand.AddCommand(getProjectAutoComplete())
 	mainCommand.AddCommand(getPipelineAutoCompeleteData())
 	mainCommand.AddCommand(getInsightAutoCompeleteData())
 

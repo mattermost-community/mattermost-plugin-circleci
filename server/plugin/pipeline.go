@@ -290,7 +290,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 	if err != nil {
 		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToSlug(), subcmd, input),
+			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToMarkdown(), subcmd, input),
 		), nil
 	}
 
@@ -352,7 +352,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 
 	if err != nil {
 		p.API.LogError("Could not get info about pipeline", "pipelineNumber", num, "error", err)
-		return p.sendEphemeralResponse(args, "Could not get info about pipeline"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Could not get info about pipeline"), nil
 	}
 
 	_ = p.sendEphemeralPost(
