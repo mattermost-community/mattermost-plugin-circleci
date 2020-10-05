@@ -36,7 +36,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		newAttachments := []*model.SlackAttachment{}
 		for _, attach := range originalPost.Attachments() {
 			filteredAttach := attach
-			attach.Actions = nil
+			filteredAttach.Actions = nil
 			for _, action := range attach.Actions {
 				if action.Id != "approvecirclecijob" {
 					filteredAttach.Actions = append(filteredAttach.Actions, action)
