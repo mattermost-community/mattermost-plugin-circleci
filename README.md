@@ -4,6 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/nathanaelhoun/mattermost-plugin-circleci)](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelhoun/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/nathanaelhoun/mattermost-plugin-circleci)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnathanaelhoun%2Fmattermost-plugin-circleci.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnathanaelhoun%2Fmattermost-plugin-circleci?ref=badge_shield)
 
 A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [CircleCI](https://circleci.com) to interact with jobs, builds or workflows and receive notifications in Mattermost channels.
 
@@ -177,6 +178,9 @@ This plugin only contains a server portion. Read our documentation about the [De
 ## License
 
 This repository is licensed under the [Apache 2.0 License](LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnathanaelhoun%2Fmattermost-plugin-circleci.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnathanaelhoun%2Fmattermost-plugin-circleci?ref=badge_large)
 
 ## Contributing
 
