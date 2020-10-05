@@ -17,7 +17,7 @@ const (
 	accountHelpText = "Manage the connection to your CircleCI acccount"
 
 	accountViewTrigger  = "view"
-	AccountViewHelpText = "Get informations about yourself"
+	accountViewHelpText = "Get informations about yourself"
 
 	accountConnectTrigger  = "connect"
 	accountConnectHint     = "<API token>"
@@ -30,7 +30,7 @@ const (
 func getAccountAutoCompleteData() *model.AutocompleteData {
 	account := model.NewAutocompleteData(accountTrigger, accountHint, accountHelpText)
 
-	view := model.NewAutocompleteData(accountViewTrigger, "", AccountViewHelpText)
+	view := model.NewAutocompleteData(accountViewTrigger, "", accountViewHelpText)
 	connect := model.NewAutocompleteData(accountConnectTrigger, accountConnectHint, accountConnectHelpText)
 	connect.AddTextArgument("Generate a Personal API Token from your CircleCI user settings", accountConnectHint, "")
 	disconnect := model.NewAutocompleteData(accountDisconnectTrigger, "", accountDisconnectHelpText)
