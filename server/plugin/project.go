@@ -50,18 +50,18 @@ func getProjectAutoComplete() *model.AutocompleteData {
 
 	projectRecentBuild := model.NewAutocompleteData(projectRecentBuildsTrigger, projectRecentBuildsHint, projectRecentBuildsHelpText)
 	projectRecentBuild.AddTextArgument("The branch to get recent builds from", "<branch>", "")
-	projectRecentBuild.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	projectRecentBuild.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	envvar := model.NewAutocompleteData(projectEnvVarTrigger, projectEnvVarHint, projectEnvVarHelpText)
 	envvarList := model.NewAutocompleteData(projectEnvVarListTrigger, projectEnvVarListHint, projectEnvVarListHelpText)
-	envvarList.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	envvarList.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	envvarAdd := model.NewAutocompleteData(projectEnvVarAddTrigger, projectEnvVarAddHint, projectEnvVarAddHelpText)
 	envvarAdd.AddTextArgument("<env-var name> ", "Name of environment variable to add. Ex: testVar", "")
 	envvarAdd.AddTextArgument("<env-var value> ", "Value of environment variable to add. Ex: testVal", "")
-	envvarAdd.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	envvarAdd.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	envvarDel := model.NewAutocompleteData(projectEnvVarDelTrigger, projectEnvVarDelHint, projectEnvVarDelHelpText)
 	envvarDel.AddTextArgument("<env-var name>", "Name and value of environment variable to remove. Ex: testVar", "")
-	envvarDel.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	envvarDel.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	envvar.AddCommand(envvarList)
 	envvar.AddCommand(envvarAdd)

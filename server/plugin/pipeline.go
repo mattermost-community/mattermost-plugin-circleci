@@ -54,13 +54,13 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	pipeline := model.NewAutocompleteData(pipelineTrigger, pipelineHint, pipelineHelpText)
 
 	all := model.NewAutocompleteData(pipelineGetAllTrigger, pipelineGetAllHint, pipelineGetAllHelpText)
-	all.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	all.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	recent := model.NewAutocompleteData(pipelineGetRecentTrigger, pipelineGetRecentHint, pipelineGetRecentHelpText)
 	recent.AddTextArgument("VCS is either bb or gh. Leave blank for default org", pipelineGetRecentHint, "")
 
 	mine := model.NewAutocompleteData(pipelineGetMineTrigger, pipelineGetMineHint, pipelineGetMineHelpText)
-	mine.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	mine.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	wf := model.NewAutocompleteData(pipelineWorkflowTrigger, pipelineWorkflowHint, pipelineWorkflowHelpText)
 	wf.AddTextArgument("<pipelineID>", pipelineWorkflowHint, "")
@@ -68,10 +68,10 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
 	branch := model.NewAutocompleteData(branchTrigger, branchTriggerHint, branchTriggerHelpText)
 	branch.AddTextArgument("<branch>", "The branch for which pipeline will be trigeered. Leave empty for master", "")
-	branch.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	branch.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	tag := model.NewAutocompleteData(tagTrigger, tagTriggerHint, tagTriggerHelpText)
 	tag.AddTextArgument("<tag>", "The tag for which pipeline will be trigeered.", "")
-	tag.AddNamedTextArgument(namedArgProjectName, namedArgProjectHelpText, namedArgProjectHint, namedArgProjectPattern, false)
+	tag.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	trigger.AddCommand(branch)
 	trigger.AddCommand(tag)
 
