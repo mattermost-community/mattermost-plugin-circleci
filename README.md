@@ -169,7 +169,7 @@ Subscribe a channel to notifications from a CircleCI project.
 
 ### Approve a workflow from Mattermost
 
-You receive add notifications for [holded workflows](https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval) and approved them directly from your Mattermost channel.
+You can receive add notifications for [held workflows](https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval) and approve them directly from your Mattermost channel.
 
 Learn how to set up a held workflow notification in [our Orb documentation](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#jobs-approval-notification).
 
