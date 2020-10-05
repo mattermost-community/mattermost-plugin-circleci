@@ -263,7 +263,7 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 	project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	var params circleci.TriggerPipelineParameters
-	if len(split) <= 0 {
+	if len(split) == 0 {
 		return p.sendEphemeralResponse(args, "Please choose branch or tag subcommand to trigger pipeline"), nil
 	}
 	subcmd := split[0]
