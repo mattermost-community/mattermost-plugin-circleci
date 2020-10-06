@@ -24,7 +24,6 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
     -   [Manage environment variables](#manage-environment-variables)
     -   [Get insights of your projects](#get-insights-of-your-projects)
 -   [Frequently Asked Questions](#frequently-asked-questions)
--   [Development](#development)
 -   [License](#license)
 -   [Contributing](#contributing)
 -   [Thanks to](#thanks-to)
@@ -196,10 +195,6 @@ CircleCI user tokens are AES encrypted with an At Rest Encryption Key configured
 ### How do I share feedback on this plugin?
 
 Feel free to create a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community instance to discuss.
-
-## Development
-
-This plugin only contains a server portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
 
 ## License
 
