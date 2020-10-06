@@ -22,12 +22,37 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usernameText := ""
+	if user, appErr := p.API.GetUser(userID); appErr != nil {
+		p.API.LogError("Unable to get user", "userID", userID)
+	} else {
+		usernameText = fmt.Sprintf(" by @%s", user.Username)
+	}
+
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
 	if appErr != nil {
 		p.API.LogError("Unable to get post", "postID", requestData.PostId)
-	} else if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
-		// TODO : remove the button
-		p.API.LogError("Unable to update post", "postID", originalPost.Id)
+	} else {
+		newAttachments := []*model.SlackAttachment{}
+		for _, attach := range originalPost.Attachments() {
+			filteredAttach := attach
+			filteredAttach.Actions = nil
+			for _, action := range attach.Actions {
+				if action.Id != "approvecirclecijob" {
+					filteredAttach.Actions = append(filteredAttach.Actions, action)
+				}
+			}
+
+			filteredAttach.Color = "#50F100" // green
+			filteredAttach.Title = fmt.Sprintf("This CircleCI workflow have been approved%s", usernameText)
+			newAttachments = append(newAttachments, filteredAttach)
+		}
+		originalPost.DelProp("attachments")
+		originalPost.AddProp("attachments", newAttachments)
+
+		if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
+			p.API.LogError("Unable to update post", "postID", originalPost.Id)
+		}
 	}
 
 	responsePost := &model.Post{
@@ -47,25 +72,19 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
 	var approvalRequestID string
 	for _, job := range *jobs {
 		if job.ApprovalRequestId != "" {
 			approvalRequestID = fmt.Sprintf("%v", job.ApprovalRequestId)
 		}
 	}
-	_, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID)
 
-	if err != nil {
+	if _, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID); err != nil {
 		p.API.LogError("Error occurred while approving", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
 	} else {
-		user, appErr := p.API.GetUser(userID)
-		if appErr != nil {
-			p.API.LogError("Unable to get user", "userID", userID)
-			responsePost.Message = "Job successfully approved :+1:"
-		} else {
-			responsePost.Message = fmt.Sprintf("Job successfully approved by @%s :+1:", user.Username)
-		}
+		responsePost.Message = fmt.Sprintf("Job successfully approved%s :+1:", usernameText)
 	}
 
 	if _, appErr := p.API.CreatePost(responsePost); appErr != nil {

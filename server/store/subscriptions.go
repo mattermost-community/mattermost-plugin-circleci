@@ -10,18 +10,19 @@ import (
 )
 
 const (
-	FlagOnlyFailedBuilds = "only-failed"
+	// Flag to only keep failed jobs
+	FlagOnlyFailedJobs = "only-failed"
 )
 
-// Contain the options for subscriptions
+// SubscriptionFlags contains the options for subscriptions
 type SubscriptionFlags struct {
 	OnlyFailedBuilds bool `json:"OnlyFailedBuilds"`
 }
 
-// Add a flag to the structure
+// AddFlag adds a flag to the structure
 func (s *SubscriptionFlags) AddFlag(flag string) error {
 	switch flag { // nolint:gocritic // It's expected that more flags get added.
-	case FlagOnlyFailedBuilds:
+	case FlagOnlyFailedJobs:
 		s.OnlyFailedBuilds = true
 
 	default:
@@ -31,12 +32,12 @@ func (s *SubscriptionFlags) AddFlag(flag string) error {
 	return nil
 }
 
-// Output the flags in a well-formatted string
+// String outputs the flags in a well-formatted string
 func (s SubscriptionFlags) String() string {
 	flags := []string{}
 
 	if s.OnlyFailedBuilds {
-		flag := "--" + FlagOnlyFailedBuilds
+		flag := "--" + FlagOnlyFailedJobs
 		flags = append(flags, flag)
 	}
 
@@ -47,6 +48,7 @@ func (s SubscriptionFlags) String() string {
 	return strings.Join(flags, ",")
 }
 
+// Subscription contains a subscription for a channel and a project
 type Subscription struct {
 	ChannelID          string            `json:"ChannelID"`
 	CreatorID          string            `json:"CreatorID"`
@@ -54,14 +56,14 @@ type Subscription struct {
 	ProjectInformation ProjectIdentifier `json:"ProjectInformation"`
 }
 
-// Store the subscriptions.
+// Subscriptions stores all the subscriptions.
 // Keys of the map are projects slugs, in format (gh|bb)/org-name/project-name
 // Values of the map are arrays of subscriptions, with differents channels, flags and creator ids
 type Subscriptions struct {
 	Repositories map[string][]*Subscription
 }
 
-// Transform the subscription to a well-formatted short slack attachment field
+// ToSlackAttachmentField transforms the subscription to a well-formatted short slack attachment field
 func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttachmentField {
 	if username == "" {
 		username = s.CreatorID
@@ -139,7 +141,7 @@ func (s *Subscriptions) RemoveSubscription(channelID string, conf *ProjectIdenti
 	return false
 }
 
-// Get the subscriptions for a given channel
+// GetSubscriptionsByChannel retrieves the subscriptions for a given channel
 func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscription {
 	var filteredSubs []*Subscription
 
@@ -158,13 +160,13 @@ func (s *Subscriptions) GetSubscriptionsByChannel(channelID string) []*Subscript
 	return filteredSubs
 }
 
-// Get all the subscriptions for a given project
+// GetSubscriptionsForProject retrieves all the subscriptions for a given project
 func (s *Subscriptions) GetSubscriptionsForProject(conf *ProjectIdentifier) []*Subscription {
 	key := conf.ToSlug()
 	return s.Repositories[key]
 }
 
-// Return a list of subscribed channel IDs for a project
+// GetSubscribedChannelsForProject retrieves a list of subscribed channel IDs for a project
 func (s *Subscriptions) GetSubscribedChannelsForProject(conf *ProjectIdentifier) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
@@ -179,7 +181,7 @@ func (s *Subscriptions) GetSubscribedChannelsForProject(conf *ProjectIdentifier)
 	return channelIDs
 }
 
-// Get all the channels concerned by a job for a project, filtered with subscription flags.
+// GetFilteredChannelsForJob retrieves all the channels concerned by a job for a project, filtered with subscription flags.
 func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFailed bool) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
