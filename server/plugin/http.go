@@ -52,15 +52,8 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	originalPost, appErr := p.API.GetPost(requestData.PostId)
-	if appErr != nil {
-		p.API.LogError("Unable to get post", "postID", requestData.PostId)
-	} else if _, appErr := p.API.UpdatePost(originalPost); appErr != nil {
-		// TODO : remove the button
-		p.API.LogError("Unable to update post", "postID", originalPost.Id)
-	}
-
 	responsePost := &model.Post{
+		Id:        requestData.PostId,
 		ChannelId: requestData.ChannelId,
 		RootId:    requestData.PostId,
 		UserId:    p.botUserID,
@@ -74,16 +67,16 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 	switch action {
 	case "deny":
 		responsePost.Message = fmt.Sprintf("Did not overwrite env variable %s for project %s", name, projectSlug)
-		p.API.SendEphemeralPost(userID, responsePost)
+		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	case "approve":
 		if err := circle.AddEnvVar(circleciToken, projectSlug, name, val); err != nil {
 			p.API.LogError("Error occurred while adding environment variable", err)
-			responsePost.Message = fmt.Sprintf(":red_circle: Cannot overwrite env var %s:%s from Mattermost.", name, val)
+			responsePost.Message = fmt.Sprintf(":red_circle: Could not overwrite env var %s:%s from Mattermost.", name, val)
 		} else {
 			responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
 		}
-		p.API.SendEphemeralPost(userID, responsePost)
+		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	default:
 		p.API.LogError("action %s is not valid", action)

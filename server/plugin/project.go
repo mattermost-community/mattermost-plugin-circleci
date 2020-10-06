@@ -291,12 +291,9 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 		attach.Title = fmt.Sprintf("Do you want to overwrite environment variable `%s` with masked value `%s`?", val.Name, val.Value)
 		attach.Fallback = attach.Title
 		attach.Color = "#8267E4" // purple
+		attach.Pretext = attach.Title
 
-		_ = p.sendEphemeralPost(
-			args,
-			"",
-			[]*model.SlackAttachment{&attach},
-		)
+		p.sendEphemeralPost(args, "", []*model.SlackAttachment{&attach})
 
 		return &model.CommandResponse{}, nil
 	}
