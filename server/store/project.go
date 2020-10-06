@@ -5,19 +5,19 @@ import (
 	"strings"
 )
 
-// ProjectIdentifier structure to differentiate projects from differents VCS
+// ProjectIdentifier is a structure to differentiate projects from different VCS
 type ProjectIdentifier struct {
 	VCSType string // Currently supported : "gh" and "bb"
 	Org     string
 	Project string
 }
 
-// Return the slug in format "(gh|bb)/org-name/project-name)"
+// ToSlug returns the slug in format "(gh|bb)/org-name/project-name)"
 func (pi *ProjectIdentifier) ToSlug() string {
 	return fmt.Sprintf("%s/%s/%s", pi.VCSType, pi.Org, pi.Project)
 }
 
-// Return a link to the repo formatted in Markdown
+// ToMarkdown returns a link to the repo formatted in Markdown
 func (pi *ProjectIdentifier) ToMarkdown() string {
 	VCSBaseURL := "https://github.com"
 	if pi.VCSType == "bb" {
@@ -27,7 +27,7 @@ func (pi *ProjectIdentifier) ToMarkdown() string {
 	return fmt.Sprintf("[`%s/%s/%s`](%s/%s/%s)", pi.VCSType, pi.Org, pi.Project, VCSBaseURL, pi.Org, pi.Project)
 }
 
-// Return the link to CircleCI project page
+// ToCircleURL returns the link to CircleCI project page
 func (pi *ProjectIdentifier) ToCircleURL() string {
 	vcs := "github"
 	if pi.VCSType == "bb" {
@@ -37,7 +37,7 @@ func (pi *ProjectIdentifier) ToCircleURL() string {
 	return fmt.Sprintf("https://app.circleci.com/pipelines/%s/%s/%s", vcs, pi.Org, pi.Project)
 }
 
-// Create a ProjectIdentifier struct from a slug in format (gh|bb)/org-name/project-name)
+// CreateProjectIdentifierFromSlug creates a struct from a slug in format (gh|bb)/org-name/project-name)
 // Return a string explaining the error is the format is not good
 func CreateProjectIdentifierFromSlug(fullSlug string) (*ProjectIdentifier, string) {
 	split := strings.Split(fullSlug, "/")

@@ -40,7 +40,7 @@ func (wi *WebhookInfo) toProjectIdentifier() *store.ProjectIdentifier {
 	return repoConf
 }
 
-// Convert the build info into a Post
+// ToPost converts the build info into a Post
 func (wi *WebhookInfo) ToPost(buildFailedIconURL, buildGreenIconURL string) *model.Post {
 	if wi.AssociatedPullRequests == "" {
 		wi.AssociatedPullRequests = ":grey_question: No PR"

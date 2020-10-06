@@ -13,7 +13,7 @@ const (
 	subscriptionsKVKey        = "subscriptions"
 )
 
-// Return false if no token is saved for this user
+// GetTokenForUser returns false if no token is saved for this user
 func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, bool) {
 	raw, appErr := s.api.KVGet(userID + storeTokenSuffix)
 	if appErr != nil {
@@ -34,7 +34,7 @@ func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, bool) {
 	return userToken, true
 }
 
-// Return false if the token has not been saved
+// StoreTokenForUser returns false if the token has not been saved
 func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) bool {
 	encryptedToken, err := encrypt([]byte(encryptionKey), circleciToken)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) b
 	return true
 }
 
-// Return false if the token has not been deleted
+// DeleteTokenForUser return sfalse if the token has not been deleted
 func (s *Store) DeleteTokenForUser(userID string) bool {
 	if appErr := s.api.KVDelete(userID + storeTokenSuffix); appErr != nil {
 		s.api.LogError("Unable to delete from KVStore", "KVStore error", appErr)
@@ -61,7 +61,7 @@ func (s *Store) DeleteTokenForUser(userID string) bool {
 	return true
 }
 
-// Return all the subscriptions from the KVStore
+// GetSubscriptions returns all the subscriptions from the KVStore
 func (s *Store) GetSubscriptions() (*Subscriptions, error) {
 	var subscriptions *Subscriptions
 
@@ -82,7 +82,7 @@ func (s *Store) GetSubscriptions() (*Subscriptions, error) {
 	return subscriptions, nil
 }
 
-// Store the subscriptions in the KVStore
+// StoreSubscriptions stores the subscriptions in the KVStore
 func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 	b, err := json.Marshal(subs)
 	if err != nil {

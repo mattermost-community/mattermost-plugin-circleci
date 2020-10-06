@@ -40,7 +40,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
 
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedBuilds, "Only receive notifications for failed builds", "[write anything to continue autocomplete]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedJobs, "Only receive notifications for failed builds", "[write anything to continue autocomplete]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
 	subscribeChannel.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
