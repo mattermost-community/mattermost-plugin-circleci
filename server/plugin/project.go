@@ -252,6 +252,51 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	varName := split[0]
 	varValue := split[1]
 
+	val, exist, errr := circle.EnvVarExist(token, project.ToSlug(), varName)
+	if errr != nil {
+		p.API.LogError("err while getting env var details", errr.Error())
+	}
+	if exist {
+		attach := model.SlackAttachment{}
+		attach.Actions = []*model.PostAction{
+			{
+				Id:   "envoverwrite",
+				Name: "Approve",
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/%s", manifest.Id, routeEnvOverwrite),
+					Context: map[string]interface{}{
+						"EnvName":     varName,
+						"EnvVal":      varValue,
+						"ProjectSlug": project.ToSlug(),
+						"Action":      "approve",
+					},
+				},
+			},
+			{
+				Id:   "envoverwritedeny",
+				Name: "Deny",
+				Type: model.POST_ACTION_TYPE_BUTTON,
+				Integration: &model.PostActionIntegration{
+					URL: fmt.Sprintf("/plugins/%s/%s", manifest.Id, routeEnvOverwrite),
+					Context: map[string]interface{}{
+						"EnvName":     varName,
+						"EnvVal":      varValue,
+						"ProjectSlug": project.ToSlug(),
+						"Action":      "deny",
+					},
+				},
+			},
+		}
+		attach.Title = fmt.Sprintf("Do you want to overwrite environment variable `%s` with masked value `%s`?", val.Name, val.Value)
+		attach.Fallback = attach.Title
+		attach.Color = "#8267E4" // purple
+		attach.Pretext = attach.Title
+
+		p.sendEphemeralPost(args, "", []*model.SlackAttachment{&attach})
+
+		return &model.CommandResponse{}, nil
+	}
 	err := circle.AddEnvVar(token, project.ToSlug(), varName, varValue)
 	if err != nil {
 		p.API.LogError("Unable to set CircleCI envVar", "error", err)
