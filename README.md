@@ -116,8 +116,8 @@ Subscribe your channel to notifications:
     - /circleci subscription list-channels      — List all channels in the current team subscribed to a project
 
 Get Insights about workflows and jobs:
-    - /circleci insight workflows           - Get summary of metrics for workflows over past 90 days for a given project
-    - /circleci insight jobs <workflow name>     - Get summary of metrics for jobs over past 90 days for a given workflow
+    - /circleci insight workflows               - Get summary of metrics for workflows over past 90 days for a given project
+    - /circleci insight jobs <workflow name>    - Get summary of metrics for jobs over past 90 days for a given workflow
 
 Manage CircleCI projects:
     - /circleci project list-followed           — List followed projects
