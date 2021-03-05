@@ -133,7 +133,7 @@ func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken strin
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"Projects you are following on CircleCI",
 		[]*model.SlackAttachment{
@@ -192,7 +192,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Recent builds for %s branch `%s`", project.ToMarkdown(), branch),
 		[]*model.SlackAttachment{
@@ -230,7 +230,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Environment variables for project %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{

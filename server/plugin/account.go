@@ -88,7 +88,7 @@ func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*mod
 		projectsListString += fmt.Sprintf("%s - [CircleCI page](%s)\n", projectIdentifier.ToMarkdown(), projectIdentifier.ToCircleURL())
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{

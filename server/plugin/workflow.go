@@ -98,7 +98,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 		uname = tmp
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
@@ -187,7 +187,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs, token string, wo
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Jobs for given workflow ID `%s`", workflowID),
 		[]*model.SlackAttachment{

@@ -81,7 +81,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token st
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Workflow metrics for project %s ", project.ToMarkdown()),
 		[]*model.SlackAttachment{
@@ -132,7 +132,7 @@ func (p *Plugin) executeInsightJobMetrics(args *model.CommandArgs, token string,
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Job metrics for project: %s — workflow: `%s`", project.ToMarkdown(), workflowName),
 		[]*model.SlackAttachment{
