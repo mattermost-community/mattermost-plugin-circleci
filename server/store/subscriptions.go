@@ -128,17 +128,17 @@ func (s *Subscriptions) RemoveSubscription(channelID string, conf *ProjectIdenti
 		}
 	}
 
-	if removed {
-		if len(repoSubs) == 0 {
-			delete(s.Repositories, key)
-		} else {
-			s.Repositories[key] = repoSubs
-		}
-
-		return true
+	if !removed {
+		return false
 	}
 
-	return false
+	if len(repoSubs) == 0 {
+		delete(s.Repositories, key)
+	} else {
+		s.Repositories[key] = repoSubs
+	}
+
+	return true
 }
 
 // GetSubscriptionsByChannel retrieves the subscriptions for a given channel
