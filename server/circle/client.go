@@ -140,7 +140,7 @@ func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse
 	return ms, err
 }
 
-// CancelWorkflow reruns a given workflow
+// CancelWorkflow cancels a given workflow
 func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
 	ms, resp, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
 	resp.Body.Close()
