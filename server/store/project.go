@@ -38,7 +38,7 @@ func (pi *ProjectIdentifier) ToCircleURL() string {
 }
 
 // CreateProjectIdentifierFromSlug creates a struct from a slug in format (gh|bb)/org-name/project-name)
-// Return a string explaining the error is the format is not good
+// Return a string explaining the error is related to incorrect formatting
 func CreateProjectIdentifierFromSlug(fullSlug string) (*ProjectIdentifier, string) {
 	split := strings.Split(fullSlug, "/")
 

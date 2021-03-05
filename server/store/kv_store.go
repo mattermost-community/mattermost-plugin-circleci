@@ -91,7 +91,7 @@ func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 	return nil
 }
 
-// GetDefaultProject retrieves the saved default project for the user. Returns nil incase no default project exists for the user
+// GetDefaultProject retrieves the saved default project for the user. Returns nil if no default project exists for the user
 func (s *Store) GetDefaultProject(userID string) (*ProjectIdentifier, error) {
 	var pi *ProjectIdentifier
 

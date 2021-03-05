@@ -15,23 +15,23 @@ const (
 		subscribeChannelTrigger + "|" +
 		subscribeUnsubscribeChannelTrigger + "|" +
 		subscribeListAllChannelsTrigger + ">"
-	subscribeHelpText = "Manage your subscriptions"
+	subscribeHelpText = "Manage your subscriptions."
 
 	subscribeListTrigger  = "list"
 	subscribeListHint     = ""
-	subscribeListHelpText = "List the CircleCI subscriptions for the current channel"
+	subscribeListHelpText = "List the CircleCI subscriptions for the current channel."
 
 	subscribeChannelTrigger  = "add"
 	subscribeChannelHint     = "[--flags]"
-	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a project"
+	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a project."
 
 	subscribeUnsubscribeChannelTrigger  = "remove"
 	subscribeUnsubscribeChannelHint     = "[--flags]"
-	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a project"
+	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a project."
 
 	subscribeListAllChannelsTrigger  = "list-channels"
 	subscribeListAllChannelsHint     = ""
-	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to a project"
+	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to a project."
 )
 
 func getSubscribeAutoCompleteData() *model.AutocompleteData {

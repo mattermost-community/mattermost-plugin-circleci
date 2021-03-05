@@ -42,7 +42,7 @@ type Plugin struct {
 	router *mux.Router
 }
 
-// OnActivate is ran when the plugin is activated
+// OnActivate is run when the plugin is activated
 func (p *Plugin) OnActivate() error {
 	URLPluginStaticBase := fmt.Sprintf("%s/plugins/%s/public", *p.API.GetConfig().ServiceSettings.SiteURL, manifest.Id)
 	badgeFailedURL = URLPluginStaticBase + "/circleci-failed.svg"
