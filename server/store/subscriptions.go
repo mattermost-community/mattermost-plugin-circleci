@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// Flag to only keep failed jobs
+	// FlagOnlyFailedJobs means we only keep failed jobs
 	FlagOnlyFailedJobs = "only-failed"
 )
 
@@ -19,9 +19,9 @@ type SubscriptionFlags struct {
 	OnlyFailedBuilds bool `json:"OnlyFailedBuilds"`
 }
 
-// AddFlag adds a flag to the structure
+// AddFlag adds a flag to the struct
 func (s *SubscriptionFlags) AddFlag(flag string) error {
-	switch flag { // nolint:gocritic // It's expected that more flags get added.
+	switch flag { // nolint:gocritic // It's expected that more flags get added
 	case FlagOnlyFailedJobs:
 		s.OnlyFailedBuilds = true
 
@@ -56,9 +56,9 @@ type Subscription struct {
 	ProjectInformation ProjectIdentifier `json:"ProjectInformation"`
 }
 
-// Subscriptions stores all the subscriptions.
-// Keys of the map are projects slugs, in format (gh|bb)/org-name/project-name
-// Values of the map are arrays of subscriptions, with differents channels, flags and creator ids
+// Subscriptions stores all the subscriptions
+// Keys of the map are projects slugs, in format "(gh|bb)/org-name/project-name"
+// Values of the map are arrays of subscriptions, with different channels, flags and creator IDs
 type Subscriptions struct {
 	Repositories map[string][]*Subscription
 }
@@ -181,7 +181,7 @@ func (s *Subscriptions) GetSubscribedChannelsForProject(conf *ProjectIdentifier)
 	return channelIDs
 }
 
-// GetFilteredChannelsForJob retrieves all the channels concerned by a job for a project, filtered with subscription flags.
+// GetFilteredChannelsForJob retrieves all the channels concerned by a job for a project, filtered with subscription flags
 func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFailed bool) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
@@ -190,7 +190,7 @@ func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFai
 
 	var channelIDs []string
 	for _, sub := range subs {
-		switch { // nolint:gocritic // It's expected that more flags get added.
+		switch { // nolint:gocritic // It's expected that more flags get added
 		case isFailed || !sub.Flags.OnlyFailedBuilds:
 			channelIDs = append(channelIDs, sub.ChannelID)
 		}

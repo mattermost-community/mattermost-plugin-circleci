@@ -153,7 +153,7 @@ func (p *Plugin) sendIncorrectSubcommandResponse(args *model.CommandArgs, curren
 	return p.sendEphemeralResponse(args, message), nil
 }
 
-// ExecuteCommand is called when a slash command registred by the plugin is called
+// ExecuteCommand is called when a slash command registered by the plugin is called
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	split := strings.Fields(args.Command)
 

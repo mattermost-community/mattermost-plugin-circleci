@@ -32,13 +32,13 @@ func (p *Plugin) initializeRouter() {
 }
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
-// /plugins/{id} path will be routed to the plugin.
+// /plugins/{id} path will be routed to the plugin
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("Request received", "URL", r.URL)
 	p.router.ServeHTTP(w, r)
 }
 
-// overwrite given env var after confirmation if already exist
+// httpHandleEnvOverwrite overwrites given env var after confirmation if it already exists
 func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
 	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)

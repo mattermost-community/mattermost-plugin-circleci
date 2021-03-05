@@ -35,7 +35,7 @@ func GetCurrentUser(apiToken string) (*circleci.User, error) {
 	return &user, nil
 }
 
-// GetWorkflow returns the info for given workflow id
+// GetWorkflow returns the info for given workflow ID
 func GetWorkflow(apiToken string, workflowID string) (*circleci.Workflow, error) {
 	wf, resp, err := client.WorkflowApi.GetWorkflowById(getContext(apiToken), workflowID)
 	resp.Body.Close()
@@ -46,7 +46,7 @@ func GetWorkflow(apiToken string, workflowID string) (*circleci.Workflow, error)
 	return &wf, nil
 }
 
-// GetWorkflowJobs returns the info of jobs for given workflow id
+// GetWorkflowJobs returns the info of jobs for given workflow ID
 func GetWorkflowJobs(apiToken string, workflowID string) (*[]circleci.Job, error) {
 	wf, resp, err := client.WorkflowApi.ListWorkflowJobs(getContext(apiToken), workflowID)
 	resp.Body.Close()
@@ -57,7 +57,7 @@ func GetWorkflowJobs(apiToken string, workflowID string) (*[]circleci.Job, error
 	return &wf.Items, nil
 }
 
-// GetRecentlyBuiltPipelines get all recently built pipelines in a org
+// GetRecentlyBuiltPipelines get all recently built pipelines in a organization
 func GetRecentlyBuiltPipelines(apiToken string, orgSlug string, mine bool) ([]circleci.Pipeline1, error) {
 	pl, resp, err := client.PipelineApi.ListPipelines(getContext(apiToken), orgSlug, mine, nil)
 	resp.Body.Close()
@@ -101,7 +101,7 @@ func GetWorkflowsByPipeline(apiToken string, pipelineID string) ([]circleci.Work
 	return wf.Items, nil
 }
 
-// GetNameByID returns username from user id
+// GetNameByID returns username from user ID
 func GetNameByID(apiToken string, id string) (string, error) {
 	user, resp, err := client.UserApi.GetUser(getContext(apiToken), id)
 	resp.Body.Close()
