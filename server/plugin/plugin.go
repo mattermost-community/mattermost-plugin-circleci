@@ -9,13 +9,14 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (
-	botUserName    = "circleci"
-	botDisplayName = "CircleCI"
-	botDescription = "Created by the CircleCI Plugin"
+	botUserName                = "circleci"
+	botDisplayName             = "CircleCI"
+	botDescription             = "Created by the CircleCI Plugin"
+	circleOrbDocumentationLink = "https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify"
 )
 
 var (

@@ -7,8 +7,8 @@ import (
 	"github.com/darkLord19/circleci-v2/circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (

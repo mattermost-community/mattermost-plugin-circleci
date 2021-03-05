@@ -8,7 +8,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
 )
 
 const (

@@ -8,9 +8,9 @@ import (
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
-	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
+	v1 "github.com/mattermost/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (

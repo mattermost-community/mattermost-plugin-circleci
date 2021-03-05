@@ -6,7 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
 )
 
 func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
