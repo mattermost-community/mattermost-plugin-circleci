@@ -20,15 +20,15 @@ type WebhookInfo struct {
 	Username               string `json:"Username"`
 	WorkflowID             string `json:"WorkflowID"`
 	JobName                string `json:"JobName"`
-	CircleBuildNumber      int    `json:"CircleBuildNumber"`
 	CircleBuildURL         string `json:"CircleBuildURL"`
 	Branch                 string `json:"Branch"`
 	Tag                    string `json:"Tag"`
 	Commit                 string `json:"Commit"`
 	AssociatedPullRequests string `json:"AssociatedPullRequests"`
+	Message                string `json:"Message"`
+	CircleBuildNumber      int    `json:"CircleBuildNumber"`
 	IsFailed               bool   `json:"IsFailed"`
 	IsWaitingApproval      bool   `json:"IsWaitingApproval"`
-	Message                string `json:"Message"`
 }
 
 func (wi *WebhookInfo) toProjectIdentifier() *store.ProjectIdentifier {

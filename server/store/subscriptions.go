@@ -52,8 +52,8 @@ func (s SubscriptionFlags) String() string {
 type Subscription struct {
 	ChannelID          string            `json:"ChannelID"`
 	CreatorID          string            `json:"CreatorID"`
-	Flags              SubscriptionFlags `json:"Flags"`
 	ProjectInformation ProjectIdentifier `json:"ProjectInformation"`
+	Flags              SubscriptionFlags `json:"Flags"`
 }
 
 // Subscriptions stores all the subscriptions
