@@ -35,18 +35,18 @@ const manifestStr = `
     "settings": [
       {
         "key": "WebhooksSecret",
-        "display_name": "Webhooks Secret",
+        "display_name": "Webhooks Secret:",
         "type": "generated",
-        "help_text": "The secret used to authenticate the webhook to Mattermost",
-        "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations",
+        "help_text": "The secret used to authenticate the webhook to Mattermost.",
+        "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations.",
         "placeholder": "",
         "default": null
       },
       {
         "key": "EncryptionKey",
-        "display_name": "At Rest Encryption Key",
+        "display_name": "At Rest Encryption Key:",
         "type": "generated",
-        "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will make every user logged out of their CircleCI account",
+        "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will log out every user of their CircleCI account.",
         "placeholder": "",
         "default": null
       }
