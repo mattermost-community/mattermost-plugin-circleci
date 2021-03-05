@@ -1,3 +1,5 @@
+## Mattermost/CircleCI Plugin
+
 A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for CircleCI, which uses the [CircleCI Orb for Mattermost Plugin](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify) by [@nathanaelhoun](https://github.com/nathanaelhoun) to interact with jobs, builds, or workflows and receive notifications in Mattermost channels. The Mattermost CircleCI plugin uses a personal API token to connect your Mattermost account to CircleCI to interact with the API.
 
 Use the Circle CI plugin for:
