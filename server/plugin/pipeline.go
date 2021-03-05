@@ -67,10 +67,10 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
 	branch := model.NewAutocompleteData(branchTrigger, branchTriggerHint, branchTriggerHelpText)
-	branch.AddTextArgument("<branch>", "The branch for which pipeline will be trigeered. Leave empty for master", "")
+	branch.AddTextArgument("<branch>", "The branch for which pipeline will be triggered. Leave empty for master", "")
 	branch.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	tag := model.NewAutocompleteData(tagTrigger, tagTriggerHint, tagTriggerHelpText)
-	tag.AddTextArgument("<tag>", "The tag for which pipeline will be trigeered.", "")
+	tag.AddTextArgument("<tag>", "The tag for which pipeline will be triggered.", "")
 	tag.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	trigger.AddCommand(branch)
 	trigger.AddCommand(tag)
