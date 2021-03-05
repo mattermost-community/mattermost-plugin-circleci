@@ -40,7 +40,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	subscribeList := model.NewAutocompleteData(subscribeListTrigger, subscribeListHint, subscribeListHelpText)
 
 	subscribeChannel := model.NewAutocompleteData(subscribeChannelTrigger, subscribeChannelHint, subscribeChannelHelpText)
-	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedJobs, "Only receive notifications for failed builds", "[write anything to continue autocomplete]", "", false) // TODO use boolean flag when then are available. See https://github.com/mattermost/mattermost-server/pull/14810
+	subscribeChannel.AddNamedTextArgument(store.FlagOnlyFailedJobs, "Only receive notifications for failed builds", "[write anything to continue autocomplete]", "", false)
 	subscribeChannel.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 
 	unsubscribeChannel := model.NewAutocompleteData(subscribeUnsubscribeChannelTrigger, subscribeUnsubscribeChannelHint, subscribeUnsubscribeChannelHelpText)
@@ -130,8 +130,6 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 }
 
 func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *store.ProjectIdentifier, rawFlags []string) (*model.CommandResponse, *model.AppError) {
-	// ? TODO check that project exists
-
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
