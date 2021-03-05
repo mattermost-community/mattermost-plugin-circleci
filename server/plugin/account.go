@@ -132,9 +132,9 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	}
 
 	if existingToken != "" {
-		user, err := v1.GetCircleUserInfo(existingToken)
-		if err != nil {
-			p.API.LogWarn("Internal error when reaching CircleCI", "error", err)
+		user, errToken := v1.GetCircleUserInfo(existingToken)
+		if errToken != nil {
+			p.API.LogWarn("Internal error when reaching CircleCI", "error", errToken)
 			return p.sendEphemeralResponse(args, ":red_circle: Internal error when reaching CircleCI"), nil
 		}
 

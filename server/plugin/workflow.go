@@ -128,7 +128,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 					},
 					{
 						Title: "Pipeline Number",
-						Value: string(wf.PipelineNumber),
+						Value: fmt.Sprintf("%d", wf.PipelineNumber),
 						Short: true,
 					},
 					{

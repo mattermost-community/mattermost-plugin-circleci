@@ -149,6 +149,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toProjectIdentifier(), wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
+		return
 	}
 
 	postWithoutChannel := wi.ToPost(buildFailedIconURL, buildGreenIconURL)
