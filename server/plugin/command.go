@@ -260,8 +260,12 @@ func getTokenIfConnected(p *Plugin, split []string, userID string) (string, bool
 		return "", false
 	}
 
-	circleToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
-	if !exists {
+	circleToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
+
+	if circleToken == "" {
 		return "", true
 	}
 

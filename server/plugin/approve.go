@@ -11,11 +11,15 @@ import (
 
 func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
 
-	if !exists {
+	if circleciToken == "" {
 		http.NotFound(w, r)
 	}
+
 	requestData := model.PostActionIntegrationRequestFromJson(r.Body)
 	if requestData == nil {
 		p.API.LogError("Empty request data")

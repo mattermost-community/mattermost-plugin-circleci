@@ -41,8 +41,12 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 // overwrite given env var after confirmation if already exist
 func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
-	if !exists {
+	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
+
+	if circleciToken == "" {
 		http.NotFound(w, r)
 	}
 
