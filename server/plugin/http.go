@@ -74,12 +74,13 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	case "approve":
+		responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
+
 		if err := circle.AddEnvVar(circleciToken, projectSlug, name, val); err != nil {
 			p.API.LogError("Error occurred while adding environment variable", err)
 			responsePost.Message = fmt.Sprintf(":red_circle: Could not overwrite env var %s:%s from Mattermost.", name, val)
-		} else {
-			responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
 		}
+
 		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	default:
