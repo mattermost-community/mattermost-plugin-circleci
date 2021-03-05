@@ -170,7 +170,7 @@ func DelEnvVar(apiToken string, projectSlug string, name string) error {
 	return err
 }
 
-// GetWorkflowMetrics retuirns workflow metrics for a project
+// GetWorkflowMetrics returns workflow metrics for a project
 func GetWorkflowMetrics(apiToken string, projectSlug string) ([]circleci.InlineResponse200Items, error) {
 	met, resp, err := client.InsightsApi.GetProjectWorkflowMetrics(getContext(apiToken), projectSlug, nil)
 	resp.Body.Close()
