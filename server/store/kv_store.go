@@ -51,7 +51,7 @@ func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) b
 	return true
 }
 
-// DeleteTokenForUser return sfalse if the token has not been deleted
+// DeleteTokenForUser returns false if the token has not been deleted
 func (s *Store) DeleteTokenForUser(userID string) bool {
 	if appErr := s.api.KVDelete(storeTokenPrefix + userID); appErr != nil {
 		s.api.LogError("Unable to delete from KVStore", "KVStore error", appErr)
