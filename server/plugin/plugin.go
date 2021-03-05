@@ -30,16 +30,16 @@ type Plugin struct {
 	plugin.MattermostPlugin
 	Store store.Store
 
-	// configurationLock synchronizes access to the configuration.
-	configurationLock sync.RWMutex
-
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
 	configuration *configuration
 
+	router *mux.Router
+
 	botUserID string
 
-	router *mux.Router
+	// configurationLock synchronizes access to the configuration.
+	configurationLock sync.RWMutex
 }
 
 // OnActivate is run when the plugin is activated
