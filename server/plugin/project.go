@@ -252,7 +252,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	varName := split[0]
 	varValue := split[1]
 
-	val, exist, errr := circle.EnvVarExist(token, project.ToSlug(), varName)
+	val, exist, errr := circle.EnvVarExists(token, project.ToSlug(), varName)
 	if errr != nil {
 		p.API.LogError("err while getting env var details", errr.Error())
 	}

@@ -195,8 +195,8 @@ func ApproveJob(apiToken string, approvalRequestID string, workFlowID string) (s
 	return response.Message, nil
 }
 
-// EnvVarExist check if given env var exist
-func EnvVarExist(apiToken string, projectSlug string, name string) (circleci.EnvironmentVariablePair, bool, error) {
+// EnvVarExists check if given env var exists
+func EnvVarExists(apiToken string, projectSlug string, name string) (circleci.EnvironmentVariablePair, bool, error) {
 	val, resp, err := client.ProjectApi.GetEnvVar(getContext(apiToken), projectSlug, name)
 	defer resp.Body.Close()
 	if err != nil {
