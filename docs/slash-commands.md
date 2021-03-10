@@ -1,7 +1,7 @@
 # Slash Commands
 
-After your System Admin has configured the CircleCI plugin, run /circleci account connect in a Mattermost channel to connect your Mattermost and CircleCI accounts.
-By default, the commands use the project set by /circleci config, unless a specific project is specified by the argument `--project <vcs/org-name/project-name>` (possible on all commands).
+After your System Admin has configured the CircleCI plugin, run `/circleci account connect` in a Mattermost channel to connect your Mattermost and CircleCI accounts.
+By default, the commands use the project set by `/circleci config`, unless a specific project is specified by the argument `--project <vcs/org-name/project-name>` (possible on all commands).
 
 ## Connect to your CircleCI account
 
