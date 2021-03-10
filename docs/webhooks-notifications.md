@@ -2,7 +2,7 @@
 
 Subscribe a channel to notifications from a CircleCI project.
 
-1. In the channel you want to subscribe to notifications, type /circleci subscription add.
+1. In the channel you want to subscribe to notifications, type `/circleci subscription add`.
   - You can add the optional flag `--only-failed` to only receive notifications about failed jobs.
   - You can temporarily use a project different that the one set with `/circleci config`, using the optional flag `--project <vcs/org-name/project-name>`.
 
