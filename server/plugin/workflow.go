@@ -5,7 +5,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
 )
 
 const (
@@ -98,7 +98,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 		uname = tmp
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
@@ -128,7 +128,7 @@ func (p *Plugin) executeWorflowGet(args *model.CommandArgs, token string, workfl
 					},
 					{
 						Title: "Pipeline Number",
-						Value: string(wf.PipelineNumber),
+						Value: fmt.Sprintf("%d", wf.PipelineNumber),
 						Short: true,
 					},
 					{
@@ -187,7 +187,7 @@ func (p *Plugin) executeWorflowGetJobs(args *model.CommandArgs, token string, wo
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Jobs for given workflow ID `%s`", workflowID),
 		[]*model.SlackAttachment{

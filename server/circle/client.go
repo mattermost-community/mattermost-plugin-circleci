@@ -35,7 +35,7 @@ func GetCurrentUser(apiToken string) (*circleci.User, error) {
 	return &user, nil
 }
 
-// GetWorkflow returns the info for given workflow id
+// GetWorkflow returns the info for given workflow ID
 func GetWorkflow(apiToken string, workflowID string) (*circleci.Workflow, error) {
 	wf, resp, err := client.WorkflowApi.GetWorkflowById(getContext(apiToken), workflowID)
 	resp.Body.Close()
@@ -46,7 +46,7 @@ func GetWorkflow(apiToken string, workflowID string) (*circleci.Workflow, error)
 	return &wf, nil
 }
 
-// GetWorkflowJobs returns the info of jobs for given workflow id
+// GetWorkflowJobs returns the info of jobs for given workflow ID
 func GetWorkflowJobs(apiToken string, workflowID string) (*[]circleci.Job, error) {
 	wf, resp, err := client.WorkflowApi.ListWorkflowJobs(getContext(apiToken), workflowID)
 	resp.Body.Close()
@@ -57,7 +57,7 @@ func GetWorkflowJobs(apiToken string, workflowID string) (*[]circleci.Job, error
 	return &wf.Items, nil
 }
 
-// GetRecentlyBuiltPipelines get all recently built pipelines in a org
+// GetRecentlyBuiltPipelines get all recently built pipelines in a organization
 func GetRecentlyBuiltPipelines(apiToken string, orgSlug string, mine bool) ([]circleci.Pipeline1, error) {
 	pl, resp, err := client.PipelineApi.ListPipelines(getContext(apiToken), orgSlug, mine, nil)
 	resp.Body.Close()
@@ -101,7 +101,7 @@ func GetWorkflowsByPipeline(apiToken string, pipelineID string) ([]circleci.Work
 	return wf.Items, nil
 }
 
-// GetNameByID returns username from user id
+// GetNameByID returns username from user ID
 func GetNameByID(apiToken string, id string) (string, error) {
 	user, resp, err := client.UserApi.GetUser(getContext(apiToken), id)
 	resp.Body.Close()
@@ -140,7 +140,7 @@ func RerunWorkflow(apiToken string, workflowID string) (circleci.MessageResponse
 	return ms, err
 }
 
-// CancelWorkflow reruns a given workflow
+// CancelWorkflow cancels a given workflow
 func CancelWorkflow(apiToken string, workflowID string) (circleci.MessageResponse, error) {
 	ms, resp, err := client.WorkflowApi.CancelWorkflow(getContext(apiToken), workflowID)
 	resp.Body.Close()
@@ -170,7 +170,7 @@ func DelEnvVar(apiToken string, projectSlug string, name string) error {
 	return err
 }
 
-// GetWorkflowMetrics retuirns workflow metrics for a project
+// GetWorkflowMetrics returns workflow metrics for a project
 func GetWorkflowMetrics(apiToken string, projectSlug string) ([]circleci.InlineResponse200Items, error) {
 	met, resp, err := client.InsightsApi.GetProjectWorkflowMetrics(getContext(apiToken), projectSlug, nil)
 	resp.Body.Close()
@@ -195,8 +195,8 @@ func ApproveJob(apiToken string, approvalRequestID string, workFlowID string) (s
 	return response.Message, nil
 }
 
-// EnvVarExist check if given env var exist
-func EnvVarExist(apiToken string, projectSlug string, name string) (circleci.EnvironmentVariablePair, bool, error) {
+// EnvVarExists check if given env var exists
+func EnvVarExists(apiToken string, projectSlug string, name string) (circleci.EnvironmentVariablePair, bool, error) {
 	val, resp, err := client.ProjectApi.GetEnvVar(getContext(apiToken), projectSlug, name)
 	defer resp.Body.Close()
 	if err != nil {

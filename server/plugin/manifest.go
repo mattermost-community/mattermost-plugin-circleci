@@ -12,12 +12,12 @@ var manifest *model.Manifest
 
 const manifestStr = `
 {
-  "id": "com.github.nathanaelhoun.plugin-circleci",
+  "id": "com.github.mattermost.plugin-circleci",
   "name": "CircleCI",
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
-  "homepage_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/blob/master/README.md",
-  "support_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues",
-  "release_notes_url": "https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases",
+  "homepage_url": "https://mattermost.gitbook.io/circle-ci-plugin",
+  "support_url": "https://github.com/mattermost/mattermost-plugin-circleci/issues",
+  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-circleci/releases",
   "icon_path": "public/circleci.png",
   "version": "1.1.0",
   "min_server_version": "5.12.0",
@@ -30,23 +30,23 @@ const manifestStr = `
     "executable": ""
   },
   "settings_schema": {
-    "header": "Link your Mattermost instance with your CircleCI projects. Check the [plugin documentation](https://github.com/nathanaelhoun/mattermost-plugin-circleci#mattermost-plugin-circleci) to learn how to configure it.",
+    "header": "Link your Mattermost instance with your CircleCI projects. Check the [plugin documentation](https://mattermost.gitbook.io/circle-ci-plugin) to learn how to configure it.",
     "footer": "",
     "settings": [
       {
         "key": "WebhooksSecret",
-        "display_name": "Webhooks Secret",
+        "display_name": "Webhooks Secret:",
         "type": "generated",
-        "help_text": "The secret used to authenticate the webhook to Mattermost",
-        "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations",
+        "help_text": "The secret used to authenticate the webhook to Mattermost.",
+        "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations.",
         "placeholder": "",
         "default": null
       },
       {
         "key": "EncryptionKey",
-        "display_name": "At Rest Encryption Key",
+        "display_name": "At Rest Encryption Key:",
         "type": "generated",
-        "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will make every user logged out of their CircleCI account",
+        "help_text": "The AES encryption key used to encrypt stored access tokens. Regenerating the key will log out every user of their CircleCI account.",
         "placeholder": "",
         "default": null
       }

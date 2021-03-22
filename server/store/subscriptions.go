@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// Flag to only keep failed jobs
+	// FlagOnlyFailedJobs means we only keep failed jobs
 	FlagOnlyFailedJobs = "only-failed"
 )
 
@@ -19,9 +19,9 @@ type SubscriptionFlags struct {
 	OnlyFailedBuilds bool `json:"OnlyFailedBuilds"`
 }
 
-// AddFlag adds a flag to the structure
+// AddFlag adds a flag to the struct
 func (s *SubscriptionFlags) AddFlag(flag string) error {
-	switch flag { // nolint:gocritic // It's expected that more flags get added.
+	switch flag { // nolint:gocritic // It's expected that more flags get added
 	case FlagOnlyFailedJobs:
 		s.OnlyFailedBuilds = true
 
@@ -52,18 +52,18 @@ func (s SubscriptionFlags) String() string {
 type Subscription struct {
 	ChannelID          string            `json:"ChannelID"`
 	CreatorID          string            `json:"CreatorID"`
-	Flags              SubscriptionFlags `json:"Flags"`
 	ProjectInformation ProjectIdentifier `json:"ProjectInformation"`
+	Flags              SubscriptionFlags `json:"Flags"`
 }
 
-// Subscriptions stores all the subscriptions.
-// Keys of the map are projects slugs, in format (gh|bb)/org-name/project-name
-// Values of the map are arrays of subscriptions, with differents channels, flags and creator ids
+// Subscriptions stores all the subscriptions
+// Keys of the map are projects slugs, in format "(gh|bb)/org-name/project-name"
+// Values of the map are arrays of subscriptions, with different channels, flags and creator IDs
 type Subscriptions struct {
 	Repositories map[string][]*Subscription
 }
 
-// ToSlackAttachmentField transforms the subscription to a well-formatted short slack attachment field
+// ToSlackAttachmentField transforms the subscription to a well-formatted short Slack attachment field
 func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttachmentField {
 	if username == "" {
 		username = s.CreatorID
@@ -81,7 +81,7 @@ func (s *Subscription) ToSlackAttachmentField(username string) *model.SlackAttac
 }
 
 // AddSubscription adds a new subscription in the struct
-// Return true if the subscription was already existing and has been updated
+// Returns true if the subscription was already existing and has been updated
 func (s *Subscriptions) AddSubscription(newSub *Subscription) bool {
 	key := newSub.ProjectInformation.ToSlug()
 
@@ -110,7 +110,7 @@ func (s *Subscriptions) AddSubscription(newSub *Subscription) bool {
 }
 
 // RemoveSubscription removes a subscription from the struct
-// Return true if the subscription has been found and removed
+// Returns true if the subscription has been found and removed
 func (s *Subscriptions) RemoveSubscription(channelID string, conf *ProjectIdentifier) bool {
 	key := conf.ToSlug()
 
@@ -128,17 +128,17 @@ func (s *Subscriptions) RemoveSubscription(channelID string, conf *ProjectIdenti
 		}
 	}
 
-	if removed {
-		if len(repoSubs) == 0 {
-			delete(s.Repositories, key)
-		} else {
-			s.Repositories[key] = repoSubs
-		}
-
-		return true
+	if !removed {
+		return false
 	}
 
-	return false
+	if len(repoSubs) == 0 {
+		delete(s.Repositories, key)
+	} else {
+		s.Repositories[key] = repoSubs
+	}
+
+	return true
 }
 
 // GetSubscriptionsByChannel retrieves the subscriptions for a given channel
@@ -181,7 +181,7 @@ func (s *Subscriptions) GetSubscribedChannelsForProject(conf *ProjectIdentifier)
 	return channelIDs
 }
 
-// GetFilteredChannelsForJob retrieves all the channels concerned by a job for a project, filtered with subscription flags.
+// GetFilteredChannelsForJob retrieves all the channels specified by a job for a project, filtered with subscription flags
 func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFailed bool) []string {
 	subs := s.GetSubscriptionsForProject(conf)
 	if subs == nil {
@@ -190,7 +190,7 @@ func (s *Subscriptions) GetFilteredChannelsForJob(conf *ProjectIdentifier, isFai
 
 	var channelIDs []string
 	for _, sub := range subs {
-		switch { // nolint:gocritic // It's expected that more flags get added.
+		switch { // nolint:gocritic // It's expected that more flags get added
 		case isFailed || !sub.Flags.OnlyFailedBuilds:
 			channelIDs = append(channelIDs, sub.ChannelID)
 		}

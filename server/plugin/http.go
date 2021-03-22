@@ -8,7 +8,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
 )
 
 const (
@@ -32,17 +32,21 @@ func (p *Plugin) initializeRouter() {
 }
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
-// /plugins/{id} path will be routed to the plugin.
+// /plugins/{id} path will be routed to the plugin
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.API.LogDebug("Request received", "URL", r.URL)
 	p.router.ServeHTTP(w, r)
 }
 
-// overwrite given env var after confirmation if already exist
+// httpHandleEnvOverwrite overwrites given env var after confirmation if it already exists
 func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
-	if !exists {
+	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
+
+	if circleciToken == "" {
 		http.NotFound(w, r)
 	}
 
@@ -70,12 +74,13 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	case "approve":
+		responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
+
 		if err := circle.AddEnvVar(circleciToken, projectSlug, name, val); err != nil {
 			p.API.LogError("Error occurred while adding environment variable", err)
 			responsePost.Message = fmt.Sprintf(":red_circle: Could not overwrite env var %s:%s from Mattermost.", name, val)
-		} else {
-			responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
 		}
+
 		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	default:

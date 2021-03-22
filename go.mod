@@ -1,4 +1,4 @@
-module github.com/nathanaelhoun/mattermost-plugin-circleci
+module github.com/mattermost/mattermost-plugin-circleci
 
 go 1.14
 

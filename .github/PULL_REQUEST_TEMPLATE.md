@@ -7,7 +7,7 @@
 
 ## Changelog
 
-<!-- If applicable, put here the changelog information with the category (New Features, Enhancements, Bug Fixes and Others) -->
+<!-- If applicable, include changelog information and the relevant category (e.g., New features, Enhancements, Bug fixes and other) -->
 
 ```
 ## New features
@@ -16,6 +16,6 @@
 ## Enhancements
 - /
 
-## Bug Fixes and Others
+## Bug fixes and others
 - /
 ```

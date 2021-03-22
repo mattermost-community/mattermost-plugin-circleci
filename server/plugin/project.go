@@ -8,9 +8,9 @@ import (
 	"github.com/jszwedko/go-circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
-	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
+	v1 "github.com/mattermost/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -133,7 +133,7 @@ func (p *Plugin) executeProjectList(args *model.CommandArgs, circleciToken strin
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"Projects you are following on CircleCI",
 		[]*model.SlackAttachment{
@@ -192,7 +192,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Recent builds for %s branch `%s`", project.ToMarkdown(), branch),
 		[]*model.SlackAttachment{
@@ -230,7 +230,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Environment variables for project %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{
@@ -252,7 +252,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	varName := split[0]
 	varValue := split[1]
 
-	val, exist, errr := circle.EnvVarExist(token, project.ToSlug(), varName)
+	val, exist, errr := circle.EnvVarExists(token, project.ToSlug(), varName)
 	if errr != nil {
 		p.API.LogError("err while getting env var details", errr.Error())
 	}

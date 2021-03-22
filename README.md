@@ -1,8 +1,8 @@
 # Mattermost Plugin CircleCI
 
-[![CircleCI branch](https://img.shields.io/circleci/project/github/nathanaelhoun/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/nathanaelhoun/mattermost-plugin-circleci)
-[![Release](https://img.shields.io/github/v/release/nathanaelhoun/mattermost-plugin-circleci)](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases/latest)
-[![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelhoun/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/nathanaelhoun/mattermost-plugin-circleci)
+[![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-circleci)
+[![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-circleci)](https://github.com/mattermost/mattermost-plugin-circleci/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mattermost/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/mattermost/mattermost-plugin-circleci)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
 A [Mattermost Plugin](https://developers.mattermost.com/extend/plugins/) for [CircleCI](https://circleci.com) to interact with jobs, builds or workflows and receive notifications in Mattermost channels.
@@ -11,23 +11,29 @@ This plugin uses the CircleCI Orb for Mattermost Plugin by **[@nathanaelhoun](ht
 
 ## Table of Contents
 
--   [Audience](#audience)
--   [About the CircleCI Plugin](#about-the-circleci-plugin)
--   [Prerequisites](#prerequisites)
--   [Installation instructions](#installation-instructions)
--   [Configuration](#configuration)
--   [Onboarding Your Users](#onboarding-your-users)
--   [Slash Commands](#slash-commands)
-    -   [Overview](#overview)
-    -   [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
-    -   [Approve a workflow from Mattermost](#approve-a-workflow-from-mattermost)
-    -   [Manage environment variables](#manage-environment-variables)
-    -   [Get insights of your projects](#get-insights-of-your-projects)
--   [Frequently Asked Questions](#frequently-asked-questions)
--   [License](#license)
--   [Contributing](#contributing)
--   [Thanks to](#thanks-to)
--   [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
+- [Table of Contents](#table-of-contents)
+- [Audience](#audience)
+- [About the CircleCI Plugin](#about-the-circleci-plugin)
+- [Prerequisites](#prerequisites)
+- [Installation instructions](#installation-instructions)
+- [Configuration](#configuration)
+  - [Step 1: Configure the Bot account in Mattermost](#step-1-configure-the-bot-account-in-mattermost)
+  - [Step 2: Configure the plugin in Mattermost](#step-2-configure-the-plugin-in-mattermost)
+- [Onboarding Your Users](#onboarding-your-users)
+- [Slash Commands](#slash-commands)
+  - [Overview](#overview)
+  - [Subscribe to webhooks notifications](#subscribe-to-webhooks-notifications)
+    - [Steps](#steps)
+  - [Approve a workflow from Mattermost](#approve-a-workflow-from-mattermost)
+  - [Manage environment variables](#manage-environment-variables)
+  - [Get insights of your projects](#get-insights-of-your-projects)
+- [Frequently Asked Questions](#frequently-asked-questions)
+  - [How does the plugin save user data for each connected CircleCI user?](#how-does-the-plugin-save-user-data-for-each-connected-circleci-user)
+  - [How do I share feedback on this plugin?](#how-do-i-share-feedback-on-this-plugin)
+- [License](#license)
+- [Contributing](#contributing)
+- [Thanks to](#thanks-to)
+- [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
 
 ![Mattermost plugin CircleCI in action](./docs/trigger-pipeline-and-get-notifications.gif)
 
@@ -57,7 +63,7 @@ This guide assumes you have:
 
 ## Installation instructions
 
-1. Go to the [releases page of this Github repository](https://github.com/nathanaelhoun/mattermost-plugin-circleci/releases) and download the latest release for your Mattermost server.
+1. Go to the [releases page of this Github repository](https://github.com/mattermost/mattermost-plugin-circleci/releases) and download the latest release for your Mattermost server.
 2. Upload this file in the Mattermost System Console under **System Console > Plugins > Management** to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. Activate the plugin at **System Console > Plugins > Management**.
 
@@ -194,7 +200,7 @@ CircleCI user tokens are AES encrypted with an At Rest Encryption Key configured
 
 ### How do I share feedback on this plugin?
 
-Feel free to create a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community instance to discuss.
+Feel free to create a [Github Issue](https://github.com/mattermost/mattermost-plugin-circleci/issues/new/choose) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community instance to discuss.
 
 ## License
 

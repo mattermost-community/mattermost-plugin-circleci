@@ -8,57 +8,52 @@ import (
 )
 
 const (
-	storeTokenSuffix          = "_circleci_token"  // Full key format is userID_circleci_token
-	defaultProjectStoreSuffix = "_default_project" // Full key format is userID_default_project
+	storeTokenPrefix          = "circleci_token_"  // Full key format is circleci_token_userID
+	defaultProjectStorePrefix = "default_project_" // Full key format is default_project_userID
 	subscriptionsKVKey        = "subscriptions"
 )
 
-// GetTokenForUser returns false if no token is saved for this user
-func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, bool) {
-	raw, appErr := s.api.KVGet(userID + storeTokenSuffix)
+// GetTokenForUser returns the token or an empty string if no token is stored
+func (s *Store) GetTokenForUser(userID, encryptionKey string) (string, error) {
+	raw, appErr := s.api.KVGet(storeTokenPrefix + userID)
 	if appErr != nil {
-		s.api.LogError("Unable to reach KVStore", "KVStore error", appErr)
-		return "", false
+		return "", errors.Wrap(appErr, "Unable to reach KVStore")
 	}
 
 	if raw == nil {
-		return "", false
+		return "", nil
 	}
 
 	userToken, err := decrypt([]byte(encryptionKey), string(raw))
 	if err != nil {
-		s.api.LogWarn("Failed to decrypt access token", "error", err)
-		return "", false
+		return "", errors.Wrap(err, "Failed to decrypt access token")
 	}
 
-	return userToken, true
+	return userToken, nil
 }
 
-// StoreTokenForUser returns false if the token has not been saved
-func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) bool {
+// StoreTokenForUser returns an error if the token has not been saved
+func (s *Store) StoreTokenForUser(userID, circleciToken, encryptionKey string) error {
 	encryptedToken, err := encrypt([]byte(encryptionKey), circleciToken)
 	if err != nil {
-		s.api.LogError("Error occurred while encrypting access token", "error", err)
-		return false
+		return errors.Wrap(err, "Error occurred while encrypting access token")
 	}
 
-	appErr := s.api.KVSet(userID+storeTokenSuffix, []byte(encryptedToken))
+	appErr := s.api.KVSet(storeTokenPrefix+userID, []byte(encryptedToken))
 	if appErr != nil {
-		s.api.LogError("Unable to write in KVStore", "KVStore error", appErr)
-		return false
+		return errors.Wrap(appErr, "Unable to write in KVStore")
 	}
 
-	return true
+	return nil
 }
 
-// DeleteTokenForUser return sfalse if the token has not been deleted
-func (s *Store) DeleteTokenForUser(userID string) bool {
-	if appErr := s.api.KVDelete(userID + storeTokenSuffix); appErr != nil {
-		s.api.LogError("Unable to delete from KVStore", "KVStore error", appErr)
-		return false
+// DeleteTokenForUser returns an error if the token has not been deleted
+func (s *Store) DeleteTokenForUser(userID string) error {
+	if appErr := s.api.KVDelete(storeTokenPrefix + userID); appErr != nil {
+		return errors.Wrap(appErr, "Unable to delete from KVStore")
 	}
 
-	return true
+	return nil
 }
 
 // GetSubscriptions returns all the subscriptions from the KVStore
@@ -96,13 +91,12 @@ func (s *Store) StoreSubscriptions(subs *Subscriptions) error {
 	return nil
 }
 
-// GetDefaultProject retrieves the saved default project for the user. Returns nil incase no default project exists for the user
+// GetDefaultProject retrieves the saved default project for the user. Returns nil if no default project exists for the user
 func (s *Store) GetDefaultProject(userID string) (*ProjectIdentifier, error) {
 	var pi *ProjectIdentifier
 
-	savedDefaultProject, err := s.api.KVGet(userID + defaultProjectStoreSuffix)
+	savedDefaultProject, err := s.api.KVGet(defaultProjectStorePrefix + userID)
 	if err != nil {
-		s.api.LogError("Unable to get default project", err)
 		return nil, errors.Wrap(err, "Unable to get default project")
 	}
 
@@ -124,9 +118,9 @@ func (s *Store) StoreDefaultProject(userID string, project ProjectIdentifier) er
 		return errors.Wrap(err, "error while converting project to json")
 	}
 
-	if err := s.api.KVSet(userID+defaultProjectStoreSuffix, projectBytes); err != nil {
-		s.api.LogError("Unable to save default project", err)
+	if err := s.api.KVSet(defaultProjectStorePrefix+userID, projectBytes); err != nil {
 		return errors.Wrap(err, "Unable to save default project")
 	}
+
 	return nil
 }

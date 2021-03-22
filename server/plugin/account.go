@@ -6,9 +6,9 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
-	v1 "github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle/v1"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
+	v1 "github.com/mattermost/mattermost-plugin-circleci/server/circle/v1"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -88,7 +88,7 @@ func (p *Plugin) executeAccountView(args *model.CommandArgs, token string) (*mod
 		projectsListString += fmt.Sprintf("%s - [CircleCI page](%s)\n", projectIdentifier.ToMarkdown(), projectIdentifier.ToCircleURL())
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
@@ -125,10 +125,16 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, "Please tell me your token. If you don't have a CircleCI Personal API Token, you can get one from your [Account Dashboard](https://circleci.com/account/api)"), nil
 	}
 
-	if token, exists := p.Store.GetTokenForUser(args.UserId, p.getConfiguration().EncryptionKey); exists {
-		user, err := v1.GetCircleUserInfo(token)
-		if err != nil {
-			p.API.LogWarn("Internal error when reaching CircleCI", "error", err)
+	existingToken, err := p.Store.GetTokenForUser(args.UserId, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Cannot get token for user")
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when connecting to CircleCI, please retry."), nil
+	}
+
+	if existingToken != "" {
+		user, errToken := v1.GetCircleUserInfo(existingToken)
+		if errToken != nil {
+			p.API.LogWarn("Internal error when reaching CircleCI", "error", errToken)
 			return p.sendEphemeralResponse(args, ":red_circle: Internal error when reaching CircleCI"), nil
 		}
 
@@ -145,7 +151,8 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 		return p.sendEphemeralResponse(args, ":red_circle: Can't connect to CircleCI. Please check that your user API token is valid"), nil
 	}
 
-	if ok := p.Store.StoreTokenForUser(args.UserId, circleciToken, p.getConfiguration().EncryptionKey); !ok {
+	if err := p.Store.StoreTokenForUser(args.UserId, circleciToken, p.getConfiguration().EncryptionKey); err != nil {
+		p.API.LogError("Error when storing token", err)
 		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing your token"), nil
 	}
 
@@ -153,7 +160,8 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 }
 
 func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	if ok := p.Store.DeleteTokenForUser(args.UserId); !ok {
+	if err := p.Store.DeleteTokenForUser(args.UserId); err != nil {
+		p.API.LogError("Error when deleting token", err)
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
