@@ -18,7 +18,7 @@ const manifestStr = `
   "homepage_url": "https://mattermost.gitbook.io/circle-ci-plugin",
   "support_url": "https://github.com/mattermost/mattermost-plugin-circleci/issues",
   "release_notes_url": "https://github.com/mattermost/mattermost-plugin-circleci/releases",
-  "icon_path": "public/circleci.png",
+  "icon_path": "assets/circleci.svg",
   "version": "1.1.0",
   "min_server_version": "5.12.0",
   "server": {
