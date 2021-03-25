@@ -157,14 +157,11 @@ func (p *Plugin) sendIncorrectSubcommandResponse(args *model.CommandArgs, curren
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	split := strings.Fields(args.Command)
 
-	command := ""
-	if 1 < len(split) {
-		command = split[1]
-	}
-
-	if command == commandHelpTrigger {
+	if len(split) <= 1 || split[1] == commandHelpTrigger {
 		return p.sendHelpResponse(args, "")
 	}
+
+	command := split[1]
 
 	token, shouldBeConnected := getTokenIfConnected(p, split, args.UserId)
 	if shouldBeConnected {
