@@ -1,3 +1,4 @@
+# Frequently Asked Questions
 
 ## How does the plugin save user data for each connected CircleCI user?
 
