@@ -41,6 +41,7 @@ func (p *Plugin) createPost(r *model.Post) *model.Post {
 	post, appErr := p.API.CreatePost(r)
 	if appErr != nil {
 		p.API.LogError("Error when creating post", "appError", appErr)
+		return nil
 	}
 
 	return post
