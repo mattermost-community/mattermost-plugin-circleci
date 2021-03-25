@@ -143,7 +143,7 @@ func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
 
 	p.sendEphemeralPost(
 		args,
-		"Recently built pipelines in your organizaition",
+		"Recently built pipelines in your organization",
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
