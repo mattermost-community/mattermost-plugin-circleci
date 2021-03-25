@@ -57,7 +57,7 @@ func getSubscribeAutoCompleteData() *model.AutocompleteData {
 	return subscribe
 }
 
-func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken string, project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeSubscribe(args *model.CommandArgs, circleciToken string, project *store.ProjectIdentifier, split []string) (*model.CommandResponse, *model.AppError) {
 	subcommand := commandHelpTrigger
 	if len(split) > 0 {
 		subcommand = split[0]
@@ -65,41 +65,41 @@ func (p *Plugin) executeSubscribe(context *model.CommandArgs, circleciToken stri
 
 	switch subcommand {
 	case commandHelpTrigger:
-		return p.sendHelpResponse(context, subscribeTrigger)
+		return p.sendHelpResponse(args, subscribeTrigger)
 
 	case subscribeListTrigger:
-		return executeSubscribeList(p, context)
+		return executeSubscribeList(p, args)
 
 	case subscribeChannelTrigger:
 		var rawFlags []string
 		if len(split) > 1 {
 			rawFlags = split[1:]
 		}
-		return executeSubscribeChannel(p, context, project, rawFlags)
+		return executeSubscribeChannel(p, args, project, rawFlags)
 
 	case subscribeUnsubscribeChannelTrigger:
 
-		return executeUnsubscribeChannel(p, context, project)
+		return executeUnsubscribeChannel(p, args, project)
 
 	case subscribeListAllChannelsTrigger:
-		return executeSubscribeListAllChannels(p, context, project)
+		return executeSubscribeListAllChannels(p, args, project)
 
 	default:
-		return p.sendIncorrectSubcommandResponse(context, subscribeTrigger)
+		return p.sendIncorrectSubcommandResponse(args, subscribeTrigger)
 	}
 }
 
-func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeList(p *Plugin, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	allSubs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, ":red_circle: Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
-	subs := allSubs.GetSubscriptionsByChannel(context.ChannelId)
+	subs := allSubs.GetSubscriptionsByChannel(args.ChannelId)
 	if subs == nil {
 		return p.sendEphemeralResponse(
-			context,
+			args,
 			fmt.Sprintf(
 				":information_source: This channel is not subscribed to any repository. Try `/%s %s %s`",
 				commandTrigger,
@@ -125,20 +125,20 @@ func executeSubscribeList(p *Plugin, context *model.CommandArgs) (*model.Command
 		attachment.Fields = append(attachment.Fields, sub.ToSlackAttachmentField(username))
 	}
 
-	p.sendEphemeralPost(context, "", []*model.SlackAttachment{&attachment})
+	p.sendEphemeralPost(args, "", []*model.SlackAttachment{&attachment})
 	return &model.CommandResponse{}, nil
 }
 
-func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *store.ProjectIdentifier, rawFlags []string) (*model.CommandResponse, *model.AppError) {
+func executeSubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.ProjectIdentifier, rawFlags []string) (*model.CommandResponse, *model.AppError) {
 	subs, err := p.Store.GetSubscriptions()
 	if err != nil {
 		p.API.LogError("Unable to get subscriptions", "err", err)
-		return p.sendEphemeralResponse(context, ":red_circle: Internal error when getting subscriptions"), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when getting subscriptions"), nil
 	}
 
 	newSub := &store.Subscription{
-		ChannelID:          context.ChannelId,
-		CreatorID:          context.UserId,
+		ChannelID:          args.ChannelId,
+		CreatorID:          args.UserId,
 		Flags:              store.SubscriptionFlags{},
 		ProjectInformation: *project,
 	}
@@ -148,7 +148,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 			flag := arg[2:]
 			err := newSub.Flags.AddFlag(flag)
 			if err != nil {
-				return p.sendEphemeralResponse(context, fmt.Sprintf(
+				return p.sendEphemeralResponse(args, fmt.Sprintf(
 					"Unknown subscription flag `%s`. Try `/%s %s %s`",
 					arg,
 					commandTrigger,
@@ -164,7 +164,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {
 		p.API.LogError("Unable to store subscriptions", "error", err)
-		return p.sendEphemeralResponse(context, ":red_circle: Internal error when storing new subscription."), nil
+		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
 	usernameText := ""
@@ -225,7 +225,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 		p.API.LogError("Unable to create post", "appError", appErr)
 	}
 
-	return p.sendEphemeralResponse(context, ephemeralMsg), nil
+	return p.sendEphemeralResponse(args, ephemeralMsg), nil
 }
 
 func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.ProjectIdentifier) (*model.CommandResponse, *model.AppError) {
