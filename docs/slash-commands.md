@@ -20,29 +20,29 @@ By default, the commands use the project set by `/circleci config`, unless a spe
 
 ## Subscribe your channel to notifications
 
-|                                           |                                                                          |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| `/circleci subscription list`             | List the CircleCI subscriptions for the current channel.                 |
-| `/circleci subscription add [--flags]`    | Subscribe the current channel to CircleCI notifications for a project.   |
-| `/circleci subscription remove [--flags]` | Unsubscribe the current channel to CircleCI notifications for a project. |
-| `/circleci subscription list-channels`    | List all channels in the current team subscribed to a project.           |
+|                                           |                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| `/circleci subscription list`             | List the CircleCI subscriptions for the current channel.           |
+| `/circleci subscription add [--flags]`    | Subscribe the current channel to CircleCI notifications.           |
+| `/circleci subscription remove [--flags]` | Unsubscribe the current channel to CircleCI notifications.         |
+| `/circleci subscription list-channels`    | List all channels in the current team subscribed to notifications. |
 
 ## Get insights about workflows and jobs
 
-|                               |                                                                             |
-| ----------------------------- | --------------------------------------------------------------------------- |
-| `/circleci insight workflows` | Get summary of metrics for workflows over past 90 days for a given project. |
-| `/circleci insight jobs`      | Get summary of metrics for jobs over past 90 days for a given workflow.     |
+|                               |                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| `/circleci insight workflows` | Get summary of metrics for workflows over past 90 days.                 |
+| `/circleci insight jobs`      | Get summary of metrics for jobs over past 90 days for a given workflow. |
 
 ## Manage CircleCI projects
 
-|                                        |                                                    |
-| -------------------------------------- | -------------------------------------------------- |
-| `/circleci project list-followed`      | List followed projects.                            |
-| `/circleci project recent-build`       | List the 10 last builds for a project.             |
-| `/circleci project env list`           | List a masked environment variables for a project. |
-| `/circleci project env add name value` | Add an environment variable for a project.         |
-| `/circleci project env remove name`    | Remove an environment variable from a project.     |
+|                                        |                                 |
+| -------------------------------------- | ------------------------------- |
+| `/circleci project list-followed`      | List followed projects.         |
+| `/circleci project recent-build`       | List the 10 last builds.        |
+| `/circleci project env list`           | List environment variables.     |
+| `/circleci project env add name value` | Add an environment variable.    |
+| `/circleci project env remove name`    | Remove an environment variable. |
 
 ## Manage pipelines
 
@@ -50,8 +50,8 @@ By default, the commands use the project set by `/circleci config`, unless a spe
 
 |                                     |                                                                                                      |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `/circleci pipeline trigger branch` | Trigger pipeline for a project for a given branch.                                                   |
-| `/circleci pipeline trigger tag`    | Trigger pipeline for a project for a given tag.                                                      |
+| `/circleci pipeline trigger branch` | Trigger pipeline for a given branch.                                                                 |
+| `/circleci pipeline trigger tag`    | Trigger pipeline for a given tag.                                                                    |
 | `/circleci pipeline workflows`      | Get list of workflows for given pipeline.                                                            |
 | `/circleci pipeline recent`         | Get list of all recently ran pipelines.                                                              |
 | `/circleci pipeline all`            | Get list of all pipelines for a project.                                                             |
