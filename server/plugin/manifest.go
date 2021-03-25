@@ -17,9 +17,9 @@ const manifestStr = `
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
   "homepage_url": "https://mattermost.gitbook.io/circle-ci-plugin",
   "support_url": "https://github.com/mattermost/mattermost-plugin-circleci/issues",
-  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-circleci/releases",
+  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-circleci/releases/tag/v1.2.0",
   "icon_path": "assets/circleci.svg",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "min_server_version": "5.12.0",
   "server": {
     "executables": {
