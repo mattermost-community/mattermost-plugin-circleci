@@ -214,9 +214,7 @@ func executeSubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.
 		UserId:    p.botUserID,
 		Message:   msg,
 	}
-	if _, appErr := p.API.CreatePost(channelPost); appErr != nil {
-		p.API.LogError("Unable to create post", "appError", appErr)
-	}
+	p.createPost(channelPost)
 
 	return p.sendEphemeralResponse(args, ephemeralMsg), nil
 }
@@ -249,9 +247,7 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *stor
 			manifest.HomepageURL,
 		),
 	}
-	if _, appErr := p.API.CreatePost(channelPost); appErr != nil {
-		p.API.LogError("Unable to create post", "appError", appErr)
-	}
+	p.createPost(channelPost)
 
 	return p.sendEphemeralResponse(args,
 		fmt.Sprintf(":white_check_mark: Successfully unsubscribed this channel from %s", project.ToMarkdown()),
