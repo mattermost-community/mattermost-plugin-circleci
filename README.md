@@ -19,4 +19,4 @@ Visit the [CircleCI plugin documentation](https://mattermost.gitbook.io/circle-c
 
 ## Security Vulnerability Disclosure
 
-Please report any security vulnerability to @darkLord19 or @nathanaelhoun on [Community Mattermost](https://community.mattermost.com).
+Please report any security vulnerability to [https://mattermost.com/security-vulnerability-report/](https://mattermost.com/security-vulnerability-report/).
