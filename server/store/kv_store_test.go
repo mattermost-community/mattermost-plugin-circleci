@@ -29,9 +29,8 @@ var _ = Describe("Project", func() {
 	})
 
 	It("should save default project", func() {
-
 		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		pluginAPIMock.On("KVSet", "123_default_project", mock.AnythingOfType("[]uint8")).Return(nil)
+		pluginAPIMock.On("KVSet", "default_project_123", mock.AnythingOfType("[]uint8")).Return(nil)
 
 		err := store.StoreDefaultProject("123", *project)
 
@@ -39,9 +38,8 @@ var _ = Describe("Project", func() {
 	})
 
 	It("should return the error in case something goes wrong", func() {
-
 		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
-		pluginAPIMock.On("KVSet", "123_default_project", mock.AnythingOfType("[]uint8")).Return(&model.AppError{})
+		pluginAPIMock.On("KVSet", "default_project_123", mock.AnythingOfType("[]uint8")).Return(&model.AppError{})
 
 		err := store.StoreDefaultProject("123", *project)
 
@@ -49,10 +47,9 @@ var _ = Describe("Project", func() {
 	})
 
 	It("should retrieve the saved default project", func() {
-
 		project := &ProjectIdentifier{VCSType: "gh", Org: "som-org", Project: "some-project"}
 		projectBytes, _ := json.Marshal(project)
-		pluginAPIMock.On("KVGet", "123_default_project").Return(projectBytes, nil)
+		pluginAPIMock.On("KVGet", "default_project_123").Return(projectBytes, nil)
 
 		savedProject, err := store.GetDefaultProject("123")
 

@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -153,7 +153,7 @@ func (p *Plugin) sendIncorrectSubcommandResponse(args *model.CommandArgs, curren
 	return p.sendEphemeralResponse(args, message), nil
 }
 
-// ExecuteCommand is called when a slash command registred by the plugin is called
+// ExecuteCommand is called when a slash command registered by the plugin is called
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	split := strings.Fields(args.Command)
 
@@ -260,8 +260,12 @@ func getTokenIfConnected(p *Plugin, split []string, userID string) (string, bool
 		return "", false
 	}
 
-	circleToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
-	if !exists {
+	circleToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
+
+	if circleToken == "" {
 		return "", true
 	}
 

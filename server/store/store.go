@@ -4,7 +4,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
-// Store is an interface to interact with the KV Store.
+// Store is an interface to interact with the KV Store
 type Store struct {
 	api plugin.API
 }

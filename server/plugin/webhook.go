@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 // WebhookInfo from the webhook
@@ -20,15 +20,15 @@ type WebhookInfo struct {
 	Username               string `json:"Username"`
 	WorkflowID             string `json:"WorkflowID"`
 	JobName                string `json:"JobName"`
-	CircleBuildNumber      int    `json:"CircleBuildNumber"`
 	CircleBuildURL         string `json:"CircleBuildURL"`
 	Branch                 string `json:"Branch"`
 	Tag                    string `json:"Tag"`
 	Commit                 string `json:"Commit"`
 	AssociatedPullRequests string `json:"AssociatedPullRequests"`
+	Message                string `json:"Message"`
+	CircleBuildNumber      int    `json:"CircleBuildNumber"`
 	IsFailed               bool   `json:"IsFailed"`
 	IsWaitingApproval      bool   `json:"IsWaitingApproval"`
-	Message                string `json:"Message"`
 }
 
 func (wi *WebhookInfo) toProjectIdentifier() *store.ProjectIdentifier {
@@ -149,6 +149,7 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 	channelsToPost := allSubs.GetFilteredChannelsForJob(wi.toProjectIdentifier(), wi.IsFailed)
 	if channelsToPost == nil {
 		p.API.LogWarn("The received webhook doesn't match any subscriptions (or flags)", "webhook", wi)
+		return
 	}
 
 	postWithoutChannel := wi.ToPost(buildFailedIconURL, buildGreenIconURL)

@@ -42,7 +42,7 @@ func BuildStatusToMarkdown(build *v1.Build, badgeFailedURL string, badgePassedUR
 func BuildStartTimeToString(build *v1.Build) string {
 	buildStartTime := "Not Run"
 	if build.StartTime != nil {
-		buildStartTime = build.StartTime.Format("15:04:05 on 2006-01-02") // TODO Improve format
+		buildStartTime = build.StartTime.Format("15:04:05 on 2006-01-02")
 	}
 
 	return buildStartTime

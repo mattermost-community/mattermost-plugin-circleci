@@ -2,20 +2,19 @@
 
 ## I saw a bug, I have a feature request or a suggestion
 
-Please fill a [Github Issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
+Please raise a [GitHub Issue](https://github.com/mattermost/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
 
 ## Development
 
-
-Pull Requests are welcome! You can contact us on the [Mattermost Community ~Plugin: CircleCI channel](https://community.mattermost.com/core/channels/plugin-circleci).
+Pull Requests are welcome! You can contact us on the Mattermost Community Server in the [Plugin: CircleCI channel](https://community.mattermost.com/core/channels/plugin-circleci).
 
 This plugin only contains a server portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
 
-To avoid having to manually install your plugin, build and deploy your plugin using one of the following options.
+To avoid having to manually install your plugin, build and deploy your plugin using one of the following options:
 
-### Deploying with Local Mode
+### Deploying with local mode
 
-If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
+If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, run:
 
 ```
 make deploy

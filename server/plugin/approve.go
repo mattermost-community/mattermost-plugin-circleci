@@ -6,27 +6,31 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
 )
 
 func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("Mattermost-User-Id")
-	circleciToken, exists := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
+	if err != nil {
+		p.API.LogError("Error when getting token", err)
+	}
 
-	if !exists {
+	if circleciToken == "" {
 		http.NotFound(w, r)
 	}
+
 	requestData := model.PostActionIntegrationRequestFromJson(r.Body)
 	if requestData == nil {
 		p.API.LogError("Empty request data")
 		return
 	}
 
-	usernameText := ""
+	username := ""
 	if user, appErr := p.API.GetUser(userID); appErr != nil {
 		p.API.LogError("Unable to get user", "userID", userID)
 	} else {
-		usernameText = fmt.Sprintf(" by @%s", user.Username)
+		username = user.Username
 	}
 
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
@@ -44,7 +48,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 			}
 
 			filteredAttach.Color = "#50F100" // green
-			filteredAttach.Title = fmt.Sprintf("This CircleCI workflow have been approved%s", usernameText)
+			filteredAttach.Title = fmt.Sprintf("This CircleCI workflow have been approved by %s", username)
 			newAttachments = append(newAttachments, filteredAttach)
 		}
 		originalPost.DelProp("attachments")
@@ -80,11 +84,10 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	responsePost.Message = fmt.Sprintf("Job successfully approved by %s :+1:", username)
 	if _, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID); err != nil {
 		p.API.LogError("Error occurred while approving", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
-	} else {
-		responsePost.Message = fmt.Sprintf("Job successfully approved%s :+1:", usernameText)
 	}
 
 	if _, appErr := p.API.CreatePost(responsePost); appErr != nil {

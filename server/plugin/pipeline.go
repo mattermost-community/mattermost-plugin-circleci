@@ -7,8 +7,8 @@ import (
 	"github.com/darkLord19/circleci-v2/circleci"
 	"github.com/mattermost/mattermost-server/v5/model"
 
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/circle"
-	"github.com/nathanaelhoun/mattermost-plugin-circleci/server/store"
+	"github.com/mattermost/mattermost-plugin-circleci/server/circle"
+	"github.com/mattermost/mattermost-plugin-circleci/server/store"
 )
 
 const (
@@ -67,10 +67,10 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 
 	trigger := model.NewAutocompleteData(pipelineTriggerTrigger, pipelineTriggerHint, pipelineTriggerHelpText)
 	branch := model.NewAutocompleteData(branchTrigger, branchTriggerHint, branchTriggerHelpText)
-	branch.AddTextArgument("<branch>", "The branch for which pipeline will be trigeered. Leave empty for master", "")
+	branch.AddTextArgument("<branch>", "The branch for which pipeline will be triggered. Leave empty for master", "")
 	branch.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	tag := model.NewAutocompleteData(tagTrigger, tagTriggerHint, tagTriggerHelpText)
-	tag.AddTextArgument("<tag>", "The tag for which pipeline will be trigeered.", "")
+	tag.AddTextArgument("<tag>", "The tag for which pipeline will be triggered.", "")
 	tag.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	trigger.AddCommand(branch)
 	trigger.AddCommand(tag)
@@ -141,7 +141,7 @@ func (p *Plugin) executePipelineGetRecent(args *model.CommandArgs, token string,
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"Recently built pipelines in your organizaition",
 		[]*model.SlackAttachment{
@@ -172,7 +172,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Recently built pipelines for project %s.", project.ToMarkdown()),
 		[]*model.SlackAttachment{
@@ -203,7 +203,7 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Pipelines recently ran by you for project %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{
@@ -246,7 +246,7 @@ func (p *Plugin) executePipelineGetWorkflowByID(args *model.CommandArgs,
 		)
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		fmt.Sprintf("Workflows for given pipeline ID: `%s`", pipelineID),
 		[]*model.SlackAttachment{
@@ -294,7 +294,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 		), nil
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
@@ -355,7 +355,7 @@ func (p *Plugin) executePipelineGetSingle(args *model.CommandArgs, token string,
 		return p.sendEphemeralResponse(args, ":red_circle: Could not get info about pipeline"), nil
 	}
 
-	_ = p.sendEphemeralPost(
+	p.sendEphemeralPost(
 		args,
 		"",
 		[]*model.SlackAttachment{
