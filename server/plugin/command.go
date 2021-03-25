@@ -22,7 +22,7 @@ const (
 	errorConnectionText = ":red_circle: Error when reaching to CircleCI. Please check that your token is still valid"
 
 	namedArgProjectName     = "project"
-	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
+	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb"
 
 	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding .go file
 	commandHelpTrigger = "help"

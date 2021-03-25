@@ -15,23 +15,23 @@ const (
 		subscribeChannelTrigger + "|" +
 		subscribeUnsubscribeChannelTrigger + "|" +
 		subscribeListAllChannelsTrigger + ">"
-	subscribeHelpText = "Manage your subscriptions."
+	subscribeHelpText = "Manage your subscriptions"
 
 	subscribeListTrigger  = "list"
 	subscribeListHint     = ""
-	subscribeListHelpText = "List the CircleCI subscriptions for the current channel."
+	subscribeListHelpText = "List the CircleCI subscriptions for the current channel"
 
 	subscribeChannelTrigger  = "add"
 	subscribeChannelHint     = "[--flags]"
-	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications for a project."
+	subscribeChannelHelpText = "Subscribe the current channel to CircleCI notifications"
 
 	subscribeUnsubscribeChannelTrigger  = "remove"
 	subscribeUnsubscribeChannelHint     = "[--flags]"
-	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications for a project."
+	subscribeUnsubscribeChannelHelpText = "Unsubscribe the current channel to CircleCI notifications"
 
 	subscribeListAllChannelsTrigger  = "list-channels"
 	subscribeListAllChannelsHint     = ""
-	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to a project."
+	subscribeListAllChannelsHelpText = "List all channels in the current team subscribed to notifications"
 )
 
 func getSubscribeAutoCompleteData() *model.AutocompleteData {
@@ -177,7 +177,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 	var msg string
 	var ephemeralMsg string
 	if wasUpdated {
-		msg = fmt.Sprintf("The subscription for this channel to the project %s has been been updated with flags `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
+		msg = fmt.Sprintf("The subscription for this channel to %s has been been updated with flags `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
 			project.ToMarkdown(),
 			newSub.Flags.String(),
 			usernameText,
@@ -185,14 +185,14 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 		)
 		ephemeralMsg = fmt.Sprintf(
 			":white_check_mark: Subscription successfully updated!\n"+
-				"The [Mattermost Plugin Notify Orb](%s) should already be configured, but you can check it to be sure. See the full guide [here](%s/user-guide/webhooks-notifications)\n"+
+				"The [Mattermost Plugin Notify Orb](%s) should already be configured, but you can check it to be sure. See the full guide [here](%s/user-guide/webhooks-notifications).\n"+
 				"**Webhook URL: `%s`**",
 			circleOrbDocumentationLink,
 			manifest.HomepageURL,
 			p.getWebhookURL(),
 		)
 	} else {
-		msg = fmt.Sprintf("This channel has been subscribed to notifications from the project %s with flags: `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
+		msg = fmt.Sprintf("This channel has been subscribed to notifications from %s with flags: `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
 			project.ToMarkdown(),
 			newSub.Flags.String(),
 			usernameText,
@@ -201,7 +201,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 		ephemeralMsg = fmt.Sprintf(
 			":white_check_mark: Subscription saved! \n"+
 				"#### How to finish setup:\n"+
-				"(See the full guide [here](%s/admin-guide/configuration))\n"+
+				"(See the full guide [here](%s/admin-guide/configuration)).\n"+
 				"1. Setup the [Mattermost Plugin Notify Orb](%s) for your CircleCI project\n"+
 				"2. Add the `MM_WEBHOOK` environment variable to your project using the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or with \n```\n/%s %s %s %s MM_WEBHOOK %s\n```\n"+
 				"**Webhook URL: `%s`**",

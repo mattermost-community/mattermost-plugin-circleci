@@ -69,7 +69,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	jobs, err := circle.GetWorkflowJobs(circleciToken, workFlowID)
 
 	if err != nil {
-		p.API.LogError("Error occurred while getting workflow jobs", err)
+		p.API.LogError("Error occurred while getting workflow jobs", "error", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
 		if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
 			p.API.LogError("Error when creating post", "appError", appErr)
@@ -86,7 +86,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 
 	responsePost.Message = fmt.Sprintf("Job successfully approved by %s :+1:", username)
 	if _, err = circle.ApproveJob(circleciToken, approvalRequestID, workFlowID); err != nil {
-		p.API.LogError("Error occurred while approving", err)
+		p.API.LogError("Error occurred while approving", "error", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
 	}
 

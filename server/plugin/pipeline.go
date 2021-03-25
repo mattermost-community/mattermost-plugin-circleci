@@ -23,15 +23,15 @@ const (
 
 	pipelineGetAllTrigger  = "all"
 	pipelineGetAllHint     = ""
-	pipelineGetAllHelpText = "Get list of all pipelines for a project"
+	pipelineGetAllHelpText = "Get list of all pipelines"
 
 	pipelineGetMineTrigger  = "mine"
 	pipelineGetMineHint     = ""
-	pipelineGetMineHelpText = "Get list of all pipelines triggered by you for a project"
+	pipelineGetMineHelpText = "Get list of all pipelines triggered by you"
 
 	pipelineTriggerTrigger  = "trigger"
 	pipelineTriggerHint     = "<" + branchTrigger + "|" + tagTrigger + ">"
-	pipelineTriggerHelpText = "Trigger pipeline for a project"
+	pipelineTriggerHelpText = "Trigger pipeline"
 
 	branchTrigger         = "branch"
 	branchTriggerHint     = "<branch name>"
@@ -70,7 +70,7 @@ func getPipelineAutoCompeleteData() *model.AutocompleteData {
 	branch.AddTextArgument("<branch>", "The branch for which pipeline will be triggered. Leave empty for master", "")
 	branch.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	tag := model.NewAutocompleteData(tagTrigger, tagTriggerHint, tagTriggerHelpText)
-	tag.AddTextArgument("<tag>", "The tag for which pipeline will be triggered.", "")
+	tag.AddTextArgument("<tag>", "The tag for which pipeline will be triggered", "")
 	tag.AddNamedDynamicListArgument(namedArgProjectName, namedArgProjectHelpText, routeAutocomplete+subrouteFollowedProjects, false)
 	trigger.AddCommand(branch)
 	trigger.AddCommand(tag)
@@ -174,7 +174,7 @@ func (p *Plugin) executePipelineGetAllForProject(args *model.CommandArgs, token 
 
 	p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Recently built pipelines for project %s.", project.ToMarkdown()),
+		fmt.Sprintf("Recently built pipelines for %s.", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
@@ -205,7 +205,7 @@ func (p *Plugin) executePipelineGetAllForProjectByMe(args *model.CommandArgs, to
 
 	p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Pipelines recently ran by you for project %s", project.ToMarkdown()),
+		fmt.Sprintf("Pipelines recently ran by you for %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Pipelines list",
@@ -290,7 +290,7 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 	if err != nil {
 		p.API.LogError("Could not trigger pipeline", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf(":red_circle: Could not trigger pipeline for project %s on %s: `%s` ", project.ToMarkdown(), subcmd, input),
+			fmt.Sprintf(":red_circle: Could not trigger pipeline for %s on %s: `%s` ", project.ToMarkdown(), subcmd, input),
 		), nil
 	}
 
@@ -299,8 +299,8 @@ func (p *Plugin) executeTriggerPipeline(args *model.CommandArgs, token string,
 		"",
 		[]*model.SlackAttachment{
 			{
-				Fallback: fmt.Sprintf("Pipeline triggered successfully for project %s for %s: %s", project.ToMarkdown(), subcmd, input),
-				Pretext:  fmt.Sprintf(":white_check_mark: Triggered pipeline for project %s, %s: `%s`", project.ToMarkdown(), subcmd, input),
+				Fallback: fmt.Sprintf("Pipeline triggered successfully for %s for %s: %s", project.ToMarkdown(), subcmd, input),
+				Pretext:  fmt.Sprintf(":white_check_mark: Triggered pipeline for %s, %s: `%s`", project.ToMarkdown(), subcmd, input),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "Number",
