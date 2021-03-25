@@ -26,12 +26,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := ""
-	if user, appErr := p.API.GetUser(userID); appErr != nil {
-		p.API.LogError("Unable to get user", "userID", userID)
-	} else {
-		username = user.Username
-	}
+	username := p.getUsername(userID)
 
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
 	if appErr != nil {

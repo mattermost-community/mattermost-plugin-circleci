@@ -167,20 +167,13 @@ func executeSubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.
 		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
-	usernameText := ""
-	if user, appErr := p.API.GetUser(newSub.CreatorID); appErr != nil {
-		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", newSub.CreatorID)
-	} else {
-		usernameText = fmt.Sprintf(" by @%s", user.Username)
-	}
-
 	var msg string
 	var ephemeralMsg string
 	if wasUpdated {
-		msg = fmt.Sprintf("The subscription for this channel to %s has been been updated with flags `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
+		msg = fmt.Sprintf("The subscription for this channel to %s has been been updated with flags `%s` by %s. [Learn more](%s/user-guide/webhooks-notifications)",
 			project.ToMarkdown(),
 			newSub.Flags.String(),
-			usernameText,
+			p.getUsername(args.UserId),
 			manifest.HomepageURL,
 		)
 		ephemeralMsg = fmt.Sprintf(
@@ -192,10 +185,10 @@ func executeSubscribeChannel(p *Plugin, args *model.CommandArgs, project *store.
 			p.getWebhookURL(),
 		)
 	} else {
-		msg = fmt.Sprintf("This channel has been subscribed to notifications from %s with flags: `%s`%s. [Learn more](%s/user-guide/webhooks-notifications)",
+		msg = fmt.Sprintf("This channel has been subscribed to notifications from %s with flags: `%s` by %s. [Learn more](%s/user-guide/webhooks-notifications)",
 			project.ToMarkdown(),
 			newSub.Flags.String(),
-			usernameText,
+			p.getUsername(args.UserId),
 			manifest.HomepageURL,
 		)
 		ephemeralMsg = fmt.Sprintf(
@@ -246,20 +239,13 @@ func executeUnsubscribeChannel(p *Plugin, args *model.CommandArgs, project *stor
 		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing new subscription."), nil
 	}
 
-	usernameText := ""
-	if user, appErr := p.API.GetUser(args.UserId); appErr != nil {
-		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", args.UserId)
-	} else {
-		usernameText = fmt.Sprintf(" by @%s", user.Username)
-	}
-
 	channelPost := &model.Post{
 		ChannelId: args.ChannelId,
 		UserId:    p.botUserID,
 		Message: fmt.Sprintf(
-			"This channel has been unsubscribed to notifications from %s%s. [Learn more](%s/user-guide/webhooks-notifications)",
+			"This channel has been unsubscribed to notifications from %s by %s. [Learn more](%s/user-guide/webhooks-notifications)",
 			project.ToMarkdown(),
-			usernameText,
+			p.getUsername(args.UserId),
 			manifest.HomepageURL,
 		),
 	}

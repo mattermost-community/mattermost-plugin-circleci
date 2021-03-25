@@ -42,6 +42,16 @@ func (p *Plugin) getWebhookURL() string {
 	return fmt.Sprintf("%s/plugins/%s%s/%s", siteURL, manifest.Id, routeWebhooks, webhookSecret)
 }
 
+func (p *Plugin) getUsername(userID string) string {
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", userID)
+		return "unknown user"
+	}
+
+	return user.Username
+}
+
 // HTTP Utils below
 
 func (p *Plugin) respondAndLogErr(w http.ResponseWriter, code int, err error) {
