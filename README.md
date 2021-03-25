@@ -15,7 +15,11 @@ Visit the [CircleCI plugin documentation](https://mattermost.gitbook.io/circle-c
 
 -   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
 -   **[@TomTucka](https://github.com/TomTucka)** and **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
--   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community
+-   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community.
+
+## Contributing
+
+Visit our [Development guide](https://mattermost.gitbook.io/circle-ci-plugin/contributing/development) for information about how to contribute to this plugin.
 
 ## Security Vulnerability Disclosure
 
