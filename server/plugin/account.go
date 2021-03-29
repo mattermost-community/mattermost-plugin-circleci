@@ -152,7 +152,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 	}
 
 	if err := p.Store.StoreTokenForUser(args.UserId, circleciToken, p.getConfiguration().EncryptionKey); err != nil {
-		p.API.LogError("Error when storing token", err)
+		p.API.LogError("Error when storing token", "error", err)
 		return p.sendEphemeralResponse(args, ":red_circle: Internal error when storing your token"), nil
 	}
 
@@ -161,7 +161,7 @@ func (p *Plugin) executeAccountConnect(args *model.CommandArgs, split []string) 
 
 func (p *Plugin) executeAccountDisconnect(args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	if err := p.Store.DeleteTokenForUser(args.UserId); err != nil {
-		p.API.LogError("Error when deleting token", err)
+		p.API.LogError("Error when deleting token", "error", err)
 		return p.sendEphemeralResponse(args, errorConnectionText), nil
 	}
 
