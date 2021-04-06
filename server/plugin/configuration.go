@@ -85,7 +85,7 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	if strings.Contains(configuration.WebhooksSecret, "/") {
-		return errors.New("please regenerate the Webhook Secret, it mustn't contains a '/'")
+		return errors.New("please regenerate the Webhook Secret, it cannot contain a '/'")
 	}
 
 	if configuration.EncryptionKey == "" {

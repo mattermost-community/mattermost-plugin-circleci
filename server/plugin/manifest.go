@@ -37,7 +37,7 @@ const manifestStr = `
         "key": "WebhooksSecret",
         "display_name": "Webhooks Secret:",
         "type": "generated",
-        "help_text": "The secret used to authenticate the webhook to Mattermost. Should not contain a forwardslash.",
+        "help_text": "The secret used to authenticate the webhook to Mattermost. Should not contain a forward slash.",
         "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing CircleCI integrations.",
         "placeholder": "",
         "default": null
