@@ -2,7 +2,7 @@
 
 ## I saw a bug, I have a feature request or a suggestion
 
-Please fill a [GitHub issue](https://github.com/nathanaelhoun/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
+Please fill a [GitHub issue](https://github.com/mattermost/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
 
 ## Development
 
