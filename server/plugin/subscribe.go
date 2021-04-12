@@ -160,6 +160,7 @@ func executeSubscribeChannel(p *Plugin, context *model.CommandArgs, project *sto
 	}
 
 	p.API.LogDebug("Adding a new subscription", "subscription", newSub)
+
 	wasUpdated := subs.AddSubscription(newSub)
 
 	if err := p.Store.StoreSubscriptions(subs); err != nil {

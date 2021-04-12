@@ -214,3 +214,23 @@ func EnvVarExists(apiToken string, projectSlug string, name string) (circleci.En
 		return val, false, fmt.Errorf("error while checking if env var %s exist", name)
 	}
 }
+
+func GetProjectBySlug(apiToken, projectSlug string) (*circleci.Project, error) {
+	project, resp, err := client.ProjectApi.GetProjectBySlug(getContext(apiToken), projectSlug)
+	resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return &project, nil
+}
+
+func CheckIfProjectExist(apiToken, projectSlug string) (bool, error) {
+	project, err := GetProjectBySlug(apiToken, projectSlug)
+	if err != nil {
+		return false, err
+	}
+	if project == nil {
+		return false, nil
+	}
+	return true, nil
+}
