@@ -63,7 +63,7 @@ func (p *Plugin) executeWorkflow(args *model.CommandArgs, circleciToken string, 
 	if len(split) > 1 {
 		workflow = split[1]
 	} else if subcommand != commandHelpTrigger {
-		return p.sendEphemeralResponse(args, "Please precise the ID of the workflow."), nil
+		return p.sendEphemeralResponse(args, "Please specify the ID of the workflow."), nil
 	}
 
 	switch subcommand {
