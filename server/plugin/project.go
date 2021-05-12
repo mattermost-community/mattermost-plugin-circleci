@@ -152,7 +152,7 @@ func (p *Plugin) executeProjectRecentBuilds(args *model.CommandArgs, circleciTok
 
 	if len(split) < 1 {
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf("Please precise the branch name. Selected project: %s", project.ToMarkdown()),
+			fmt.Sprintf("Please specify the branch name. Selected project: %s", project.ToMarkdown()),
 		), nil
 	}
 
