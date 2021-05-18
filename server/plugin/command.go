@@ -22,7 +22,7 @@ const (
 	errorConnectionText = ":red_circle: Error when reaching to CircleCI. Please check that your token is still valid"
 
 	namedArgProjectName     = "project"
-	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb."
+	namedArgProjectHelpText = "The project identifier. VCS is either gh or bb"
 
 	// All the Triggers and HelpTexts for the subcommands are defined in the corresponding .go file
 	commandHelpTrigger = "help"
@@ -157,14 +157,11 @@ func (p *Plugin) sendIncorrectSubcommandResponse(args *model.CommandArgs, curren
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	split := strings.Fields(args.Command)
 
-	command := ""
-	if 1 < len(split) {
-		command = split[1]
-	}
-
-	if command == commandHelpTrigger {
+	if len(split) <= 1 || split[1] == commandHelpTrigger {
 		return p.sendHelpResponse(args, "")
 	}
+
+	command := split[1]
 
 	token, shouldBeConnected := getTokenIfConnected(p, split, args.UserId)
 	if shouldBeConnected {

@@ -12,6 +12,7 @@ import (
 
 // Plugin utils
 
+// sendEphemeralPost send an ephemeral post as a response to a slash command
 func (p *Plugin) sendEphemeralPost(args *model.CommandArgs, message string, attachments []*model.SlackAttachment) *model.Post {
 	post := &model.Post{
 		UserId:    p.botUserID,
@@ -29,17 +30,40 @@ func (p *Plugin) sendEphemeralPost(args *model.CommandArgs, message string, atta
 	)
 }
 
-// Wrapper of p.sendEphemeralPost() to one-line the return statements in all executeCommand functions
+// sendEphemeralResponse is a wrapper of p.sendEphemeralPost() to one-line the return statements in all executeCommand functions
 func (p *Plugin) sendEphemeralResponse(args *model.CommandArgs, message string) *model.CommandResponse {
 	p.sendEphemeralPost(args, message, nil)
 	return &model.CommandResponse{}
 }
 
+// createPost creates a post or logs an error
+func (p *Plugin) createPost(r *model.Post) *model.Post {
+	post, appErr := p.API.CreatePost(r)
+	if appErr != nil {
+		p.API.LogError("Error when creating post", "appError", appErr)
+		return nil
+	}
+
+	return post
+}
+
+// getWebhookURL generates the webhook URL from the SiteURL and the webhook secret
 func (p *Plugin) getWebhookURL() string {
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 	siteURL = strings.TrimRight(siteURL, "/")
 	webhookSecret := p.getConfiguration().WebhooksSecret
 	return fmt.Sprintf("%s/plugins/%s%s/%s", siteURL, manifest.Id, routeWebhooks, webhookSecret)
+}
+
+// getUsername returns the username of the given user, or "unknown user" if not found
+func (p *Plugin) getUsername(userID string) string {
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		p.API.LogError("Unable to get user informations", "appError", appErr, "userID", userID)
+		return "unknown user"
+	}
+
+	return user.Username
 }
 
 // HTTP Utils below

@@ -24,7 +24,7 @@ const (
 
 	projectRecentBuildsTrigger  = "recent-build"
 	projectRecentBuildsHint     = "<branch>"
-	projectRecentBuildsHelpText = "List the 10 last builds for a project"
+	projectRecentBuildsHelpText = "List the 10 last builds"
 
 	projectEnvVarTrigger  = "env"
 	projectEnvVarHint     = "<" + projectEnvVarListTrigger + "|" + projectEnvVarAddTrigger + "|" + projectEnvVarAddTrigger + ">"
@@ -32,15 +32,15 @@ const (
 
 	projectEnvVarListTrigger  = "list"
 	projectEnvVarListHint     = ""
-	projectEnvVarListHelpText = "List all environment variables for a project"
+	projectEnvVarListHelpText = "List all environment variables"
 
 	projectEnvVarAddTrigger  = "add"
 	projectEnvVarAddHint     = "<env-var name> <value>"
-	projectEnvVarAddHelpText = "Add a new environment variable for a project"
+	projectEnvVarAddHelpText = "Add a new environment variable"
 
 	projectEnvVarDelTrigger  = "remove"
 	projectEnvVarDelHint     = "<env-var name>"
-	projectEnvVarDelHelpText = "Delete an environment variable for a project"
+	projectEnvVarDelHelpText = "Delete an environment variable"
 )
 
 func getProjectAutoComplete() *model.AutocompleteData {
@@ -232,7 +232,7 @@ func (p *Plugin) executeProjectListEnvVars(args *model.CommandArgs, token string
 
 	p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Environment variables for project %s", project.ToMarkdown()),
+		fmt.Sprintf("Environment variables for %s", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Environment Variable List",
