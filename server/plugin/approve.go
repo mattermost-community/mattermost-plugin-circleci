@@ -26,12 +26,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := ""
-	if user, appErr := p.API.GetUser(userID); appErr != nil {
-		p.API.LogError("Unable to get user", "userID", userID)
-	} else {
-		username = user.Username
-	}
+	username := p.getUsername(userID)
 
 	originalPost, appErr := p.API.GetPost(requestData.PostId)
 	if appErr != nil {
@@ -71,9 +66,7 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p.API.LogError("Error occurred while getting workflow jobs", "circleciError", err)
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
-		if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
-			p.API.LogError("Error when creating post", "appError", appErr)
-		}
+		p.createPost(responsePost)
 		return
 	}
 
@@ -90,7 +83,5 @@ func (p *Plugin) httpHandleApprove(w http.ResponseWriter, r *http.Request) {
 		responsePost.Message = fmt.Sprintf("Cannot approve the Job from mattermost. Please approve [here](https://circleci.com/workflow-run/%s)", workFlowID)
 	}
 
-	if _, appErr := p.API.CreatePost(responsePost); appErr != nil {
-		p.API.LogError("Error when creating post", "appError", appErr)
-	}
+	p.createPost(responsePost)
 }

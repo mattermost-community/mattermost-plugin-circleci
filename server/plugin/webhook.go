@@ -159,8 +159,6 @@ func (p *Plugin) httpHandleWebhook(w http.ResponseWriter, r *http.Request) {
 		post := postWithoutChannel.Clone()
 		post.ChannelId = channel
 
-		if _, appErr := p.API.CreatePost(post); appErr != nil {
-			p.API.LogError("Failed to create Post", "appError", appErr)
-		}
+		p.createPost(post)
 	}
 }

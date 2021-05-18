@@ -20,7 +20,7 @@ const (
 
 	insightMetricsWorkflowJobsTrigger  = "jobs"
 	insightMetricsWorkflowJobsHint     = "<workflow name>"
-	insightMetricsWorkflowJobsHelpText = "Get summary metrics for a project workflow's jobs"
+	insightMetricsWorkflowJobsHelpText = "Get summary metrics for a workflow's jobs"
 )
 
 func getInsightAutoCompeleteData() *model.AutocompleteData {
@@ -60,7 +60,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token st
 	if err != nil {
 		p.API.LogError("Failed to get workflow metrics", "project", project.ToSlug(), "error", err)
 		return p.sendEphemeralResponse(args,
-			fmt.Sprintf(":red_circle: Could not get workflow metrics for project %s", project.ToMarkdown()),
+			fmt.Sprintf(":red_circle: Could not get workflow metrics for %s", project.ToMarkdown()),
 		), nil
 	}
 
@@ -83,7 +83,7 @@ func (p *Plugin) executeInsightWorkflowMetrics(args *model.CommandArgs, token st
 
 	p.sendEphemeralPost(
 		args,
-		fmt.Sprintf("Workflow metrics for project %s ", project.ToMarkdown()),
+		fmt.Sprintf("Workflow metrics for %s ", project.ToMarkdown()),
 		[]*model.SlackAttachment{
 			{
 				Fallback: "Workflow Metrics",
