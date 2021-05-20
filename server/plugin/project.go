@@ -252,9 +252,9 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 	varName := split[0]
 	varValue := split[1]
 
-	val, exist, errr := circle.EnvVarExists(token, project.ToSlug(), varName)
-	if errr != nil {
-		p.API.LogError("err while getting env var details", errr.Error())
+	val, exist, err := circle.EnvVarExists(token, project.ToSlug(), varName)
+	if err != nil {
+		p.API.LogError("err while getting env var details", "circleciError", err.Error())
 	}
 	if exist {
 		attach := model.SlackAttachment{}
@@ -297,7 +297,7 @@ func (p *Plugin) executeProjectAddEnvVar(args *model.CommandArgs, token string, 
 
 		return &model.CommandResponse{}, nil
 	}
-	err := circle.AddEnvVar(token, project.ToSlug(), varName, varValue)
+	err = circle.AddEnvVar(token, project.ToSlug(), varName, varValue)
 	if err != nil {
 		p.API.LogError("Unable to set CircleCI envVar", "error", err)
 		return p.sendEphemeralResponse(args,

@@ -68,8 +68,6 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 		panic("setConfiguration called with the existing configuration")
 	}
 
-	configuration.WebhooksSecret = strings.TrimSpace(configuration.WebhooksSecret)
-	configuration.EncryptionKey = strings.TrimSpace(configuration.EncryptionKey)
 	p.configuration = configuration
 }
 
@@ -84,6 +82,14 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	if configuration.WebhooksSecret == "" {
 		return errors.New("please provide the Webhook Secret")
+	}
+
+	if strings.Contains(configuration.WebhooksSecret, "/") {
+		return errors.New("please regenerate the Webhook Secret, it cannot contain a '/'")
+	}
+
+	if configuration.EncryptionKey == "" {
+		return errors.New("please provide the At Rest Encryption Key")
 	}
 
 	p.setConfiguration(configuration)

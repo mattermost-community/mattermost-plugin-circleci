@@ -43,7 +43,7 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 	userID := r.Header.Get("Mattermost-User-Id")
 	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
 	if err != nil {
-		p.API.LogError("Error when getting token", err)
+		p.API.LogError("Error when getting token", "error", err)
 	}
 
 	if circleciToken == "" {
@@ -77,13 +77,13 @@ func (p *Plugin) httpHandleEnvOverwrite(w http.ResponseWriter, r *http.Request) 
 		responsePost.Message = fmt.Sprintf(":white_check_mark: Successfully added environment variable `%s=%s` for project %s", name, val, projectSlug)
 
 		if err := circle.AddEnvVar(circleciToken, projectSlug, name, val); err != nil {
-			p.API.LogError("Error occurred while adding environment variable", err)
+			p.API.LogError("Error occurred while adding environment variable", "circleciError", err)
 			responsePost.Message = fmt.Sprintf(":red_circle: Could not overwrite env var %s:%s from Mattermost.", name, val)
 		}
 
 		p.API.UpdateEphemeralPost(userID, responsePost)
 
 	default:
-		p.API.LogError("action %s is not valid", action)
+		p.API.LogError("action is not valid", "action", action)
 	}
 }

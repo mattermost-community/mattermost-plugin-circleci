@@ -15,7 +15,7 @@ func (p *Plugin) autocompleteFollowedProject(w http.ResponseWriter, r *http.Requ
 	userID := r.Header.Get("Mattermost-User-Id")
 	circleciToken, err := p.Store.GetTokenForUser(userID, p.getConfiguration().EncryptionKey)
 	if err != nil {
-		p.API.LogError("Error when getting token", err)
+		p.API.LogError("Error when getting token", "error", err)
 	}
 
 	if circleciToken == "" {
