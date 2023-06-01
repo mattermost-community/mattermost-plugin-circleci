@@ -159,7 +159,7 @@ By default, the commands use the project set by `/circleci config`, unless a spe
 | `/circleci workflow rerun`  | Rerun a given workflow.             |
 | `/circleci workflow cancel` | Cancel a given workflow.            |
 
-### Webhooks Notifications
+### Webhooks notifications
 
 Subscribe a channel to notifications from a CircleCI project.
 
