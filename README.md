@@ -192,7 +192,22 @@ Feel free to create a [GitHub Issue](https://github.com/mattermost/mattermost-pl
 
 ## Contributing
 
-Visit our [Development guide](https://mattermost.gitbook.io/circle-ci-plugin/contributing/development) for information about how to contribute to this plugin.
+### I saw a bug, I have a feature request or a suggestion
+
+Please fill a [GitHub issue](https://github.com/mattermost/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
+
+## Development
+
+Pull Requests are welcome! You can contact us on the [Mattermost Community ~Plugin: CircleCI channel](https://community.mattermost.com/core/channels/plugin-circleci).
+
+This plugin only contains a server portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) for more information about developing and extending plugins.
+
+To avoid having to manually install your plugin, build and deploy your plugin using one of the following options.
+
+### Deploy with Local Mode
+
+If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
+
 
 ## Security Vulnerability Disclosure
 
