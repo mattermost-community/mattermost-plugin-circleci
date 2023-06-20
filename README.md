@@ -1,9 +1,9 @@
+# Mattermost CircleCI Plugin 
+
 [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-circleci)
 [![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-circleci)](https://github.com/mattermost/mattermost-plugin-circleci/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mattermost/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/mattermost/mattermost-plugin-circleci)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
-
-# Mattermost CircleCI Plugin 
 
 The [CircleCI Orb for Mattermost Plugin](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify) by [@nathanaelhoun](https://github.com/nathanaelhoun) interacts with jobs, builds, or workflows, and receives notifications in Mattermost channels. The Mattermost CircleCI plugin uses a personal API token to connect your Mattermost account to CircleCI to interact with the API.
 
@@ -18,15 +18,13 @@ Use the Circle CI plugin for:
 
 For more information about contributing to this plugin, visit the Development section.
 
-
-
 ## Thanks to
 
 -   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
 -   **[@TomTucka](https://github.com/TomTucka)** and **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
 -   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community.
 
-## Admin Guide
+## Admin guide
 
 ### Prerequisites 
 
@@ -40,14 +38,14 @@ This guide assumes you have:
 
 ### Installation
 
-#### Marketplace Installation
+#### Marketplace installation
 
 1. Go to **Main Menu > Plugin Marketplace** in Mattermost.
 2. Search for "Circle CI" or find the plugin from the list.
 3. Select **Install**.
 4. When the plugin has downloaded and been installed, select **Configure**.
 
-#### Manual Installation
+#### Manual installation
 
 If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-circleci/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same used by the Marketplace. To learn more about how to upload a plugin, see [the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 
@@ -76,7 +74,7 @@ To generate the keys needed, go to **System Console > Plugins > CircleCI**:
 
 You're all set!
 
-### Onboarding Your Users
+### Onboard your users
 
 When you’ve tested the plugin and confirmed it’s working, notify your team so they can connect their CircleCI account to Mattermost and get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
 
@@ -87,7 +85,7 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 > 
 > Then, take a look at the slash commands section ([link](https://mattermost.gitbook.io/circle-ci-plugin/user-guide/slash-commands) or `/circleci help`) for details about how to use the plugin.
 
-### Slash Commands
+### Slash commands
 
 After your System Admin has configured the CircleCI plugin, run `/circleci account connect` in a Mattermost channel to connect your Mattermost and CircleCI accounts.
 By default, the commands use the project set by `/circleci config`, unless a specific project is specified by the argument `--project <vcs/org-name/project-name>` (possible on all commands).
@@ -178,7 +176,7 @@ Subscribe a channel to notifications from a CircleCI project.
   -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret.
   -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`.
 
-## Frequently Asked Questions
+## Frequently asked questions
 
 ### How does the plugin save user data for each connected CircleCI user?
 
@@ -190,7 +188,7 @@ Wanting to share feedback on this plugin?
 
 Feel free to create a [GitHub Issue](https://github.com/mattermost/mattermost-plugin-circleci/issues) or join the [CircleCI Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on the Mattermost Community server to discuss.
 
-## Contributing
+## Contribute
 
 ### I saw a bug, I have a feature request or a suggestion
 
@@ -204,11 +202,11 @@ This plugin only contains a server portion. Read our documentation about the [De
 
 To avoid having to manually install your plugin, build and deploy your plugin using one of the following options.
 
-### Deploy with Local Mode
+### Deploy with local mode
 
 If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
 
 
-## Security Vulnerability Disclosure
+## Security vulnerability disclosure
 
 Please report any security vulnerability to [https://mattermost.com/security-vulnerability-report/](https://mattermost.com/security-vulnerability-report/).
