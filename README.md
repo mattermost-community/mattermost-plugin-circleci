@@ -47,7 +47,7 @@ This guide assumes you have:
 
 #### Manual installation
 
-If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-circleci/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same used by the Marketplace. To learn more about how to upload a plugin, see [the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
+If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-circleci/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same used by the Marketplace. To learn more about how to upload a plugin, see [the documentation](https://developers.mattermost.com/integrate/plugins/using-and-managing-plugins).
 
 ### Configuration
 
@@ -83,7 +83,7 @@ When you’ve tested the plugin and confirmed it’s working, notify your team s
 > We've set up the Mattermost CircleCI plugin, so you can get notifications from CircleCI in Mattermost. 
 > To get started, run the `/circleci account connect` slash command from any channel within Mattermost to connect your Mattermost account with CircleCI. 
 > 
-> Then, take a look at the slash commands section ([link](https://mattermost.gitbook.io/circle-ci-plugin/user-guide/slash-commands) or `/circleci help`) for details about how to use the plugin.
+> Then, take a look at the slash commands section below or `/circleci help`) for details about how to use the plugin.
 
 ### Slash commands
 
