@@ -15,7 +15,7 @@ const manifestStr = `
   "id": "com.github.mattermost.plugin-circleci",
   "name": "CircleCI",
   "description": "Interact with CircleCI workflows, jobs and builds with slash commands",
-  "homepage_url": "https://mattermost.gitbook.io/circle-ci-plugin",
+  "homepage_url": "https://mattermost.com/pl/mattermost-plugin-circleci",
   "support_url": "https://github.com/mattermost/mattermost-plugin-circleci/issues",
   "release_notes_url": "https://github.com/mattermost/mattermost-plugin-circleci/releases/tag/v1.2.0",
   "icon_path": "assets/circleci.svg",
@@ -30,7 +30,7 @@ const manifestStr = `
     "executable": ""
   },
   "settings_schema": {
-    "header": "Link your Mattermost instance with your CircleCI projects. Check the [plugin documentation](https://mattermost.gitbook.io/circle-ci-plugin) to learn how to configure it.",
+    "header": "Link your Mattermost instance with your CircleCI projects. Check the [plugin documentation](https://mattermost.com/pl/mattermost-plugin-circleci) to learn how to configure it.",
     "footer": "",
     "settings": [
       {
