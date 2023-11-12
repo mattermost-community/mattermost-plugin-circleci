@@ -5,7 +5,30 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mattermost/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/mattermost/mattermost-plugin-circleci)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
+**Help Wanted Tickets [here]**
+
+# Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Admin Guide](docs/admin-guide.md)
+- [End User Guide](#end-user-guide)
+- [Contribute](#contribute)
+- [License](#license)
+- [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
+- [Get Help](#get-help)
+
+## Overview
+
 The [CircleCI Orb for Mattermost Plugin](https://github.com/nathanaelhoun/circleci-orb-mattermost-plugin-notify) by [@nathanaelhoun](https://github.com/nathanaelhoun) interacts with jobs, builds, or workflows, and receives notifications in Mattermost channels. The Mattermost CircleCI plugin uses a personal API token to connect your Mattermost account to CircleCI to interact with the API.
+
+### Thanks to
+
+-   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
+-   **[@TomTucka](https://github.com/TomTucka)** and **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
+-   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community.
+
+## Features
 
 Use the Circle CI plugin for:
 
@@ -18,72 +41,15 @@ Use the Circle CI plugin for:
 
 For more information about contributing to this plugin, visit the Development section.
 
-## Thanks to
 
--   **[@jszwedko](https://github.com/jszwedko)** for his [CircleCI v1 Go API](https://github.com/jszwedko/go-circleci)
--   **[@TomTucka](https://github.com/TomTucka)** and **[@darkLord19](https://github.com/darkLord19)** for this [CircleCI v2 Go API](https://github.com/darkLord19/circleci-v2)
--   [Mattermost](https://mattermost.org) for providing a good software and maintaining a great community.
 
-## Admin guide
+## [Admin Guide](docs/admin-guide.md)
 
-### Prerequisites 
+## End User Guide
 
-This guide is intended for Mattermost System Admins setting up the CircleCI plugin and Mattermost users who want information about the plugin functionality.
+### Get Started
 
-This guide assumes you have:
-
-* A project, hosted on github.com or bitbucket.org.
-* A CircleCI SaaS account, which has access to the projects/org you want to interact with.
-* Mattermost self-hosted: A Mattermost server running v5.12 or higher, with a configured Site URL. v5.24 or higher is recommended to have the autocomplete feature.
-
-### Installation
-
-#### Marketplace installation
-
-1. Go to **Main Menu > Plugin Marketplace** in Mattermost.
-2. Search for "Circle CI" or find the plugin from the list.
-3. Select **Install**.
-4. When the plugin has downloaded and been installed, select **Configure**.
-
-#### Manual installation
-
-If your server doesn't have access to the internet, you can download the latest [plugin binary release](https://github.com/mattermost/mattermost-plugin-circleci/releases) and upload it to your server via **System Console > Plugin Management**. The releases on this page are the same used by the Marketplace. To learn more about how to upload a plugin, see [the documentation](https://developers.mattermost.com/integrate/plugins/using-and-managing-plugins).
-
-### Configuration
-
-#### Step 1: Configure the bot account in Mattermost
-
-If you have an existing Mattermost user account with the name circleci, the plugin will post using the circleci account but without a BOT tag.
-
-To prevent this, either:
-
-Convert the circleci user to a bot account by running `mattermost user convert circleci --bot` in the Mattermost CLI.
-
-or
-
-If the user is an existing user account you want to preserve, change its username and restart the Mattermost server. Once restarted, the plugin will create a bot account with the name `circleci`.
-
-#### Step 2: Configure the plugin in Mattermost
-
-To generate the keys needed, go to **System Console > Plugins > CircleCI**:
-
-1. Generate a new value for **Webhooks Secret**. If the generated secret contains a forwardslash, please regenerate it.
-2. Generate a new value for **At Rest Encryption Key**.
-3. Select **Save**.
-4. Go to **System Console > Plugins > Management** and choose **Enable** to enable the CircleCI plugin.
-
-You're all set!
-
-### Onboard your users
-
-When you’ve tested the plugin and confirmed it’s working, notify your team so they can connect their CircleCI account to Mattermost and get started. Copy and paste the text below, edit it to suit your requirements, and send it out.
-
-> Hi team,
-> 
-> We've set up the Mattermost CircleCI plugin, so you can get notifications from CircleCI in Mattermost. 
-> To get started, run the `/circleci account connect` slash command from any channel within Mattermost to connect your Mattermost account with CircleCI. 
-> 
-> Then, take a look at the slash commands section below or `/circleci help`) for details about how to use the plugin.
+### Use the Plugin
 
 ### Slash commands
 
@@ -157,32 +123,15 @@ By default, the commands use the project set by `/circleci config`, unless a spe
 | `/circleci workflow rerun`  | Rerun a given workflow.             |
 | `/circleci workflow cancel` | Cancel a given workflow.            |
 
-### Webhooks notifications
 
-Subscribe a channel to notifications from a CircleCI project.
 
-1. In the channel you want to subscribe to notifications, type `/circleci subscription add`.
+### Frequently asked questions
 
-  -   You can add the optional flag `--only-failed` to only receive notifications about failed jobs.
-  -   You can temporarily use a project different that the one set with `/circleci default`, using the optional flag `--project <vcs/org-name/project-name>`.
-
-2. Install the [Mattermost Plugin Notify Orb for CircleCI ](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify) in your project. You usually do this by modifying the `.circleci/config.yml`.
-
-  -   You can add the command [status](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#usage-status) in your existing jobs to get a notification when this job is finished.
-  -   Or you can set up the [approval-notification](https://circleci.com/developer/orbs/orb/nathanaelhoun/mattermost-plugin-notify#jobs-approval-notification) job in a workflow to warn that you have a workflow waiting for approval.
-
-3. Add the webhook URL given by `/circleci subscription` add to your CircleCI project.
-
-  -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret.
-  -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`.
-
-## Frequently asked questions
-
-### How does the plugin save user data for each connected CircleCI user?
+#### How does the plugin save user data for each connected CircleCI user?
 
 CircleCI user tokens are AES encrypted with an At Rest Encryption Key configured in the plugin's settings page. Once encrypted, the tokens are saved in the `PluginKeyValueStore` table in your Mattermost database.
 
-### How do I share feedback on this plugin?
+#### How do I share feedback on this plugin?
 
 Wanting to share feedback on this plugin?
 
@@ -194,7 +143,7 @@ Feel free to create a [GitHub Issue](https://github.com/mattermost/mattermost-pl
 
 Please fill a [GitHub issue](https://github.com/mattermost/mattermost-plugin-circleci/issues/new/choose), it will be very useful!
 
-## Development
+### Development
 
 Pull Requests are welcome! You can contact us on the [Mattermost Community ~Plugin: CircleCI channel](https://community.mattermost.com/core/channels/plugin-circleci).
 
@@ -206,7 +155,10 @@ To avoid having to manually install your plugin, build and deploy your plugin us
 
 If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
 
+## License
 
 ## Security vulnerability disclosure
 
 Please report any security vulnerability to [https://mattermost.com/security-vulnerability-report/](https://mattermost.com/security-vulnerability-report/).
+
+## Get Help
