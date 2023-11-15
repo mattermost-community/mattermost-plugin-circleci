@@ -71,7 +71,7 @@ Subscribe a channel to notifications from a CircleCI project.
   -   You may add it to the orb as a parameter, but this is discouraged as it should be treated like a secret.
   -   You should add it as a Environment Variable named `MM_WEBHOOK`, through the [CircleCI UI](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) or using the plugin: `/circleci project env add MM_WEBHOOK <webhook-url>`.
 
-## [Slash Commands](../README.md/#slash-commands)
+## Slash Commands
 
 ## Onboard Users
 

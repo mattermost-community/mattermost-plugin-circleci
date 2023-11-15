@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mattermost/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/mattermost/mattermost-plugin-circleci)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
-**Help Wanted Tickets [here]**
+**Help Wanted Tickets [here](https://github.com/mattermost/mattermost-plugin-circleci/issues)**
 
 # Contents
 
@@ -155,10 +155,10 @@ To avoid having to manually install your plugin, build and deploy your plugin us
 
 If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. After configuring it, just run:
 
-## License
-
 ## Security vulnerability disclosure
 
 Please report any security vulnerability to [https://mattermost.com/security-vulnerability-report/](https://mattermost.com/security-vulnerability-report/).
 
 ## Get Help
+
+For questions, suggestions, and help, visit the  [Circleci Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci?) on our Community server.
