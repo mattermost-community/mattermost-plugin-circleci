@@ -161,4 +161,4 @@ Please report any security vulnerability to [https://mattermost.com/security-vul
 
 ## Get Help
 
-For questions, suggestions, and help, visit the  [Circleci Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci?) on our Community server.
+For questions, suggestions, and help, visit the  [Circleci Plugin channel](https://community.mattermost.com/core/channels/plugin-circleci) on our Community server.
