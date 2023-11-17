@@ -15,7 +15,6 @@
 - [Admin Guide](docs/admin-guide.md)
 - [End User Guide](#end-user-guide)
 - [Contribute](#contribute)
-- [License](#license)
 - [Security Vulnerability Disclosure](#security-vulnerability-disclosure)
 - [Get Help](#get-help)
 
