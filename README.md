@@ -3,6 +3,7 @@
 [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-circleci/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-circleci)
 [![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-circleci)](https://github.com/mattermost/mattermost-plugin-circleci/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mattermost/mattermost-plugin-circleci)](https://goreportcard.com/report/github.com/mattermost/mattermost-plugin-circleci)
+[![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-circleci/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-circleci/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
 [![Mattermost Community Channel](https://img.shields.io/badge/Mattermost%20Community-~Plugin%3A%20CircleCI-blue)](https://community.mattermost.com/core/channels/plugin-circleci)
 
 **Help Wanted Tickets [here](https://github.com/mattermost/mattermost-plugin-circleci/issues)**
